@@ -24,17 +24,16 @@ function performAction(event)
 {
 	switch(event.command) {
 		case "displayMessages":
-			if(!safari.application.activeBrowserWindow) {
-				safari.application.openBrowserWindow();
-			}
-			var msgTab = safari.application.activeBrowserWindow.openTab();
+			var site = safari.extension.settings.getItem("site");
+			var url;
 			if(hasSession) {
-				msgTab.url = "https://www.gayromeo.com/mitglieder/messages/uebersicht.php?suche=neue";
+				url = "https://"+site+"/mitglieder/messages/uebersicht.php?suche=neue";
 			} else {
 				msgCount = 0;
 				validateToolbarItems();
-				msgTab.url = "https://www.gayromeo.com/";
+				url = "https://"+site+"/";
 			}
+			activateTabWithURL(url);
 		break;
 	}
 }
@@ -62,6 +61,32 @@ function validateToolbarItems()
 			items[i].validate();
 		}
 	}
+}
+
+function activateTabWithURL(url)
+{
+	var theTab;
+
+	for(windowIndex in safari.application.browserWindows) {
+		for(tabIndex in safari.application.browserWindows[windowIndex].tabs) {
+			theTab = safari.application.browserWindows[windowIndex].tabs[tabIndex];
+			if((theTab.url && theTab.url.indexOf(url)!=-1) || theTab.url=="") {
+				theTab.browserWindow.activate();
+				theTab.activate();
+				if(!theTab.url || theTab.url!=url) {
+					theTab.url = url;
+				}
+				return theTab;
+			}
+		}
+	}
+
+	if(!safari.application.activeBrowserWindow) {
+		safari.application.openBrowserWindow();
+	}
+	theTab = safari.application.activeBrowserWindow.openTab();
+	theTab.url = url;
+	return theTab;
 }
 
 </script>
