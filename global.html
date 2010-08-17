@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<script>
+
+var msgCount = 0;
+var hasSession = 0;
+
+safari.application.addEventListener("validate", performValidation, false);
+safari.application.addEventListener("command", performAction, false);
+safari.application.addEventListener("message", handleMessage, false);
+
+function performValidation(event)
+{
+	switch(event.command) {
+		case "displayMessages":
+			if("badge" in event.target) {
+				event.target.badge = msgCount;
+				event.target.toolTip = "GRDB (" + (hasSession?"ON: ":"") + msgCount + ")";
+			}
+		break;
+	}
+}
+
+function performAction(event)
+{
+	switch(event.command) {
+		case "displayMessages":
+			if(!safari.application.activeBrowserWindow) {
+				safari.application.openBrowserWindow();
+			}
+			var msgTab = safari.application.activeBrowserWindow.openTab();
+			if(hasSession) {
+				msgTab.url = "https://www.gayromeo.com/mitglieder/messages/uebersicht.php?suche=neue";
+			} else {
+				msgCount = 0;
+				validateToolbarItems();
+				msgTab.url = "https://www.gayromeo.com/";
+			}
+		break;
+	}
+}
+
+function handleMessage(message)
+{
+	switch(message.name) {
+		case "messageCountDidChange":
+			hasSession = 1;
+			msgCount = message.message;
+			validateToolbarItems();
+		break;
+		case "sessionDidEnd":
+			hasSession = 0;
+			validateToolbarItems();
+		break;
+	}
+}
+
+function validateToolbarItems()
+{
+	var items = safari.extension.toolbarItems;
+	for(var i=0; i<items.length; i++) {
+		if(items[i].command==="displayMessages") {
+			items[i].validate();
+		}
+	}
+}
+
+</script>
