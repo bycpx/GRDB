@@ -14,7 +14,7 @@ function performValidation(event)
 		case "displayMessages":
 			if("badge" in event.target) {
 				event.target.badge = msgCount;
-				event.target.toolTip = "GRDB (" + (hasSession?"ON: ":"") + msgCount + ")";
+				event.target.toolTip = "GRDB" + (hasSession?" ("+msgCount+")":"");
 			}
 		break;
 	}
@@ -48,6 +48,7 @@ function handleMessage(message)
 		break;
 		case "sessionDidEnd":
 			hasSession = 0;
+			msgCount = 0;
 			validateToolbarItems();
 		break;
 	}
