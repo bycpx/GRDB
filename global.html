@@ -24,14 +24,15 @@ function performAction(event)
 {
 	switch(event.command) {
 		case "displayMessages":
+			var protocol = safari.extension.settings.getItem("ssl")?"https":"http";
 			var site = safari.extension.settings.getItem("site");
 			var url;
 			if(hasSession) {
-				url = "https://"+site+"/mitglieder/messages/uebersicht.php?suche=neue";
+				url = protocol+"://"+site+"/mitglieder/messages/uebersicht.php?suche=neue";
 			} else {
 				msgCount = 0;
 				validateToolbarItems();
-				url = "https://"+site+"/";
+				url = protocol+"://"+site+"/";
 			}
 			activateTabWithURL(url);
 		break;

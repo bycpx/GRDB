@@ -22,5 +22,15 @@
 			<string>www.planetromeo.com</string>
 		</array>
 	</dict>
+	<dict>
+		<key>DefaultValue</key>
+		<true/>
+		<key>Key</key>
+		<string>ssl</string>
+		<key>Title</key>
+		<string>Use secure connection</string>
+		<key>Type</key>
+		<string>CheckBox</string>
+	</dict>
 </array>
 </plist>
