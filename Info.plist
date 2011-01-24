@@ -22,17 +22,17 @@
 		<array>
 			<dict>
 				<key>Command</key>
-				<string>displayMessages</string>
+				<string>displayMenu</string>
 				<key>Identifier</key>
-				<string>GRDBMsg</string>
+				<string>GRDBMenu</string>
 				<key>Image</key>
 				<string>brief16.png</string>
 				<key>Label</key>
-				<string>Messages</string>
+				<string>GRDB</string>
 				<key>Palette Label</key>
-				<string>Display Messages</string>
+				<string>GRDB Menu</string>
 				<key>Tool Tip</key>
-				<string>Display new messages</string>
+				<string>Show GRDB Menu</string>
 			</dict>
 		</array>
 	</dict>

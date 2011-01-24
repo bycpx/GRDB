@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <script>
 
+var base = safari.extension.settings["protocol"] + "://" + safari.extension.settings["site"];
 var msgCount = 0;
-var hasSession = 0;
+var hasSession = false;
 
 safari.application.addEventListener("validate", performValidation, false);
 safari.application.addEventListener("command", performAction, false);
 safari.application.addEventListener("message", handleMessage, false);
+safari.extension.settings.addEventListener("change", handleSettingsChange, false);
 
 function performValidation(event)
 {
 	switch(event.command) {
-		case "displayMessages":
+		case "displayMenu":
 			if("badge" in event.target) {
 				event.target.badge = msgCount;
 				event.target.toolTip = "GRDB" + (hasSession?" ("+msgCount+")":"");
@@ -23,18 +25,13 @@ function performValidation(event)
 function performAction(event)
 {
 	switch(event.command) {
-		case "displayMessages":
-			var protocol = safari.extension.settings.getItem("ssl")?"https":"http";
-			var site = safari.extension.settings.getItem("site");
-			var url;
+		case "displayMenu":
 			if(hasSession) {
-				url = protocol+"://"+site+"/mitglieder/messages/uebersicht.php?suche=neue";
+				var menuTab = activateTabWithURL(safari.extension.baseURI + "grdb.html");
+				menuTab.page.dispatchMessage("fetch", base);
 			} else {
-				msgCount = 0;
-				validateToolbarItems();
-				url = protocol+"://"+site+"/";
+				activateTabWithURL(base+"/");
 			}
-			activateTabWithURL(url);
 		break;
 	}
 }
@@ -43,23 +40,31 @@ function handleMessage(message)
 {
 	switch(message.name) {
 		case "messageCountDidChange":
-			hasSession = 1;
+			hasSession = true;
 			msgCount = message.message;
 			validateToolbarItems();
 		break;
 		case "sessionDidEnd":
-			hasSession = 0;
+			hasSession = false;
 			msgCount = 0;
 			validateToolbarItems();
 		break;
+		case "retrieveBase":
+			message.target.page.dispatchMessage("fetch", base);
+		break;
 	}
+}
+
+function handleSettingsChange(change)
+{
+	base = safari.extension.settings["protocol"] + "://" + safari.extension.settings["site"];
 }
 
 function validateToolbarItems()
 {
 	var items = safari.extension.toolbarItems;
 	for(var i=0; i<items.length; i++) {
-		if(items[i].command==="displayMessages") {
+		if(items[i].command==="displayMenu") {
 			items[i].validate();
 		}
 	}
