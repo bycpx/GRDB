@@ -100,7 +100,8 @@ function setMailCount(count)
 
 function handleMailClick(event)
 {
-	window.open(base+"/msg/?id="+this.getAttribute("data-msg"), null, "width=336,height=450");
+	var popup = window.open(base+"/msg/?id="+this.getAttribute("data-msg"), null, "width=336,height=450");
+	popup.opener = null;
 }
 
 function onlyThis(event)
