@@ -22,42 +22,87 @@ function fetchURL_didFetch_error(url, didFetchFunc, errorFunc)
 	xhr.send("");
 }
 
+function create(tag, content)
+{
+	var node = document.createElement(tag);
+	if(content!==undefined) {
+		node.appendChild(document.createTextNode(content));
+	}
+	return node;
+}
+
+function clearNode(node)
+{
+	while(node.firstChild) {
+		node.removeChild(node.firstChild);
+	}
+}
+
+// -
+
+function createUserLink(id, name)
+{
+	var link = create("a", name);
+	link.setAttribute("href", base+"/auswertung/setcard/?set="+id);
+	return link;
+}
+
 function appendMailRow(senderID, sender, msgID, subject, timestamp, hasAttachment, dup)
 {
-	var parser = new DOMParser();
-	var row = document.createElement("li");
-	var cell;
+	var cell, link;
+	var row = create("li");
 
+	if(msgID) {
+		row.setAttribute("data-msg",msgID);
+		row.addEventListener("click", handleMailClick, false);
+	}
 	if(!dup) {
-		cell = document.createElement("div");
+		cell = create("div");
 		cell.setAttribute("class","action");
-		cell.appendChild(document.createTextNode("V"))
+		link = create("a", "⇄");
+		link.setAttribute("href",base+"/msg/history.php?uid="+senderID+"#lastmessage");
+		link.addEventListener("click", onlyThis, false);
+		cell.appendChild(link);
 		row.appendChild(cell);
 
-		cell = document.createElement("h2");
-		cell.appendChild(document.createTextNode(sender));
+		cell = create("h2");
+		link = createUserLink(senderID, sender);
+		link.addEventListener("click", onlyThis, false);
+		cell.appendChild(link);
 		row.appendChild(cell);
 	}
 	if(timestamp) {
-		cell = document.createElement("h3");
+		cell = create("h3", timestamp);
 		if(hasAttachment) {
 			cell.setAttribute("data-att","true");
 		}
-		cell.appendChild(document.createTextNode(timestamp));
 		row.appendChild(cell);
 	}
 	if(subject) {
 		subject += "\n";
-		cell = document.createElement("p");
+		cell = create("p");
 		cell.innerHTML = subject.replace("...\n","…");
 		row.appendChild(cell);
 	}
 	maillist.appendChild(row);
 }
 
+function handleMailClick(event)
+{
+	window.open(base+"/msg/?id="+this.getAttribute("data-msg"), null, "width=336,height=450");
+}
+
+function onlyThis(event)
+{
+	event.stopPropagation();
+}
+
+// -
+
 function fetchNewMail()
 {
-	// … (inkl. leeren)
+	// …
+	clearNode(maillist);
 
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?suche=neue", function(html) {
 //	fetchURL_didFetch_error("test.html", function(html) {
