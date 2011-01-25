@@ -1,6 +1,6 @@
 /* GRDB Helper Script */
 
-var maillist;
+var maillist, mailcount;
 var base;
 
 safari.self.addEventListener("message", handleMessage, false);
@@ -87,6 +87,17 @@ function appendMailRow(senderID, sender, msgID, subject, timestamp, hasAttachmen
 	maillist.appendChild(row);
 }
 
+function setMailCount(count)
+{
+	clearNode(mailcount);
+	if(count) {
+		var badge = create("span", count);
+		badge.setAttribute("class","badge");
+		mailcount.appendChild(badge);
+	}
+	safari.self.tab.dispatchMessage("messageCountDidChange", count);
+}
+
 function handleMailClick(event)
 {
 	window.open(base+"/msg/?id="+this.getAttribute("data-msg"), null, "width=336,height=450");
@@ -105,11 +116,18 @@ function fetchNewMail()
 	clearNode(maillist);
 
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?suche=neue", function(html) {
-//	fetchURL_didFetch_error("test.html", function(html) {
-		var regex = /set=(\d+)[^>]*>([^<]+)[^?]*\?id=(\d+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
+		var item = null;
+		var regex = /view=new">(\d+)/gi;
+		if(item = regex.exec(html)) {
+			setMailCount(parseInt(item[1]));
+		} else {
+			setMailCount();
+		}
+
+		regex = /set=(\d+)[^>]*>([^<]+)[^?]*\?id=(\d+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
 
 		var index = {};
-		var mails, dup, prev, item = null;
+		var mails, dup, prev = null;
 
 		while(item = regex.exec(html)) {
 			if(dup = index[item[1]]) {
@@ -149,12 +167,8 @@ function fetchNewMail()
 function init()
 {
 	maillist = document.getElementById("mails");
-	if(window.safari) {
-		safari.self.tab.dispatchMessage("retrieveBase");
-	} else {
-		base="https://www.gayromeo.com";
-		fetchNewMail();
-	}
+	mailcount = document.getElementById("count");
+	safari.self.tab.dispatchMessage("retrieveBase");
 }
 
 function handleMessage(message)
