@@ -124,14 +124,28 @@ function onlyThis(event)
 
 // -
 
+function noLogin()
+{
+	if(window.safari) {
+		safari.self.tab.dispatchMessage("sessionDidEnd");
+	}
+}
+
 function fetchNewMail()
 {
 	setMailCount();
 	showListMessage(maillist,"Loading …");
 
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?suche=neue", function(html) {
+		var regex = /name="messagelist"/gi;
+		if(!regex.exec(html)) {
+			noLogin();
+			showListMessage(maillist, "Cannot retrieve messages.", "Ensure you are logged in.", true);
+			return;
+		}
+
 		var item = null;
-		var regex = /view=new">(\d+)/gi;
+		regex = /view=new">(\d+)/gi;
 		if(item = regex.exec(html)) {
 			setMailCount(parseInt(item[1]));
 		} else {
@@ -176,7 +190,9 @@ function fetchNewMail()
 				appendMailRow(item[1], item[2], null, "…");
 			}
 		}
-	}, function(status) { window.alert("#"+status); });
+	}, function(status) {
+		showListMessage(maillist, "Cannot access messages.", "The server responded with error "+status+".", true);
+	});
 }
 
 function init()

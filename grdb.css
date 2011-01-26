@@ -121,6 +121,10 @@ footer {
 	float:		left;
 }
 
+#mails li.err h2 {
+	color:		#b00;
+}
+
 #mails h3 {
 	float:		right;
 	font-size:	1em;
