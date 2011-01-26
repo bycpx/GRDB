@@ -159,20 +159,20 @@ function fetchNewMail()
 		regex = /set=(\d+)[^>]*>([^<]+)[^?]*\?id=(\d+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
 
 		var index = {};
-		var mails, dup, prev = null;
+		var mails, dup, last = null;
 
 		while(item = regex.exec(html)) {
-			if(dup = index[item[1]]) {
+			if((dup = index[item[1]]) && (dup!=last)) {
 				var old = dup.next;
 				dup.next = item;
 				item.next = old;
 			} else {
-				if(prev) {
-					prev.next = item;
+				if(last) {
+					last.next = item;
 				} else {
 					mails = item;
 				}
-				prev = item;
+				last = item;
 			}
 			index[item[1]] = item;
 		}
