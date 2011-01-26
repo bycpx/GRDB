@@ -126,7 +126,7 @@ footer {
 	font-size:	1em;
 	font-weight: normal;
 	margin:		0 0.5em;
-	color:		#158;
+	color:		#26a;
 }
 
 #mails li:hover h3, #mails li.low h3, #mails li:hover div.action {
@@ -138,8 +138,8 @@ footer {
 }
 
 #mails h3[data-att] {
-	padding:	0 0 0 20px;
-	border-left: 1px solid #000;
+	padding:	0 0 0 18px;
+	background:	url(pic.png) left center no-repeat;
 }
 
 #mails p {
