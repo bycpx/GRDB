@@ -9,7 +9,7 @@ function messageDisplayChanged(event)
 
 if(window.top===window) {
 	if(document.body && document.body.getAttribute("class")==="logout") {
-		safari.self.tab.dispatchMessage("sessionDidEnd", null);
+		safari.self.tab.dispatchMessage("sessionDidEnd");
 	}
 } else {
 	if(document.getElementById("msgDisplay_c")) {
