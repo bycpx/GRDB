@@ -114,6 +114,7 @@ function handleMailClick(event)
 {
 	var popup = window.open(base+"/msg/?id="+this.getAttribute("data-msg"), null, "width=336,height=450");
 	popup.opener = null;
+	this.setAttribute("class","low");
 }
 
 function onlyThis(event)
