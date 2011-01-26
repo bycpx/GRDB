@@ -94,6 +94,8 @@ function setMailCount(count)
 		var badge = create("span", count);
 		badge.setAttribute("class","badge");
 		mailcount.appendChild(badge);
+	} else {
+		count = 0;
 	}
 	safari.self.tab.dispatchMessage("messageCountDidChange", count);
 }
@@ -126,6 +128,7 @@ function onlyThis(event)
 
 function noLogin()
 {
+	clearNode(mailcount);
 	if(window.safari) {
 		safari.self.tab.dispatchMessage("sessionDidEnd");
 	}
@@ -133,7 +136,6 @@ function noLogin()
 
 function fetchNewMail()
 {
-	setMailCount();
 	showListMessage(maillist,"Loading …");
 
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?suche=neue", function(html) {
@@ -149,6 +151,7 @@ function fetchNewMail()
 		if(item = regex.exec(html)) {
 			setMailCount(parseInt(item[1]));
 		} else {
+			setMailCount();
 			showListMessage(maillist,"No Messages");
 			return;
 		}
@@ -191,6 +194,7 @@ function fetchNewMail()
 			}
 		}
 	}, function(status) {
+		noLogin();
 		showListMessage(maillist, "Cannot access messages.", "The server responded with error "+status+".", true);
 	});
 }
