@@ -129,8 +129,12 @@ footer {
 	color:		#158;
 }
 
-#mails li:hover h3 {
+#mails li:hover h3, #mails li.low h3, #mails li:hover div.action {
 	color:		inherit;
+}
+
+#mails li.low {
+	color:		#aaa;
 }
 
 #mails h3[data-att] {

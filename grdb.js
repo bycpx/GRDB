@@ -98,6 +98,18 @@ function setMailCount(count)
 	safari.self.tab.dispatchMessage("messageCountDidChange", count);
 }
 
+function showListMessage(node, text, des, error)
+{
+	clearNode(node);
+	var row = create("li");
+	row.setAttribute("class", error?"err":"low");
+	row.appendChild(create("h2",text));
+	if(des) {
+		row.appendChild(create("p",des));
+	}
+	node.appendChild(row);
+}
+
 function handleMailClick(event)
 {
 	var popup = window.open(base+"/msg/?id="+this.getAttribute("data-msg"), null, "width=336,height=450");
@@ -113,8 +125,8 @@ function onlyThis(event)
 
 function fetchNewMail()
 {
-	// …
-	clearNode(maillist);
+	setMailCount();
+	showListMessage(maillist,"Loading …");
 
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?suche=neue", function(html) {
 		var item = null;
@@ -122,7 +134,8 @@ function fetchNewMail()
 		if(item = regex.exec(html)) {
 			setMailCount(parseInt(item[1]));
 		} else {
-			setMailCount();
+			showListMessage(maillist,"No Messages");
+			return;
 		}
 
 		regex = /set=(\d+)[^>]*>([^<]+)[^?]*\?id=(\d+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
@@ -146,7 +159,7 @@ function fetchNewMail()
 			index[item[1]] = item;
 		}
 
-		// .
+		clearNode(maillist);
 
 		item = mails;
 		var prevID = 0;
