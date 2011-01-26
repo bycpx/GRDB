@@ -44,6 +44,7 @@ function createUserLink(id, name)
 {
 	var link = create("a", name);
 	link.setAttribute("href", base+"/auswertung/setcard/?set="+id);
+	link.setAttribute("target","_blank");
 	return link;
 }
 
@@ -61,6 +62,7 @@ function appendMailRow(senderID, sender, msgID, subject, timestamp, hasAttachmen
 		cell.setAttribute("class","action");
 		link = create("a", "⇄");
 		link.setAttribute("href",base+"/msg/history.php?uid="+senderID+"#lastmessage");
+		link.setAttribute("target","_blank");
 		link.addEventListener("click", onlyThis, false);
 		cell.appendChild(link);
 		row.appendChild(cell);
