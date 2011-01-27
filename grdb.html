@@ -11,7 +11,8 @@
 <header>
 <h1>GRDB</h1>
 <nav>
-<a href="javascript:fetchNewMail();" class="act">Inbox<span id="count">…</span></a>
+<a class="act" onclick="fetchMails(event)">Inbox<span id="count">…</span></a>
+<a onclick="fetchUsers(event)">User</a>
 </nav>
 </header>
 <ul id="mails"></ul>

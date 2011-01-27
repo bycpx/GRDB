@@ -1,6 +1,7 @@
 /* GRDB Helper Script */
 
-var maillist, mailcount;
+var maillist, mailcount, userlist;
+var lastView, lastButton;
 var base;
 
 safari.self.addEventListener("message", handleMessage, false);
@@ -89,6 +90,28 @@ function appendMailRow(senderID, sender, msgID, subject, timestamp, hasAttachmen
 	maillist.appendChild(row);
 }
 
+function appendUserRow(id, name)
+{
+	var cell, link;
+	var row = create("li");
+	cell = create("div");
+	cell.setAttribute("class","action");
+	link = create("a","E");
+	link.setAttribute("href",base+"/msg/history_email.php?uid="+id);
+	link.setAttribute("target","_blank");
+	link.addEventListener("click", markLow, false);
+	cell.appendChild(link);
+	link = create("a","⇄");
+	link.setAttribute("href",base+"/msg/history.php?uid="+id+"#lastmessage");
+	link.setAttribute("target","_blank");
+	cell.appendChild(link);
+	row.appendChild(cell);
+	cell = create("h2");
+	cell.appendChild(createUserLink(id, name));
+	row.appendChild(cell);
+	userlist.appendChild(row);
+}
+
 function setMailCount(count)
 {
 	clearNode(mailcount);
@@ -121,9 +144,31 @@ function handleMailClick(event)
 	this.setAttribute("class","low");
 }
 
+function markLow(event)
+{
+	this.parentElement.parentElement.setAttribute("class","low");
+}
+
 function onlyThis(event)
 {
 	event.stopPropagation();
+}
+
+function switchView(view, event)
+{
+	if(event) {
+		var button = event.target;
+		if(button!=lastButton) {
+			lastButton.setAttribute("class","");
+			button.setAttribute("class","act");
+			lastButton = button;
+		}
+	}
+	if(view!=lastView) {
+		lastView.style.display = "none";
+		view.setAttribute("style","");
+		lastView = view;
+	}
 }
 
 // -
@@ -136,8 +181,9 @@ function noLogin()
 	}
 }
 
-function fetchNewMail()
+function fetchMails(event)
 {
+	switchView(maillist, event);
 	showListMessage(maillist,"Loading …");
 
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?suche=neue", function(html) {
@@ -201,10 +247,48 @@ function fetchNewMail()
 	});
 }
 
+function fetchUsers(event)
+{
+	switchView(userlist, event);
+	showListMessage(userlist, "Loading …");
+	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=all", function(html) {
+		var regex = /name="messagelist"/gi;
+		if(!regex.exec(html)) {
+			noLogin();
+			showListMessage(userlist, "Cannot retrieve users.", "Ensure you are logged in.", true);
+			return;
+		}
+
+		clearNode(userlist);
+
+		regex = /<option value=\"(\d+)\">([^<]*)<\/option>/gi;
+		var item;
+		var i = 0;
+		while(item = regex.exec(html)) {
+			if(item[1]!="0") {
+				appendUserRow(item[1], item[2]);
+				i++;
+			}
+		}
+		if(i==0) {
+			showListMessage(userlist,"No Users");
+		}
+	}, function(status) {
+		noLogin();
+		showListMessage(userlist, "Cannot access users.", "The server responded with error "+status+".", true);
+	});
+}
+
 function init()
 {
 	maillist = document.getElementById("mails");
 	mailcount = document.getElementById("count");
+	userlist = document.getElementById("users");
+
+	lastView = maillist;
+	userlist.style.display = "none";
+	lastButton = mailcount.parentElement;
+
 	safari.self.tab.dispatchMessage("retrieveBase");
 }
 
@@ -215,7 +299,7 @@ function handleMessage(message)
 			if(message.message) {
 				base = message.message;
 			}
-			fetchNewMail();
+			fetchMails();
 		break;
 	}
 }
