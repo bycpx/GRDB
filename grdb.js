@@ -279,6 +279,12 @@ function fetchUsers(event)
 	});
 }
 
+function findUsers(event)
+{
+	event.preventDefault();
+	safari.self.tab.dispatchMessage("findUser", event.target[0].value);
+}
+
 function init()
 {
 	maillist = document.getElementById("mails");

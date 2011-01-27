@@ -32,6 +32,12 @@ header nav {
 	height:		100%;
 }
 
+header form {
+	float:		right;
+	margin:		0 1em 0 1em;
+	line-height: 48px;
+}
+
 nav a {
 	display:	inline-block;
 	color:		inherit;

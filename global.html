@@ -36,6 +36,18 @@ function performAction(event)
 	}
 }
 
+function performUserSearch(user)
+{
+	var id = parseInt(user);
+	var url;
+	if(id) {
+		url = base+"/auswertung/setcard/index.php?set="+id;
+	} else {
+		url = base+"/search/index.php?action=execute&searchType=direct&directMode=userName&directValue="+user;
+	}
+	activateTabWithURL(url);
+}
+
 function handleMessage(message)
 {
 	switch(message.name) {
@@ -51,6 +63,9 @@ function handleMessage(message)
 		break;
 		case "retrieveBase":
 			message.target.page.dispatchMessage("fetch", base);
+		break;
+		case "findUser":
+			performUserSearch(message.message);
 		break;
 	}
 }
