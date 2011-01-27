@@ -139,7 +139,7 @@ function showListMessage(node, text, des, error)
 
 function handleMailClick(event)
 {
-	var popup = window.open(base+"/msg/?id="+this.getAttribute("data-msg"), null, "width=336,height=450");
+	var popup = window.open(base+"/msg/?id="+this.getAttribute("data-msg"), null, "width=336,height=450,scrollbars=yes");
 	popup.opener = null;
 	this.setAttribute("class","low");
 }
