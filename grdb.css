@@ -93,14 +93,14 @@ ul {
 ul a {
 	padding:	0 0.15em;
 	color:		inherit;
+	border-radius: 0.3em;
 	text-decoration: none;
 	text-shadow: 0 1px 0 #fff;
 }
 
 ul a:hover {
 	color:		#fff;
-	background:	#1af;
-	border-radius: 0.3em;
+	background-color:	#1af;
 	text-shadow: 0 1px 0 #158;
 }
 
@@ -140,6 +140,20 @@ ul div.action {
 	width:		3em;
 }
 
+div.action a {
+	display:	inline-block;
+	padding:	0;
+	width:		16px;
+	line-height: 16px;
+	text-indent: -10em;
+	background-position: center 0px;
+	background-repeat: no-repeat;
+}
+
+div.action a:hover {
+	background-position-y: -16px;
+}
+
 ul h2 {
 	font-size:	1em;
 	margin:		0;
@@ -165,7 +179,7 @@ ul li.err h2 {
 	color:		#26a;
 }
 
-#mails li:hover h3, #mails li.low h3, ul li:hover div.action {
+#mails li:hover h3, #mails li.low h3 {
 	color:		inherit;
 }
 

@@ -49,6 +49,16 @@ function createUserLink(id, name)
 	return link;
 }
 
+function createHistoryLink(id)
+{
+	var link = create("a", "⇄");
+	link.setAttribute("href",base+"/msg/history.php?uid="+id+"#lastmessage");
+	link.style.backgroundImage = "url(hist.png)";
+	link.setAttribute("title","History");
+	link.setAttribute("target","_blank");
+	return link;
+}
+
 function appendMailRow(senderID, sender, msgID, subject, timestamp, hasAttachment, dup)
 {
 	var cell, link;
@@ -61,9 +71,7 @@ function appendMailRow(senderID, sender, msgID, subject, timestamp, hasAttachmen
 	if(!dup) {
 		cell = create("div");
 		cell.setAttribute("class","action");
-		link = create("a", "⇄");
-		link.setAttribute("href",base+"/msg/history.php?uid="+senderID+"#lastmessage");
-		link.setAttribute("target","_blank");
+		link = createHistoryLink(senderID);
 		link.addEventListener("click", onlyThis, false);
 		cell.appendChild(link);
 		row.appendChild(cell);
@@ -98,13 +106,12 @@ function appendUserRow(id, name)
 	cell.setAttribute("class","action");
 	link = create("a","E");
 	link.setAttribute("href",base+"/msg/history_email.php?uid="+id);
+	link.style.backgroundImage = "url(ffwd.png)";
+	link.setAttribute("title","Forward via E-Mail");
 	link.setAttribute("target","_blank");
 	link.addEventListener("click", markLow, false);
 	cell.appendChild(link);
-	link = create("a","⇄");
-	link.setAttribute("href",base+"/msg/history.php?uid="+id+"#lastmessage");
-	link.setAttribute("target","_blank");
-	cell.appendChild(link);
+	cell.appendChild(createHistoryLink(id));
 	row.appendChild(cell);
 	cell = create("h2");
 	cell.appendChild(createUserLink(id, name));
