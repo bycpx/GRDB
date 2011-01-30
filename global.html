@@ -28,7 +28,9 @@ function performAction(event)
 		case "displayMenu":
 			if(hasSession) {
 				var menuTab = activateTabWithURL(safari.extension.baseURI + "grdb.html");
-				menuTab.page.dispatchMessage("fetch", base);
+				if(menuTab) {
+					menuTab.page.dispatchMessage("fetch", base);
+				}
 			} else {
 				activateTabWithURL(base+"/");
 			}

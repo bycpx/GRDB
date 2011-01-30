@@ -104,7 +104,7 @@ function appendUserRow(id, name)
 	var row = create("li");
 	cell = create("div");
 	cell.setAttribute("class","action");
-	link = create("a","E");
+	link = create("a","→");
 	link.setAttribute("href",base+"/msg/history_email.php?uid="+id);
 	link.style.backgroundImage = "url(ffwd.png)";
 	link.setAttribute("title","Forward via E-Mail");

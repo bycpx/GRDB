@@ -195,3 +195,9 @@ ul li.low {
 ul p {
 	margin:		0;
 }
+
+#mails p {
+	white-space: nowrap;
+	overflow:	hidden;
+	text-overflow: ellipsis;
+}
