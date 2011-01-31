@@ -12,11 +12,14 @@
 <h1>GRDB</h1>
 <form onsubmit="findUsers(event)"><input name="q" type="search" placeholder="Find users" results="10" /></form>
 <nav>
-<a class="act" onclick="fetchMails(event)">Inbox<span id="count">…</span></a>
+<a class="act" onclick="fetchMails(event)">Mailbox<span id="count">…</span></a>
 <a onclick="fetchUsers(event)">Conversations</a>
 </nav>
 </header>
-<ul id="mails"></ul>
+<div id="mailview">
+<ul id="mails" class="mails"></ul>
+<ul id="sent" class="mails"></ul>
+</div>
 <ul id="users"></ul>
 <footer>GRDB. A useless Safari extension.</footer>
 </body>

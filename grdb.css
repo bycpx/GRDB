@@ -121,7 +121,15 @@ ul li:nth-child(2n) {
 	background:	#eef;
 }
 
-#mails li[data-msg]:hover {
+#sent {
+	background:	#eee;
+}
+
+#sent li:nth-child(2n) {
+	background:	#ddd;
+}
+
+ul.mails li[data-msg]:hover {
 	color:		#1af;
 	cursor:		pointer;
 }
@@ -162,7 +170,7 @@ ul h2 {
 	text-overflow: ellipsis;
 }
 
-#mails h2 {
+ul.mails h2 {
 	margin-right: 0.25em;
 	float:		left;
 }
@@ -171,7 +179,7 @@ ul li.err h2 {
 	color:		#b00;
 }
 
-#mails h3 {
+ul.mails h3 {
 	float:		right;
 	font-size:	1em;
 	font-weight: normal;
@@ -179,7 +187,11 @@ ul li.err h2 {
 	color:		#26a;
 }
 
-#mails li:hover h3, #mails li.low h3 {
+#sent h3 {
+	color:		#888;
+}
+
+ul.mails li:hover h3, ul.mails li.low h3 {
 	color:		inherit;
 }
 
@@ -187,7 +199,7 @@ ul li.low {
 	color:		#aaa;
 }
 
-#mails h3[data-att] {
+ul.mails h3[data-att] {
 	padding:	0 0 0 18px;
 	background:	url(pic.png) left center no-repeat;
 }
@@ -196,7 +208,7 @@ ul p {
 	margin:		0;
 }
 
-#mails p {
+ul.mails p {
 	white-space: nowrap;
 	overflow:	hidden;
 	text-overflow: ellipsis;

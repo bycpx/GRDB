@@ -1,6 +1,7 @@
 /* GRDB Helper Script */
 
-var maillist, mailcount, userlist;
+var maillist, sentlist, userlist;
+var mailview, mailcount;
 var lastView, lastButton;
 var base;
 
@@ -59,7 +60,7 @@ function createHistoryLink(id)
 	return link;
 }
 
-function appendMailRow(senderID, sender, msgID, subject, timestamp, hasAttachment, dup)
+function appendMailRow(list, senderID, sender, msgID, subject, timestamp, hasAttachment, dup)
 {
 	var cell, link;
 	var row = create("li");
@@ -95,7 +96,7 @@ function appendMailRow(senderID, sender, msgID, subject, timestamp, hasAttachmen
 		cell.innerHTML = subject.replace("...\n","…");
 		row.appendChild(cell);
 	}
-	maillist.appendChild(row);
+	list.appendChild(row);
 }
 
 function appendUserRow(id, name)
@@ -188,16 +189,39 @@ function noLogin()
 	}
 }
 
+function clusterItems(html, regex, index)
+{
+	var item, first, dup, last = null;
+
+	while(item = regex.exec(html)) {
+		if((dup = index[item[1]]) && (dup!=last)) {
+			var old = dup.next;
+			dup.next = item;
+			item.next = old;
+		} else {
+			if(last) {
+				last.next = item;
+			} else {
+				first = item;
+			}
+			last = item;
+		}
+		index[item[1]] = item;
+	}
+
+	return first;
+}
+
 function fetchMails(event)
 {
-	switchView(maillist, event);
-	showListMessage(maillist,"Loading …");
+	switchView(mailview, event);
 
-	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?suche=neue", function(html) {
+	showListMessage(maillist,"Loading …");
+	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=new", function(html) {
 		var regex = /name="messagelist"/gi;
 		if(!regex.exec(html)) {
 			noLogin();
-			showListMessage(maillist, "Cannot retrieve messages.", "Ensure you are logged in.", true);
+			showListMessage(maillist, "Cannot retrieve new messages.", "Ensure you are logged in.", true);
 			return;
 		}
 
@@ -214,30 +238,14 @@ function fetchMails(event)
 		regex = /set=(\d+)[^>]*>([^<]+)[^?]*\?id=(\d+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
 
 		var index = {};
-		var mails, dup, last = null;
-
-		while(item = regex.exec(html)) {
-			if((dup = index[item[1]]) && (dup!=last)) {
-				var old = dup.next;
-				dup.next = item;
-				item.next = old;
-			} else {
-				if(last) {
-					last.next = item;
-				} else {
-					mails = item;
-				}
-				last = item;
-			}
-			index[item[1]] = item;
-		}
+		var mails = clusterItems(html, regex, index);
 
 		clearNode(maillist);
 
-		item = mails;
+		var item = mails;
 		var prevID = 0;
 		while(item) {
-			appendMailRow(item[1], item[2], item[3], item[4], item[5], item[6]=="i", item[1]==prevID);
+			appendMailRow(maillist, item[1], item[2], item[3], item[4], item[5], item[6]=="i", item[1]==prevID);
 			prevID = item[1];
 			item = item.next;
 		}
@@ -245,12 +253,47 @@ function fetchMails(event)
 		regex = /<option value=\"(\d+)\">([^<]*)<\/option>/gi;
 		while(item = regex.exec(html)) {
 			if(item[1]!="0" && !index[item[1]]) {
-				appendMailRow(item[1], item[2], null, "…");
+				appendMailRow(maillist, item[1], item[2], null, "…");
 			}
 		}
 	}, function(status) {
 		noLogin();
-		showListMessage(maillist, "Cannot access messages.", "The server responded with error "+status+".", true);
+		showListMessage(maillist, "Cannot access new messages.", "The server responded with error "+status+".", true);
+	});
+
+	showListMessage(sentlist,"Loading …");
+	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=sentUnread", function(html) {
+		var regex = /name="messagelist"/gi;
+		if(!regex.exec(html)) {
+			noLogin();
+			showListMessage(sentlist, "Cannot retrieve sent messages.", "Ensure you are logged in.", true);
+			return;
+		}
+
+		regex = /set=(\d+)[^>]*>([^<]+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)</gi;
+
+		var index = {};
+		var mails = clusterItems(html, regex, index);
+
+		clearNode(sentlist);
+
+		var item = mails;
+		var prevID = 0;
+		while(item) {
+			appendMailRow(sentlist, item[1], item[2], null, item[3], item[4], item[1]==prevID);
+			prevID = item[1];
+			item = item.next;
+		}
+
+		regex = /<option value=\"(\d+)\">([^<]*)<\/option>/gi;
+		while(item = regex.exec(html)) {
+			if(item[1]!="0" && !index[item[1]]) {
+				appendMailRow(sentlist, item[1], item[2], null, "…");
+			}
+		}
+	}, function(status) {
+		noLogin();
+		showListMessage(sentlist, "Cannot access sent messages.", "The server responded with error "+status+".", true);
 	});
 }
 
@@ -295,10 +338,13 @@ function findUsers(event)
 function init()
 {
 	maillist = document.getElementById("mails");
+	sentlist = document.getElementById("sent");
 	mailcount = document.getElementById("count");
 	userlist = document.getElementById("users");
 
-	lastView = maillist;
+	mailview = document.getElementById("mailview");
+
+	lastView = mailview;
 	userlist.style.display = "none";
 	lastButton = mailcount.parentElement;
 
