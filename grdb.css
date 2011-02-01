@@ -74,7 +74,7 @@ nav a.act {
 }
 
 footer {
-	margin:		2em 0 1em;
+	margin:		1em 0 2em;
 	color:		#aaa;
 	text-align:	center;
 }
@@ -223,6 +223,11 @@ ul li.low {
 ul.mails h3[data-att] {
 	padding:	0 0 0 18px;
 	background:	url(pic.png) left center no-repeat;
+}
+
+ul.mails h3[data-old] {
+	color:		#b00;
+	font-weight: bold;
 }
 
 ul p {

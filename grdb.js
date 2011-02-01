@@ -1,9 +1,9 @@
 /* GRDB Helper Script */
 
 var maillist, sentlist, userlist;
-var mailview, mailcount;
+var mailview, mailcount, info;
 var lastView, lastButton;
-var base;
+var base, today;
 
 safari.self.addEventListener("message", handleMessage, false);
 
@@ -33,6 +33,12 @@ function create(tag, content)
 	return node;
 }
 
+function setText(node, text)
+{
+	clearNode(node);
+	node.appendChild(document.createTextNode(text));
+}
+
 function clearNode(node)
 {
 	while(node.firstChild) {
@@ -60,6 +66,15 @@ function createHistoryLink(id)
 	return link;
 }
 
+function daysSince(datestring)
+{
+	var date = new Date(datestring.replace(/(\d\d)\.(\d\d)\./, "$2/$1 "));
+	if(isNaN(date)) {
+		return 0;
+	}
+	return Math.floor((today-date) / 24 / 60 / 60 / 1000);
+}
+
 function appendMailRow(list, senderID, sender, msgID, subject, timestamp, hasAttachment, dup)
 {
 	var cell, link;
@@ -85,6 +100,9 @@ function appendMailRow(list, senderID, sender, msgID, subject, timestamp, hasAtt
 	}
 	if(timestamp) {
 		cell = create("h3", timestamp);
+		if(daysSince(timestamp)>10) {
+			cell.setAttribute("data-old","true");
+		}
 		if(hasAttachment) {
 			cell.setAttribute("data-att","true");
 		}
@@ -133,6 +151,15 @@ function setMailCount(count)
 	safari.self.tab.dispatchMessage("messageCountDidChange", count);
 }
 
+function setFetchTime()
+{
+	if(!today) {
+		today = new Date();
+		clearNode(info);
+		setText(info, today.toLocaleString());
+	}
+}
+
 function showListMessage(node, text, des, error)
 {
 	clearNode(node);
@@ -173,6 +200,7 @@ function switchView(view, event)
 		}
 	}
 	if(view!=lastView) {
+		setText(info, "GRDB.");
 		lastView.style.display = "none";
 		view.setAttribute("style","");
 		lastView = view;
@@ -214,10 +242,12 @@ function clusterItems(html, regex, index)
 
 function fetchMails(event)
 {
+	today = null;
 	switchView(mailview, event);
 
 	showListMessage(maillist,"Loading …");
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=new", function(html) {
+		setFetchTime();
 		var regex = /name="messagelist"/gi;
 		if(!regex.exec(html)) {
 			noLogin();
@@ -263,6 +293,7 @@ function fetchMails(event)
 
 	showListMessage(sentlist,"Loading …");
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=sentUnread", function(html) {
+		setFetchTime();
 		var regex = /name="messagelist"/gi;
 		if(!regex.exec(html)) {
 			noLogin();
@@ -280,7 +311,7 @@ function fetchMails(event)
 		var item = mails;
 		var prevID = 0;
 		while(item) {
-			appendMailRow(sentlist, item[1], item[2], null, item[3], item[4], item[1]==prevID);
+			appendMailRow(sentlist, item[1], item[2], null, item[3], item[4], null, item[1]==prevID);
 			prevID = item[1];
 			item = item.next;
 		}
@@ -322,6 +353,8 @@ function fetchUsers(event)
 		}
 		if(i==0) {
 			showListMessage(userlist,"No Users");
+		} else {
+			setText(info, i+" users.");
 		}
 	}, function(status) {
 		noLogin();
@@ -343,6 +376,7 @@ function init()
 	userlist = document.getElementById("users");
 
 	mailview = document.getElementById("mailview");
+	info = document.getElementById("info");
 
 	lastView = mailview;
 	userlist.style.display = "none";
