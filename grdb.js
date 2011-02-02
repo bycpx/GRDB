@@ -261,7 +261,7 @@ function fetchMails(event)
 			setMailCount(parseInt(item[1]));
 		} else {
 			setMailCount();
-			showListMessage(maillist,"No Messages");
+			showListMessage(maillist,"No New Messages");
 			return;
 		}
 
@@ -314,6 +314,9 @@ function fetchMails(event)
 			appendMailRow(sentlist, item[1], item[2], null, item[3], item[4], null, item[1]==prevID);
 			prevID = item[1];
 			item = item.next;
+		}
+		if(prevID==0) {
+			showListMessage(sentlist,"No Sent Messages");
 		}
 
 		regex = /<option value=\"(\d+)\">([^<]*)<\/option>/gi;
