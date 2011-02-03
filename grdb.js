@@ -219,9 +219,9 @@ function noLogin()
 
 function clusterItems(html, regex, index)
 {
-	var item, first, dup, last = null;
+	var first, dup, last = null;
 
-	while(item = regex.exec(html)) {
+	for(var item = null; item = regex.exec(html); index[item[1]] = item) {
 		if((dup = index[item[1]]) && (dup!=last)) {
 			var old = dup.next;
 			dup.next = item;
@@ -234,7 +234,6 @@ function clusterItems(html, regex, index)
 			}
 			last = item;
 		}
-		index[item[1]] = item;
 	}
 
 	return first;
@@ -272,12 +271,9 @@ function fetchMails(event)
 
 		clearNode(maillist);
 
-		var item = mails;
-		var prevID = 0;
-		while(item) {
+		for(var prevID = 0, item = mails; item; item = item.next) {
 			appendMailRow(maillist, item[1], item[2], item[3], item[4], item[5], item[6]=="i", item[1]==prevID);
 			prevID = item[1];
-			item = item.next;
 		}
 
 		regex = /<option value=\"(\d+)\">([^<]*)<\/option>/gi;
@@ -308,12 +304,10 @@ function fetchMails(event)
 
 		clearNode(sentlist);
 
-		var item = mails;
 		var prevID = 0;
-		while(item) {
+		for(var item = mails; item; item = item.next) {
 			appendMailRow(sentlist, item[1], item[2], null, item[3], item[4], null, item[1]==prevID);
 			prevID = item[1];
-			item = item.next;
 		}
 		if(prevID==0) {
 			showListMessage(sentlist,"No Sent Messages");
@@ -346,12 +340,9 @@ function fetchUsers(event)
 		clearNode(userlist);
 
 		regex = /<option value=\"(\d+)\">([^<]*)<\/option>/gi;
-		var item;
-		var i = 0;
-		while(item = regex.exec(html)) {
+		for(var i = 0, item; item = regex.exec(html); i++) {
 			if(item[1]!="0") {
 				appendUserRow(item[1], item[2]);
-				i++;
 			}
 		}
 		if(i==0) {
