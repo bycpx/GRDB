@@ -5,13 +5,7 @@ var base = safari.extension.settings["protocol"] + "://" + safari.extension.sett
 var msgCount = 0;
 var hasSession = false;
 
-safari.application.addEventListener("validate", performValidation, false);
-safari.application.addEventListener("command", performAction, false);
-safari.application.addEventListener("message", handleMessage, false);
-safari.extension.settings.addEventListener("change", handleSettingsChange, false);
-
-function performValidation(event)
-{
+safari.application.addEventListener("validate", function(event) {
 	switch(event.command) {
 		case "displayMenu":
 			if("badge" in event.target) {
@@ -20,10 +14,9 @@ function performValidation(event)
 			}
 		break;
 	}
-}
+}, false);
 
-function performAction(event)
-{
+safari.application.addEventListener("command", function(event) {
 	switch(event.command) {
 		case "displayMenu":
 			if(hasSession) {
@@ -36,22 +29,9 @@ function performAction(event)
 			}
 		break;
 	}
-}
+}, false);
 
-function performUserSearch(user)
-{
-	var id = parseInt(user);
-	var url;
-	if(id) {
-		url = base+"/auswertung/setcard/index.php?set="+id;
-	} else {
-		url = base+"/search/index.php?action=execute&searchType=direct&directMode=userName&directValue="+user;
-	}
-	activateTabWithURL(url);
-}
-
-function handleMessage(message)
-{
+safari.application.addEventListener("message", function(message) {
 	switch(message.name) {
 		case "messageCountDidChange":
 			hasSession = true;
@@ -63,6 +43,9 @@ function handleMessage(message)
 			msgCount = 0;
 			validateToolbarItems();
 		break;
+		case "openBase":
+			activateTabWithURL(base+"/");
+		break;
 		case "retrieveBase":
 			message.target.page.dispatchMessage("fetch", base);
 		break;
@@ -70,11 +53,22 @@ function handleMessage(message)
 			performUserSearch(message.message);
 		break;
 	}
-}
+}, false);
 
-function handleSettingsChange(change)
-{
+safari.extension.settings.addEventListener("change", function(event) {
 	base = safari.extension.settings["protocol"] + "://" + safari.extension.settings["site"];
+}, false);
+
+function performUserSearch(user)
+{
+	var id = parseInt(user);
+	var url;
+	if(id) {
+		url = base+"/auswertung/setcard/index.php?set="+id;
+	} else {
+		url = base+"/search/index.php?action=execute&searchType=direct&directMode=userName&directValue="+user;
+	}
+	activateTabWithURL(url);
 }
 
 function validateToolbarItems()

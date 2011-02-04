@@ -5,7 +5,16 @@ var mailview, mailcount, info;
 var lastView, lastButton;
 var base, today;
 
-safari.self.addEventListener("message", handleMessage, false);
+safari.self.addEventListener("message", function(message) {
+	switch(message.name) {
+		case "fetch":
+			if(message.message) {
+				base = message.message;
+			}
+			fetchMails();
+		break;
+	}
+}, false);
 
 function fetchURL_didFetch_error(url, didFetchFunc, errorFunc)
 {
@@ -362,6 +371,11 @@ function findUsers(event)
 	safari.self.tab.dispatchMessage("findUser", event.target[0].value);
 }
 
+function home()
+{
+	safari.self.tab.dispatchMessage("openBase");
+}
+
 function init()
 {
 	maillist = document.getElementById("mails");
@@ -377,16 +391,4 @@ function init()
 	lastButton = mailcount.parentElement;
 
 	safari.self.tab.dispatchMessage("retrieveBase");
-}
-
-function handleMessage(message)
-{
-	switch(message.name) {
-		case "fetch":
-			if(message.message) {
-				base = message.message;
-			}
-			fetchMails();
-		break;
-	}
 }

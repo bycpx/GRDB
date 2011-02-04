@@ -26,6 +26,7 @@ header h1 {
 	height:		100%;
 	line-height: 48px;
 	background:	url(Icon-32.png) no-repeat left center;
+	cursor:		default;
 }
 
 header nav {
