@@ -79,12 +79,12 @@ function daysSince(datestring)
 {
 	var date = new Date(datestring.replace(/(\d\d)\.(\d\d)\./, "$2/$1 "));
 	if(isNaN(date)) {
-		return 0;
+		return -1;
 	}
 	return Math.floor((today-date) / 24 / 60 / 60 / 1000);
 }
 
-function appendMailRow(list, senderID, sender, msgID, subject, timestamp, hasAttachment, dup)
+function appendMailRow(list, senderID, sender, msgID, subject, timestamp, hasAttachment, dup, label)
 {
 	var cell, link;
 	var row = create("li");
@@ -105,12 +105,22 @@ function appendMailRow(list, senderID, sender, msgID, subject, timestamp, hasAtt
 		link = createUserLink(senderID, sender);
 		link.addEventListener("click", onlyThis, false);
 		cell.appendChild(link);
+		if(label) {
+			cell.setAttribute("data-label",label);
+		}
 		row.appendChild(cell);
 	}
 	if(timestamp) {
 		cell = create("h3", timestamp);
-		if(daysSince(timestamp)>10) {
-			cell.setAttribute("data-old","true");
+		age = daysSince(timestamp);
+		if(age>1) {
+			cell.setAttribute("title",age+" days old");
+		}
+		if(age==0) {
+			cell.setAttribute("data-age","new");
+		}
+		if(age>10) {
+			cell.setAttribute("data-age","old");
 		}
 		if(hasAttachment) {
 			cell.setAttribute("data-att","true");
@@ -315,7 +325,7 @@ function fetchMails(event)
 
 		var prevID = 0;
 		for(var item = mails; item; item = item.next) {
-			appendMailRow(sentlist, item[1], item[2], null, item[3], item[4], null, item[1]==prevID);
+			appendMailRow(sentlist, item[1], item[2], null, item[3], item[4], null, item[1]==prevID, "To");
 			prevID = item[1];
 		}
 		if(prevID==0) {
@@ -325,7 +335,7 @@ function fetchMails(event)
 		regex = /<option value=\"(\d+)\">([^<]*)<\/option>/gi;
 		while(item = regex.exec(html)) {
 			if(item[1]!="0" && !index[item[1]]) {
-				appendMailRow(sentlist, item[1], item[2], null, "…");
+				appendMailRow(sentlist, item[1], item[2], null, "…", null, null, null, "To");
 			}
 		}
 	}, function(status) {
@@ -352,6 +362,8 @@ function fetchUsers(event)
 		for(var i = 0, item; item = regex.exec(html); i++) {
 			if(item[1]!="0") {
 				appendUserRow(item[1], item[2]);
+			} else {
+				i--;
 			}
 		}
 		if(i==0) {
