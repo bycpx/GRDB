@@ -8,7 +8,7 @@ function messageDisplayChanged(event)
 }
 
 if(window.top===window) {
-	if(document.body && document.body.getAttribute("class")==="logout") {
+	if(window.location.href && window.location.href.indexOf("/logout/")!=-1) {
 		safari.self.tab.dispatchMessage("sessionDidEnd");
 	}
 } else {
