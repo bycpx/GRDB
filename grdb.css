@@ -255,3 +255,11 @@ ul.mails p {
 	overflow:	hidden;
 	text-overflow: ellipsis;
 }
+
+li.drop {
+	color:		#888;
+}
+
+li.drop p, li.drop h3 {
+	text-decoration: line-through;
+}

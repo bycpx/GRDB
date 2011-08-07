@@ -4,6 +4,7 @@ var maillist, sentlist, userlist;
 var mailview, mailcount, info;
 var lastView, lastButton;
 var base, today;
+var dropHandler;
 
 safari.self.addEventListener("message", function(message) {
 	switch(message.name) {
@@ -89,7 +90,9 @@ function appendMailRow(list, senderID, sender, msgID, subject, timestamp, hasAtt
 	var cell, link;
 	var row = create("li");
 
-	if(msgID) {
+	if(msgID==-1) {
+		row.setAttribute("class","drop");
+	} else if(msgID) {
 		row.setAttribute("data-msg",msgID);
 		row.addEventListener("click", handleMailClick, false);
 	}
@@ -258,9 +261,31 @@ function clusterItems(html, regex, index)
 	return first;
 }
 
+function findDropped(index, html)
+{
+	dropHandler["found"]++;
+	for(attr in index) {
+		dropHandler["index"][attr] = index[attr];
+	}
+	if(html) {
+		dropHandler["html"] = html;
+	}
+	if(dropHandler["found"]>=3) {
+		index = dropHandler["index"];
+		html = dropHandler["html"];
+		regex = /set=(\d+)[^>]*>([^<]+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)</gi;
+		for(var item = null; item = regex.exec(html); index[item[1]] = item) {
+			if(!index[item[1]]) {
+				appendMailRow(sentlist, item[1], item[2], -1, item[3], item[4], null, false, "To");
+			}
+		}
+	}
+}
+
 function fetchMails(event)
 {
 	today = null;
+	dropHandler = {"index":{}, "found":0, "html": null};
 	switchView(mailview, event);
 
 	showListMessage(maillist,"Loading …");
@@ -299,11 +324,18 @@ function fetchMails(event)
 		while(item = regex.exec(html)) {
 			if(item[1]!="0" && !index[item[1]]) {
 				appendMailRow(maillist, item[1], item[2], null, "…");
+				index[item[1]] = item;
 			}
 		}
+
+		findDropped(index);
 	}, function(status) {
 		noLogin();
 		showListMessage(maillist, "Cannot access new messages.", "The server responded with error "+status+".", true);
+	});
+
+	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=sent", function(html) {
+		findDropped({}, html);
 	});
 
 	showListMessage(sentlist,"Loading …");
@@ -336,8 +368,11 @@ function fetchMails(event)
 		while(item = regex.exec(html)) {
 			if(item[1]!="0" && !index[item[1]]) {
 				appendMailRow(sentlist, item[1], item[2], null, "…", null, null, null, "To");
+				index[item[1]] = item;
 			}
 		}
+
+		findDropped(index);
 	}, function(status) {
 		noLogin();
 		showListMessage(sentlist, "Cannot access sent messages.", "The server responded with error "+status+".", true);
