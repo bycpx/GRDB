@@ -12,7 +12,8 @@
 <h1 onclick="home()" title="Open home page">GRDB</h1>
 <form onsubmit="findUsers(event)"><input name="q" type="search" placeholder="Find users" results="10" /></form>
 <nav>
-<a class="act" onclick="fetchMails(event)">Mailbox<span id="count">…</span></a>
+<a class="act" onclick="fetchMails(event)">Mailbox<span id="mcount">…</span></a>
+<a onclick="fetchVisitors(event)">Visitors<span id="vcount"></span></a>
 <a onclick="fetchUsers(event)">Conversations</a>
 </nav>
 </header>
@@ -20,6 +21,7 @@
 <ul id="mails" class="mails"></ul>
 <ul id="sent" class="mails"></ul>
 </div>
+<ul id="visitors"></ul>
 <ul id="users"></ul>
 <footer id="info">GRDB. A useless Safari extension.</footer>
 </body>

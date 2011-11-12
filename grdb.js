@@ -1,10 +1,10 @@
 /* GRDB Helper Script */
 
-var maillist, sentlist, userlist;
-var mailview, mailcount, info;
+var maillist, sentlist, userlist, visitorlist;
+var mailview, mailcount, visitorcount, info;
 var lastView, lastButton;
 var base, today;
-var dropHandler;
+var dropHandler, visitHandler;
 
 safari.self.addEventListener("message", function(message) {
 	switch(message.name) {
@@ -160,16 +160,58 @@ function appendUserRow(id, name)
 	userlist.appendChild(row);
 }
 
+function appendVisitorRow(id, name, timestamp, receivedID, received, givenID, given)
+{
+	var cell;
+	var row = create("li");
+	if(receivedID==-1) {
+		row.setAttribute("class","drop");
+	}
+	cell = create("div");
+	cell.setAttribute("class","action");
+	cell.appendChild(createHistoryLink(id));
+	row.appendChild(cell);
+	cell = create("h2");
+	cell.appendChild(createUserLink(id, name));
+	row.appendChild(cell);
+	if(timestamp) {
+		cell = create("h3", timestamp);
+		age = daysSince(timestamp);
+		if(age==0) {
+			cell.setAttribute("data-age","new");
+		}
+		if(age>2) {
+			cell.setAttribute("data-age","old");
+		}
+		if(receivedID && receivedID!=-1) {
+			cell.setAttribute("data-recv",receivedID);
+			cell.setAttribute("title",received);
+		}
+		if(givenID) {
+			cell.setAttribute("data-give",givenID);
+			cell.setAttribute("title",cell.getAttribute("title")+" ("+given+")");
+		}
+		row.appendChild(cell);
+	}
+	visitorlist.appendChild(row);
+}
+
+function setBadge(node, cont)
+{
+	clearNode(node);
+	if(cont) {
+		var badge = create("span", cont);
+		badge.setAttribute("class","badge");
+		node.appendChild(badge);
+	} else {
+		return 0;
+	}
+	return cont;
+}
+
 function setMailCount(count)
 {
-	clearNode(mailcount);
-	if(count) {
-		var badge = create("span", count);
-		badge.setAttribute("class","badge");
-		mailcount.appendChild(badge);
-	} else {
-		count = 0;
-	}
+	count = setBadge(mailcount, count);
 	safari.self.tab.dispatchMessage("messageCountDidChange", count);
 }
 
@@ -278,6 +320,50 @@ function findDropped(index, html)
 			if(!index[item[1]]) {
 				appendMailRow(sentlist, item[1], item[2], -1, item[3], item[4], null, false, "To");
 			}
+		}
+	}
+}
+
+function findVisits(html, isGiven)
+{
+	visitHandler["found"]++;
+	setFetchTime();
+	var regex = /<td class="resHeadline"[^?]*\?set=(\d+)[^;]*;">([^<]*)<\/a>[^\n]*\n\s*<td[^>]*>[\s0-9.a-z'"&;]*;([^<]*)<\/td>[\s\S]*?(<img [a-z="0-9\/]*\/(\d+)[^:]*: ([^"]*)"[^>]*>\s*)?<span>[^<]*<\/span>\s*<br \/>\s*<br \/><br \/>/gi;
+	if(isGiven) {
+		for(var i = 0, item; item = regex.exec(html); i++) {
+			item[3] = item[3].replace(/-/,today.getFullYear()+" ");
+			visitHandler["given"][item[1]] = item;
+		}
+	} else {
+		for(var i = 0, item; item = regex.exec(html); i++) {
+			item[3] = item[3].replace(/-/,today.getFullYear()+" ");
+			visitHandler["received"][item[1]] = item;
+		}
+	}
+
+	if(visitHandler["found"]>=2) {
+		clearNode(visitorlist);
+
+		var received = visitHandler["received"];
+		var given = visitHandler["given"];
+
+		var i = 0;
+		for(id in received) {
+			appendVisitorRow(received[id][1], received[id][2], received[id][3], received[id][5], received[id][6], given[id] ? given[id][5] : 0, given[id] ? given[id][6] : null);
+			i++;
+		}
+
+		var j = 0;
+		for(id in given) {
+			if(!received[id]) {
+				appendVisitorRow(given[id][1], given[id][2], given[id][3], -1, null, given[id][5], given[id][6]);
+				j++;
+			}
+		}
+		if(i==0 && j==0) {
+			showListMessage(userlist,"No Visitors");
+		} else {
+			setBadge(visitorcount, i+"+"+j);
 		}
 	}
 }
@@ -412,6 +498,41 @@ function fetchUsers(event)
 	});
 }
 
+function fetchVisitors(event)
+{
+	today = null;
+	visitHandler = {"given":{}, "received":{}, "found":0};
+	switchView(visitorlist, event);
+
+	showListMessage(visitorlist, "Loading …");
+	fetchURL_didFetch_error(base+"/search/index.php?action=execute&searchType=myVisitors", function(html) {
+		var regex = /searchType=myVisitors/gi;
+		if(!regex.exec(html)) {
+			noLogin();
+			showListMessage(visitorlist, "Cannot retrieve visitors.", "Ensure you are logged in.", true);
+			return;
+		}
+
+		findVisits(html, false);
+	}, function(status) {
+		noLogin();
+		showListMessage(visitorlist, "Cannot access visitors.", "The server responded with error "+status+".", true);
+	});
+	fetchURL_didFetch_error(base+"/search/?action=execute&searchType=myVisits&footprintsOnly=1", function(html) {
+		var regex = /searchType=myVisits/gi;
+		if(!regex.exec(html)) {
+			noLogin();
+			showListMessage(visitorlist, "Cannot retrieve your visits.", "Ensure you are logged in.", true);
+			return;
+		}
+
+		findVisits(html, true);
+	}, function(status) {
+		noLogin();
+		showListMessage(visitorlist, "Cannot access your visits.", "The server responded with error "+status+".", true);
+	});
+}
+
 function findUsers(event)
 {
 	event.preventDefault();
@@ -427,14 +548,17 @@ function init()
 {
 	maillist = document.getElementById("mails");
 	sentlist = document.getElementById("sent");
-	mailcount = document.getElementById("count");
+	mailcount = document.getElementById("mcount");
 	userlist = document.getElementById("users");
+	visitorlist = document.getElementById("visitors");
+	visitorcount = document.getElementById("vcount");
 
 	mailview = document.getElementById("mailview");
 	info = document.getElementById("info");
 
 	lastView = mailview;
 	userlist.style.display = "none";
+	visitorlist.style.display = "none";
 	lastButton = mailcount.parentElement;
 
 	safari.self.tab.dispatchMessage("retrieveBase");

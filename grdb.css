@@ -138,7 +138,15 @@ ul.mails + ul.mails {
 	float:		left;
 }
 
-ul li:nth-child(2n) {
+#visitors li {
+	width:		22em;
+	padding:	0 0 0 2em;
+	float:		left;
+}
+
+ul.mails li:nth-child(2n),
+#users li:nth-child(2n),
+#visitors li:nth-child(4n+2), #visitors li:nth-child(4n+3) {
 	background:	#eef;
 }
 
@@ -191,7 +199,7 @@ ul h2 {
 	text-overflow: ellipsis;
 }
 
-ul.mails h2 {
+ul.mails h2, #visitors h2 {
 	margin-right: 0.25em;
 	float:		left;
 }
@@ -200,7 +208,7 @@ ul li.err h2 {
 	color:		#b00;
 }
 
-ul.mails h3 {
+ul h3 {
 	float:		right;
 	font-size:	1em;
 	font-weight: normal;
@@ -225,7 +233,7 @@ h2[data-label]:before {
 	color:		#888;
 }
 
-ul.mails li:hover h3, ul.mails li.low h3 {
+ul.mails li:hover h3, ul li.low h3, li.drop h3 {
 	color:		inherit;
 }
 
@@ -238,11 +246,26 @@ ul.mails h3[data-att] {
 	background:	url(pic.png) left center no-repeat;
 }
 
-ul.mails h3[data-age] {
+#visitors h3[data-give] {
+	padding:	0 0 0 18px;
+	background:	url(f/g.png) left center no-repeat;
+}
+
+#visitors h3[data-recv] {
+	padding:	0 0 0 18px;
+	background:	url(f/r.png) left center no-repeat;
+}
+
+#visitors h3[data-give][data-recv] {
+	padding:	0 0 0 18px;
+	background:	url(f/m.png) left center no-repeat;
+}
+
+ul h3[data-age] {
 	font-weight: bold;
 }
 
-ul.mails h3[data-age=old] {
+ul h3[data-age=old] {
 	color:		#b00;
 }
 
