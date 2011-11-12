@@ -189,7 +189,14 @@ function appendVisitorRow(id, name, timestamp, receivedID, received, givenID, gi
 		}
 		if(givenID) {
 			cell.setAttribute("data-give",givenID);
-			cell.setAttribute("title",cell.getAttribute("title")+" ("+given+")");
+			if(prev = cell.getAttribute("title")) {
+				prev += "\n";
+			} else {
+				prev = "";
+			}
+			if(givenID != receivedID) {
+				cell.setAttribute("title", prev+"⇠ "+given);
+			}
 		}
 		row.appendChild(cell);
 	}
