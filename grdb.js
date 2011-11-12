@@ -82,7 +82,7 @@ function daysSince(datestring)
 	if(isNaN(date)) {
 		return -1;
 	}
-	return Math.floor((today-date) / 24 / 60 / 60 / 1000);
+	return (today-date) / 24 / 60 / 60 / 1000;
 }
 
 function appendMailRow(list, senderID, sender, msgID, subject, timestamp, hasAttachment, dup, label)
@@ -117,9 +117,9 @@ function appendMailRow(list, senderID, sender, msgID, subject, timestamp, hasAtt
 		cell = create("h3", timestamp);
 		age = daysSince(timestamp);
 		if(age>1) {
-			cell.setAttribute("title",age+" days old");
+			cell.setAttribute("title",Math.floor(age)+" days old");
 		}
-		if(age==0) {
+		if(age<=0.5) {
 			cell.setAttribute("data-age","new");
 		}
 		if(age>10) {
@@ -177,7 +177,7 @@ function appendVisitorRow(id, name, timestamp, receivedID, received, givenID, gi
 	if(timestamp) {
 		cell = create("h3", timestamp);
 		age = daysSince(timestamp);
-		if(age==0) {
+		if(age<=0.5) {
 			cell.setAttribute("data-age","new");
 		}
 		if(age>2) {
@@ -525,7 +525,7 @@ function fetchVisitors(event)
 		noLogin();
 		showListMessage(visitorlist, "Cannot access visitors.", "The server responded with error "+status+".", true);
 	});
-	fetchURL_didFetch_error(base+"/search/?action=execute&searchType=myVisits&footprintsOnly=1", function(html) {
+	fetchURL_didFetch_error(base+"/search/?action=execute&searchType=myVisits", function(html) {
 		var regex = /searchType=myVisits/gi;
 		if(!regex.exec(html)) {
 			noLogin();
