@@ -375,7 +375,7 @@ function findVisits(html, isGiven)
 		}
 	}
 
-	if(visitHandler["found"]>=2) {
+	if(visitHandler["found"]>=visitHandler["total"]) {
 		clearNode(visitorlist);
 
 		var received = visitHandler["received"];
@@ -535,7 +535,7 @@ function fetchUsers(event)
 function fetchVisitors(event)
 {
 	today = null;
-	visitHandler = {"given":{}, "received":{}, "found":0};
+	visitHandler = {"given":{}, "received":{}, "found":0, "total":2};
 	switchView(visitorlist, event);
 
 	showListMessage(visitorlist, "Loading …");
@@ -547,7 +547,7 @@ function fetchVisitors(event)
 			return;
 		}
 
-		findVisits(html, false);
+		fetchNextVisitPage(html, regex, false);
 	}, function(status) {
 		noLogin();
 		showListMessage(visitorlist, "Cannot access visitors.", "The server responded with error "+status+".", true);
@@ -560,10 +560,36 @@ function fetchVisitors(event)
 			return;
 		}
 
-		findVisits(html, true);
+		fetchNextVisitPage(html, regex, true);
 	}, function(status) {
 		noLogin();
 		showListMessage(visitorlist, "Cannot access your visits.", "The server responded with error "+status+".", true);
+	});
+}
+
+function fetchNextVisitPage(html, regex, isGiven)
+{
+	nextregex = /\d<\/a>&nbsp;\|&nbsp;<a href="([^"]*)">/gi;
+	var url = nextregex.exec(html);
+
+	if(url && url[1]) { // there is more to do
+		visitHandler["total"]++;
+	}
+	findVisits(html, isGiven);
+
+	if(!url) {
+		return;
+	}
+
+	fetchURL_didFetch_error(base+"/search/"+url[1], function(html) {
+		if(!regex.exec(html)) {
+			findVisits(null, isGiven);
+			return;
+		}
+
+		fetchNextVisitPage(html, regex, isGiven);
+	}, function(status) {
+		findVisits(null, isGiven);
 	});
 }
 
