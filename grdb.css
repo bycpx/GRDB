@@ -248,17 +248,17 @@ ul.mails h3[data-att] {
 
 #visitors h3[data-give] {
 	padding:	0 0 0 20px;
-	background:	url(f/g.png) left center no-repeat;
+	background:	url(f/def_g.png) left center no-repeat;
 }
 
 #visitors h3[data-recv] {
 	padding:	0 0 0 20px;
-	background:	url(f/r.png) left center no-repeat;
+	background:	url(f/def_r.png) left center no-repeat;
 }
 
 #visitors h3[data-give][data-recv] {
 	padding:	0 0 0 20px;
-	background:	url(f/m.png) left center no-repeat;
+	background:	url(f/def_b.png) left center no-repeat;
 }
 
 ul h3[data-age] {
