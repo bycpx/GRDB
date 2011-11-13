@@ -9,7 +9,7 @@ var dropHandler, visitHandler;
 var visitIcons = {
 	10:"like", 11:"like", 13:"like", 14:"like", 15:"like", 16:"like", 17:"like", 19:"like", 31:"like", 42:"like", 47:"like", 50:"like", 51:"like", 52:"like", 53:"like",
 	9:"hot", 20:"hot", 21:"hot", 22:"hot", 30:"hot", 40:"hot",
-	8:"hi", 41:"hi", 44:"hi",
+	8:"hi", 26:"hi", 41:"hi", 44:"hi",
 	1:"date", 7:"date",
 	12:"love", 54:"love",
 	27:"no", 28:"no",
