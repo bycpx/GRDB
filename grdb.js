@@ -100,7 +100,7 @@ function visitIcon(received, given)
 {
 	var img;
 	if(received && received!=-1 && (img=visitIcons[received])) {
-		return img+(given?"_b":"_r");
+		return img+((given && given!=-1)?"_b":"_r");
 	}
 	if((!received || received==-1) && given && given!=-1 && (img=visitIcons[given])) {
 		return img+"_g";
