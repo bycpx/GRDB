@@ -102,7 +102,7 @@ function visitIcon(received, given)
 	if(received && received!=-1 && (img=visitIcons[received])) {
 		return img+(given?"_b":"_r");
 	}
-	if((!received || received==-1) && given && (img=visitIcons[given])) {
+	if((!received || received==-1) && given && given!=-1 && (img=visitIcons[given])) {
 		return img+"_g";
 	}
 	return null;
@@ -187,6 +187,9 @@ function appendVisitorRow(id, name, timestamp, receivedID, received, givenID, gi
 {
 	var cell;
 	var row = create("li");
+	if(givenID==-1) {
+		row.setAttribute("class","new");
+	}
 	if(receivedID==-1) {
 		row.setAttribute("class","drop");
 	}
@@ -213,7 +216,7 @@ function appendVisitorRow(id, name, timestamp, receivedID, received, givenID, gi
 			cell.setAttribute("data-recv",receivedID);
 			cell.setAttribute("title",received);
 		}
-		if(givenID) {
+		if(givenID && givenID!=-1) {
 			cell.setAttribute("data-give",givenID);
 			if(prev = cell.getAttribute("title")) {
 				prev += "\n";
@@ -383,7 +386,7 @@ function findVisits(html, isGiven)
 
 		var i = 0;
 		for(id in received) {
-			appendVisitorRow(received[id][1], received[id][2], received[id][3], received[id][5], received[id][6], given[id] ? given[id][5] : 0, given[id] ? given[id][6] : null);
+			appendVisitorRow(received[id][1], received[id][2], received[id][3], received[id][5], received[id][6], given[id] ? given[id][5] : -1, given[id] ? given[id][6] : null);
 			i++;
 		}
 

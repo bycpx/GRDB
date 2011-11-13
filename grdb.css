@@ -279,6 +279,10 @@ ul.mails p {
 	text-overflow: ellipsis;
 }
 
+li.new {
+	color:		#26a;
+}
+
 li.drop {
 	color:		#888;
 }
