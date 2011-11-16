@@ -87,13 +87,23 @@ function createHistoryLink(id)
 	return link;
 }
 
+function timestamp(datestring)
+{
+	return new Date(datestring.replace(/(\d\d)\.(\d\d)\./, "$2/$1 "));
+}
+
+function dayDiff(from, to)
+{
+	return (to-from) / 24 / 60 / 60 / 1000;
+}
+
 function daysSince(datestring)
 {
-	var date = new Date(datestring.replace(/(\d\d)\.(\d\d)\./, "$2/$1 "));
+	var date = timestamp(datestring);
 	if(isNaN(date)) {
 		return -1;
 	}
-	return (today-date) / 24 / 60 / 60 / 1000;
+	return dayDiff(date,today);
 }
 
 function visitIcon(received, given)
@@ -206,7 +216,7 @@ function appendVisitorRow(id, name, timestamp, receivedID, received, givenID, gi
 		if(age<=0.5) {
 			cell.setAttribute("data-age","new");
 		}
-		if(age>2) {
+		if(age>2.5) {
 			cell.setAttribute("data-age","old");
 		}
 		if(img = visitIcon(receivedID, givenID)) {
