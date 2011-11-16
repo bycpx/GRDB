@@ -193,7 +193,7 @@ function appendUserRow(id, name)
 	userlist.appendChild(row);
 }
 
-function appendVisitorRow(id, name, timestamp, receivedID, received, givenID, given)
+function appendVisitorRow(id, name, datetime, timestamp, receivedID, received, givenID, given)
 {
 	var cell;
 	var row = create("li");
@@ -211,8 +211,8 @@ function appendVisitorRow(id, name, timestamp, receivedID, received, givenID, gi
 	cell.appendChild(createUserLink(id, name));
 	row.appendChild(cell);
 	if(timestamp) {
-		cell = create("h3", timestamp);
-		age = daysSince(timestamp);
+		cell = create("h3", datetime.replace(/-/," "));
+		age = dayDiff(timestamp,today);
 		if(age<=0.5) {
 			cell.setAttribute("data-age","new");
 		}
@@ -376,41 +376,63 @@ function findVisits(html, isGiven)
 	visitHandler["found"]++;
 	setFetchTime();
 	var regex = /<td class="resHeadline"[^?]*\?set=(\d+)[^;]*;">([^<]*)<\/a>[^\n]*\n\s*<td[^>]*>[\s0-9.a-z'"&;]*;([^<]*)<\/td>[\s\S]*?(<img [a-z="0-9\/]*\/(\d+)[^:]*: ([^"]*)"[^>]*>\s*)?<span>[^<]*<\/span>\s*<br \/>\s*<br \/><br \/>/gi;
+	var item, i;
+
+	var r = visitHandler["received"];
+	var g = visitHandler["given"];
+	var index = visitHandler["index"];
+
 	if(isGiven) {
-		for(var i = 0, item; item = regex.exec(html); i++) {
-			item[3] = item[3].replace(/-/,today.getFullYear()+" ");
-			visitHandler["given"][item[1]] = item;
+		for(i = g.length; item = regex.exec(html); i++) {
+			item.timestamp = timestamp(item[3].replace(/-/,today.getFullYear()+" "));
+			index[item[1]] = item;
+			g[i] = item;
 		}
 	} else {
-		for(var i = 0, item; item = regex.exec(html); i++) {
-			item[3] = item[3].replace(/-/,today.getFullYear()+" ");
-			visitHandler["received"][item[1]] = item;
+		for(i = r.length; item = regex.exec(html); i++) {
+			item.timestamp = timestamp(item[3].replace(/-/,today.getFullYear()+" "));
+			r[i] = item;
 		}
 	}
 
 	if(visitHandler["found"]>=visitHandler["total"]) {
 		clearNode(visitorlist);
 
-		var received = visitHandler["received"];
-		var given = visitHandler["given"];
-
-		var i = 0;
-		for(id in received) {
-			appendVisitorRow(received[id][1], received[id][2], received[id][3], received[id][5], received[id][6], given[id] ? given[id][5] : -1, given[id] ? given[id][6] : null);
-			i++;
+		for(i = 0; i < r.length; i++) {
+			if(item = index[r[i][1]]) {
+				item[1] = 0;
+			}
 		}
 
+		i = 0;
 		var j = 0;
-		for(id in given) {
-			if(!received[id]) {
-				appendVisitorRow(given[id][1], given[id][2], given[id][3], -1, null, given[id][5], given[id][6]);
+		var k = 0;
+		var rl = r.length;
+		var gl = g.length;
+		var id;
+		while(i<rl || j<gl) {
+			while(j<gl && g[j][1]==0) {
+				j++;
+			}
+			while(i<rl && (j>=gl || r[i].timestamp>=g[j].timestamp)) {
+				id = r[i][1];
+				item = index[id];
+				appendVisitorRow(id, r[i][2], r[i][3], r[i].timestamp, r[i][5], r[i][6], item ? item[5] : -1, item ? item[6] : null);
+				i++;
+			}
+			while(j<gl && (i>=rl || r[i].timestamp<g[j].timestamp)) {
+				if(g[j][1]) {
+					appendVisitorRow(g[j][1], g[j][2], g[j][3], g[j].timestamp, -1, null, g[j][5], g[j][6]);
+					k++;
+				}
 				j++;
 			}
 		}
-		if(i==0 && j==0) {
+
+		if(i==0 && k==0) {
 			showListMessage(userlist,"No Visitors");
 		} else {
-			setBadge(visitorcount, i+"+"+j);
+			setBadge(visitorcount, i+"+"+k);
 		}
 	}
 }
@@ -548,7 +570,7 @@ function fetchUsers(event)
 function fetchVisitors(event)
 {
 	today = null;
-	visitHandler = {"given":{}, "received":{}, "found":0, "total":2};
+	visitHandler = {"received":[], "given":[], "index":{}, "found":0, "total":2};
 	switchView(visitorlist, event);
 
 	showListMessage(visitorlist, "Loading …");
