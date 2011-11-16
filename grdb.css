@@ -139,8 +139,8 @@ ul.mails + ul.mails {
 }
 
 #visitors li {
-	width:		22em;
-	padding:	0 0 0 2em;
+	width:		21em;
+	padding:	0 0 0 3em;
 	float:		left;
 }
 
@@ -172,7 +172,7 @@ ul div.action {
 	font-weight: bold;
 }
 
-#users div.action {
+#users div.action, #visitors div.action {
 	margin:		0 0 0 -3em;
 	width:		3em;
 }
