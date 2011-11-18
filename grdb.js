@@ -394,7 +394,7 @@ function findVisits(html, isGiven)
 {
 	visitHandler["found"]++;
 	setFetchTime();
-	var regex = /<td class="resHeadline"[^?]*\?set=(\d+)[^;]*;">([^<]*)<\/a>[^\n]*\n\s*<td[^>]*>[\s0-9.a-z'"&;]*;([^<]*)<\/td>[\s\S]*?(<img [a-z="0-9\/]*\/(\d+)[^:]*: ([^"]*)"[^>]*>\s*)?<span>[^<]*<\/span>\s*<br \/>\s*<br \/><br \/>/gi;
+	var regex = /<td class="resHeadline"[^?]*\?set=(\d+)[^;]*;">([^<]*)<\/a>[^\n]*\n\s*<td[^>]*>(?:(?:<[^>]*>[^<]*<\/[^>]*>)|[\s0-9.a-z'"&;])*;([^<]*)<\/td>[\s\S]*?(<img [a-z="0-9\/]*\/(\d+)[^:]*: ([^"]*)"[^>]*>\s*)?<span>[^<]*<\/span>\s*<br \/>\s*<br \/><br \/>/gi;
 	var item, i;
 
 	var r = visitHandler["received"];
@@ -449,7 +449,7 @@ function findVisits(html, isGiven)
 		}
 
 		if(i==0 && k==0) {
-			showListMessage(userlist,"No Visitors");
+			showListMessage(visitorlist,"No Visitors");
 		} else {
 			setBadge(visitorcount, i+"+"+k);
 		}
