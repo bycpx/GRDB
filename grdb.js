@@ -3,8 +3,9 @@
 var maillist, sentlist, userlist, visitorlist;
 var mailview, mailcount, visitorcount, info;
 var lastView, lastButton;
-var base, today;
-var dropHandler, visitHandler;
+var userPic;
+var base, pbase, today;
+var dropHandler, visitHandler, userPicMap;
 
 var visitIcons = {
 	10:"like", 11:"like", 13:"like", 14:"like", 15:"like", 16:"like", 17:"like", 19:"like", 31:"like", 42:"like", 47:"like", 50:"like", 51:"like", 52:"like", 53:"like",
@@ -67,6 +68,14 @@ function clearNode(node)
 	}
 }
 
+function absAttr(node, attr)
+	{
+	for(var val=0; node; node = node.offsetParent) {
+		val += node[attr];
+		}
+	return val;
+	}
+
 // -
 
 function createUserLink(id, name)
@@ -74,6 +83,11 @@ function createUserLink(id, name)
 	var link = create("a", name);
 	link.setAttribute("href", base+"/auswertung/setcard/?set="+id);
 	link.setAttribute("target","_blank");
+	if(pic = userPicMap[id]) {
+		link.setAttribute("data-pic",pic);
+		link.addEventListener("mouseover", showUserPic, false);
+		link.addEventListener("mouseout", hideUserPic, false);
+	}
 	return link;
 }
 
@@ -308,6 +322,34 @@ function handleMailClick(event)
 	event.preventDefault();
 }
 
+function showUserPic(event)
+{
+	var target = event.target;
+	userPic.hideTimer = userPic.hideTimer && clearTimeout(userPic.hideTimer);
+	adjPic = function() {
+		userPic.setAttribute("src",pbase+target.getAttribute("data-pic")+".jpg");
+		userPic.style.top = (absAttr(target, "offsetTop") - 4) + "px";
+		userPic.style.left = (absAttr(target, "offsetLeft") - userPic.offsetWidth - 4) + "px";
+	}
+	if(userPic.style.display=="block") {
+		userPic.style.WebkitTransitionProperty = "";
+		adjPic();
+	} else {
+		userPic.showTimer = userPic.showTimer || setTimeout(function() {
+			userPic.Timer = null;
+			userPic.style.WebkitTransitionProperty = "none";
+			userPic.style.display = "block";
+			adjPic();
+		}, 1000);
+	}
+}
+
+function hideUserPic(event)
+{
+	userPic.showTimer = userPic.showTimer && clearTimeout(userPic.showTimer);
+	userPic.hideTimer = setTimeout(function() { userPic.style.display = "none"; }, 500);
+}
+
 function markLow(event)
 {
 	this.parentElement.parentElement.setAttribute("class","low");
@@ -394,7 +436,7 @@ function findVisits(html, isGiven)
 {
 	visitHandler["found"]++;
 	setFetchTime();
-	var regex = /<td class="resHeadline"[^?]*\?set=(\d+)[^;]*;">([^<]*)<\/a>[^\n]*\n\s*<td[^>]*>(?:(?:<[^>]*>[^<]*<\/[^>]*>)|[\s0-9.a-z'"&;])*;([^<]*)<\/td>[\s\S]*?(<img [a-z="0-9\/]*\/(\d+)[^:]*: ([^"]*)"[^>]*>\s*)?<span>[^<]*<\/span>\s*<br \/>\s*<br \/><br \/>/gi;
+	var regex = /(?:\/usr\/([^\.]*)\.[^\n]*\n\s*)?<td class="resHeadline"[^?]*\?set=(\d+)[^;]*;">([^<]*)<\/a>[^\n]*\n\s*<td[^>]*>(?:(?:<[^>]*>[^<]*<\/[^>]*>)|[\s0-9.a-z'"&;])*;([^<]*)<\/td>[\s\S]*?(<img [a-z="0-9\/]*\/(\d+)[^:]*: ([^"]*)"[^>]*>\s*)?<span>[^<]*<\/span>\s*<br \/>\s*<br \/><br \/>/gi;
 	var item, i;
 
 	var r = visitHandler["received"];
@@ -403,13 +445,15 @@ function findVisits(html, isGiven)
 
 	if(isGiven) {
 		for(i = g.length; item = regex.exec(html); i++) {
-			item.timestamp = timestamp(item[3].replace(/-/,today.getFullYear()+" "));
-			index[item[1]] = item;
+			item.timestamp = timestamp(item[4].replace(/-/,today.getFullYear()+" "));
+			index[item[2]] = item;
+			userPicMap[item[2]] = item[1];
 			g[i] = item;
 		}
 	} else {
 		for(i = r.length; item = regex.exec(html); i++) {
-			item.timestamp = timestamp(item[3].replace(/-/,today.getFullYear()+" "));
+			item.timestamp = timestamp(item[4].replace(/-/,today.getFullYear()+" "));
+			userPicMap[item[2]] = item[1];
 			r[i] = item;
 		}
 	}
@@ -418,8 +462,8 @@ function findVisits(html, isGiven)
 		clearNode(visitorlist);
 
 		for(i = 0; i < r.length; i++) {
-			if(item = index[r[i][1]]) {
-				item[1] = 0;
+			if(item = index[r[i][2]]) {
+				item[2] = 0;
 			}
 		}
 
@@ -430,18 +474,18 @@ function findVisits(html, isGiven)
 		var newmail = dropHandler["new"];
 		var id;
 		while(i<rl || j<gl) {
-			while(j<gl && g[j][1]==0) {
+			while(j<gl && g[j][2]==0) {
 				j++;
 			}
 			while(i<rl && (j>=gl || r[i].timestamp>=g[j].timestamp)) {
-				id = r[i][1];
+				id = r[i][2];
 				item = index[id];
-				appendVisitorRow(id, r[i][2], r[i][3], r[i].timestamp, r[i][5], r[i][6], item ? item[5] : -1, item ? item[6] : null, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0));
+				appendVisitorRow(id, r[i][3], r[i][4], r[i].timestamp, r[i][6], r[i][7], item ? item[6] : -1, item ? item[7] : null, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0));
 				i++;
 			}
 			while(j<gl && (i>=rl || r[i].timestamp<g[j].timestamp)) {
-				if(id = g[j][1]) {
-					appendVisitorRow(id, g[j][2], g[j][3], g[j].timestamp, -1, null, g[j][5], g[j][6], newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0));
+				if(id = g[j][2]) {
+					appendVisitorRow(id, g[j][3], g[j][4], g[j].timestamp, -1, null, g[j][6], g[j][7], newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0));
 					k++;
 				}
 				j++;
@@ -672,6 +716,11 @@ function init()
 
 	mailview = document.getElementById("mailview");
 	info = document.getElementById("info");
+
+	userPicMap = {};
+	pbase = "http://s.gayromeo.com/img/usr/";
+	userPic = document.getElementById("userpic");
+	userPic.style.display = "none";
 
 	lastView = mailview;
 	userlist.style.display = "none";
