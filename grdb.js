@@ -429,6 +429,15 @@ function findDropped(index, html)
 				appendMailRow(sentlist, item[1], item[2], -1, item[3], item[4], null, false, "To");
 			}
 		}
+
+		regex = /<option value=\"(\d+)\">([^<]*)<\/option>/gi;
+		while(item = regex.exec(html)) {
+			if(item[1]!="0" && !index[item[1]]) {
+				appendMailRow(sentlist, item[1], item[2], -1, "…", "??.?? ??:??", null, false, "To");
+				index[item[1]] = item;
+			}
+		}
+
 	}
 }
 
