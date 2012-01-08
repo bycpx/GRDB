@@ -149,7 +149,7 @@ function visitIcon(received, given)
 	return null;
 }
 
-function appendMailRow(list, senderID, sender, msgID, subject, timestamp, hasAttachment, dup, label)
+function appendMailRow(list, senderID, sender, msgID, subject, datetime, timestamp, hasAttachment, dup, label)
 {
 	var cell, link;
 	var row = create("li");
@@ -178,8 +178,8 @@ function appendMailRow(list, senderID, sender, msgID, subject, timestamp, hasAtt
 		row.appendChild(cell);
 	}
 	if(timestamp) {
-		cell = create("h3", timestamp);
-		age = daysSince(timestamp);
+		cell = create("h3", datetime);
+		age = dayDiff(timestamp,today);
 		if(age>1) {
 			cell.setAttribute("title",Math.floor(age)+" days old");
 		}
@@ -389,11 +389,16 @@ function noLogin()
 	}
 }
 
-function clusterItems(html, regex, index)
+function clusterItems(html, regex, index, isSent)
 {
 	var first, dup, last = null;
 
 	for(var item = null; item = regex.exec(html); index[item[1]] = item) {
+		if(isSent) {
+			item.timestamp = timestamp(item[4].replace(/\s/,"."+today.getFullYear()+" "));
+		} else {
+			item.timestamp = timestamp(item[5]);
+		}
 		if((dup = index[item[1]]) && (dup!=last)) {
 			var old = dup.next;
 			dup.next = item;
@@ -426,14 +431,15 @@ function findDropped(index, html)
 		regex = /set=(\d+)[^>]*>([^<]+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)</gi;
 		for(var item = null; item = regex.exec(html); index[item[1]] = item) {
 			if(!index[item[1]]) {
-				appendMailRow(sentlist, item[1], item[2], -1, item[3], item[4], null, false, "To");
+				item.timestamp = timestamp(item[4].replace(/\s/,"."+today.getFullYear()+" "));
+				appendMailRow(sentlist, item[1], item[2], -1, item[3], item[4], item.timestamp, null, false, "To");
 			}
 		}
 
 		regex = /<option value=\"(\d+)\">([^<]*)<\/option>/gi;
 		while(item = regex.exec(html)) {
 			if(item[1]!="0" && !index[item[1]]) {
-				appendMailRow(sentlist, item[1], item[2], -1, "…", "??.?? ??:??", null, false, "To");
+				appendMailRow(sentlist, item[1], item[2], -1, "…", "??.?? ??:??", null, null, false, "To");
 				index[item[1]] = item;
 			}
 		}
@@ -538,7 +544,7 @@ function fetchMails(event)
 		regex = /set=(\d+)[^>]*>([^<]+)[^?]*\?id=(\d+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
 
 		var index = {};
-		var mails = clusterItems(html, regex, index);
+		var mails = clusterItems(html, regex, index, false);
 		for(var attr in index) {
 			dropHandler["new"][attr] = index[attr];
 		}
@@ -546,7 +552,7 @@ function fetchMails(event)
 		clearNode(maillist);
 
 		for(var prevID = 0, item = mails; item; item = item.next) {
-			appendMailRow(maillist, item[1], item[2], item[3], item[4], item[5], item[6]=="i", item[1]==prevID);
+			appendMailRow(maillist, item[1], item[2], item[3], item[4], item[5], item.timestamp, item[6]=="i", item[1]==prevID);
 			prevID = item[1];
 		}
 
@@ -581,13 +587,13 @@ function fetchMails(event)
 		regex = /set=(\d+)[^>]*>([^<]+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)</gi;
 
 		var index = {};
-		var mails = clusterItems(html, regex, index);
+		var mails = clusterItems(html, regex, index, true);
 
 		clearNode(sentlist);
 
 		var prevID = 0;
 		for(var item = mails; item; item = item.next) {
-			appendMailRow(sentlist, item[1], item[2], null, item[3], item[4], null, item[1]==prevID, "To");
+			appendMailRow(sentlist, item[1], item[2], null, item[3], item[4], item.timestamp, null, item[1]==prevID, "To");
 			prevID = item[1];
 		}
 		if(prevID==0) {
@@ -597,7 +603,7 @@ function fetchMails(event)
 		regex = /<option value=\"(\d+)\">([^<]*)<\/option>/gi;
 		while(item = regex.exec(html)) {
 			if(item[1]!="0" && !index[item[1]]) {
-				appendMailRow(sentlist, item[1], item[2], null, "…", null, null, null, "To");
+				appendMailRow(sentlist, item[1], item[2], null, "…", null, null, null, false, "To");
 				index[item[1]] = item;
 			}
 		}
