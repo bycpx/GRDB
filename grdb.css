@@ -133,22 +133,6 @@ ul li:first-child {
 	border-top: none;
 }
 
-ul.mails:first-child {
-	position:	relative;
-	margin-bottom: 0;
-	padding-bottom: 0;
-	border-bottom: none;
-	border-bottom-left-radius: 0;
-	border-bottom-right-radius: 0;
-	z-index:	1;
-}
-
-ul.mails + ul.mails {
-	margin-top: 0;
-	border-top-left-radius: 0;
-	border-top-right-radius: 0;
-}
-
 #users li {
 	width:		13em;
 	padding:	0 0 0 3em;
@@ -161,21 +145,21 @@ ul.mails + ul.mails {
 	float:		left;
 }
 
-ul.mails li:nth-child(2n),
+#mails li:nth-child(2n),
 #users li:nth-child(2n),
 #visitors li:nth-child(4n+2), #visitors li:nth-child(4n+3) {
 	background:	#eef;
 }
 
-#sent {
+#mails li.sent {
 	background:	#eee;
 }
 
-#sent li:nth-child(2n) {
+#mails li.sent:nth-child(2n) {
 	background:	#ddd;
 }
 
-ul.mails li[data-msg]:hover {
+#mails li[data-msg]:hover {
 	color:		#1af;
 	cursor:		pointer;
 }
@@ -216,7 +200,7 @@ ul h2 {
 	text-overflow: ellipsis;
 }
 
-ul.mails h2, #visitors h2 {
+#mails h2, #visitors h2 {
 	margin-right: 0.25em;
 	float:		left;
 }
@@ -246,11 +230,16 @@ h2[data-label]:before {
 	border-radius: 0.3em;
 }
 
-#sent h3 {
+li.drop h2[data-label]:before {
+	color:		#ddd;
+	text-shadow: #888 0 -1px 0;
+}
+
+#mails li.sent h3 {
 	color:		#888;
 }
 
-ul.mails li:hover h3, ul li.low h3, li.drop h3 {
+#mails li:hover h3, ul li.low h3, li.drop h3 {
 	color:		inherit;
 }
 
@@ -258,7 +247,7 @@ ul li.low {
 	color:		#aaa;
 }
 
-ul.mails h3[data-att] {
+#mails h3[data-att] {
 	padding:	0 0 0 18px;
 	background:	url(pic.png) left center no-repeat;
 }
@@ -282,7 +271,7 @@ ul h3[data-age] {
 	font-weight: bold;
 }
 
-ul h3[data-age=old] {
+ul h3[data-age=old], #mails li.sent h3[data-age=old] {
 	color:		#b00;
 }
 
@@ -290,7 +279,7 @@ ul p {
 	margin:		0;
 }
 
-ul.mails p {
+#mails p {
 	white-space: nowrap;
 	overflow:	hidden;
 	text-overflow: ellipsis;

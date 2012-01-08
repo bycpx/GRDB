@@ -1,11 +1,11 @@
 /* GRDB Helper Script */
 
-var maillist, sentlist, userlist, visitorlist;
-var mailview, mailcount, visitorcount, info;
+var maillist, userlist, visitorlist;
+var mailcount, visitorcount, info;
 var lastView, lastButton;
 var userPic;
 var base, pbase, today;
-var dropHandler, visitHandler, userPicMap;
+var mailHandler, visitHandler, userPicMap;
 
 var visitIcons = {
 	10:"like", 11:"like", 13:"like", 14:"like", 15:"like", 16:"like", 17:"like", 19:"like", 31:"like", 42:"like", 47:"like", 50:"like", 51:"like", 52:"like", 53:"like",
@@ -149,7 +149,7 @@ function visitIcon(received, given)
 	return null;
 }
 
-function appendMailRow(list, senderID, sender, msgID, subject, datetime, timestamp, hasAttachment, dup, label)
+function appendMailRow(senderID, sender, msgID, subject, datetime, timestamp, hasAttachment, dup, sent)
 {
 	var cell, link;
 	var row = create("li");
@@ -159,6 +159,9 @@ function appendMailRow(list, senderID, sender, msgID, subject, datetime, timesta
 	} else if(msgID) {
 		row.setAttribute("data-msg",msgID);
 		row.addEventListener("click", handleMailClick, false);
+	}
+	if(sent) {
+		row.setAttribute("class",row.getAttribute("class")+" sent");
 	}
 	if(!dup) {
 		cell = create("div");
@@ -172,8 +175,8 @@ function appendMailRow(list, senderID, sender, msgID, subject, datetime, timesta
 		link = createUserLink(senderID, sender);
 		link.addEventListener("click", onlyThis, false);
 		cell.appendChild(link);
-		if(label) {
-			cell.setAttribute("data-label",label);
+		if(sent) {
+			cell.setAttribute("data-label","To");
 		}
 		row.appendChild(cell);
 	}
@@ -199,8 +202,10 @@ function appendMailRow(list, senderID, sender, msgID, subject, datetime, timesta
 		cell = create("p");
 		cell.innerHTML = subject.replace("...\n","…");
 		row.appendChild(cell);
+	} else if(subject == undefined) {
+		row.appendChild(create("p","…"));
 	}
-	list.appendChild(row);
+	maillist.appendChild(row);
 }
 
 function appendUserRow(id, name)
@@ -389,11 +394,11 @@ function noLogin()
 	}
 }
 
-function clusterItems(html, regex, index, isSent)
+function clusterItems(html, regex, more, index, isSent)
 {
-	var first, dup, last = null;
+	var first, dup, last, item = null;
 
-	for(var item = null; item = regex.exec(html); index[item[1]] = item) {
+	for(item = null; item = regex.exec(html); index[item[1]] = item) {
 		if(isSent) {
 			item.timestamp = timestamp(item[4].replace(/\s/,"."+today.getFullYear()+" "));
 		} else {
@@ -413,37 +418,101 @@ function clusterItems(html, regex, index, isSent)
 		}
 	}
 
+	while(item = more.exec(html)) {
+		if(item[1]!="0" && !index[item[1]]) {
+			item.timestamp = null;
+			if(last) {
+				last.next = item;
+			} else {
+				first = item;
+			}
+			index[item[1]] = item;
+			last = item;
+		}
+	}
+
 	return first;
 }
 
-function findDropped(index, html)
+function findMails(html, regex, type)
 {
-	dropHandler["found"]++;
-	for(attr in index) {
-		dropHandler["index"][attr] = index[attr];
+	mailHandler["found"]++;
+	setFetchTime();
+	var more = /<option value=\"(\d+)\">([^<]*)<\/option>/gi;
+
+	var i_n = mailHandler["new"]; // userID => new item
+	var index = mailHandler["index"]; // userID => item
+
+	switch(type) {
+		case 0: // new
+			mailHandler["newmail"] = clusterItems(html, regex, more, i_n, false);
+			for(attr in i_n) {
+				index[attr] = i_n[attr];
+			}
+		break;
+		case 1: // undelivered
+			var i_u = {}
+			mailHandler["undelivered"] = clusterItems(html, regex, more, i_u, true);
+			for(attr in i_u) {
+				index[attr] = i_u[attr];
+			}
+		break;
+		case 2: // sent
+			mailHandler["sent"] = clusterItems(html, regex, more, {}, true);
+		break;
 	}
-	if(html) {
-		dropHandler["html"] = html;
-	}
-	if(dropHandler["found"]>=3) {
-		index = dropHandler["index"];
-		html = dropHandler["html"];
-		regex = /set=(\d+)[^>]*>([^<]+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)</gi;
-		for(var item = null; item = regex.exec(html); index[item[1]] = item) {
+
+	if(mailHandler["found"] >= 3) {
+		clearNode(maillist);
+
+		var n = mailHandler["newmail"];
+		var u = mailHandler["undelivered"];
+		var s = mailHandler["sent"];
+		var d = [];
+		var i = 0;
+
+		for(var item = s; item; item = item.next) {
 			if(!index[item[1]]) {
-				item.timestamp = timestamp(item[4].replace(/\s/,"."+today.getFullYear()+" "));
-				appendMailRow(sentlist, item[1], item[2], -1, item[3], item[4], item.timestamp, null, false, "To");
-			}
-		}
-
-		regex = /<option value=\"(\d+)\">([^<]*)<\/option>/gi;
-		while(item = regex.exec(html)) {
-			if(item[1]!="0" && !index[item[1]]) {
-				appendMailRow(sentlist, item[1], item[2], -1, "…", "??.?? ??:??", null, null, false, "To");
+				d[i] = item;
 				index[item[1]] = item;
+				i++;
 			}
 		}
 
+		var dl = i;
+		i = 0;
+		var k = 0;
+		var curID, prvID;
+		while(n || u || i<dl) {
+			while(n && (!u || n.timestamp>=u.timestamp) && (i>=dl || n.timestamp>=d[i].timestamp)) {
+				curID = n[1];
+				prvID = 0;
+				while(n && curID == n[1]) {
+					appendMailRow(n[1], n[2], n[3], n[4], n[5] ? n[5].replace(/(\d\d\.\d\d)\.\d\d/,"$1 ") : '', n.timestamp, n[6]=="i", prvID==curID, false);
+					prvID = curID;
+					n = n.next;
+					k++;
+				}
+			}
+			while(u && (!n || u.timestamp>=n.timestamp) && (i>=dl || u.timestamp>=d[i].timestamp)) {
+				curID = u[1];
+				prvID = 0;
+				while(u && curID == u[1]) {
+					appendMailRow(u[1], u[2], null, u[3], u[4], u.timestamp, false, prvID==curID, true);
+					prvID = curID;
+					u = u.next;
+					k++;
+				}
+			}
+			while(i<dl && (!n || d[i].timestamp>=n.timestamp) && (!u || d[i].timestamp>=u.timestamp)) {
+				appendMailRow(d[i][1], d[i][2], -1, d[i][3], d[i][4], d[i].timestamp, false, false, true);
+				i++;
+				k++;
+			}
+		}
+		if(k==0) {
+			showListMessage(maillist,"No Messages");
+		}
 	}
 }
 
@@ -476,17 +545,17 @@ function findVisits(html, isGiven)
 	if(visitHandler["found"]>=visitHandler["total"]) {
 		clearNode(visitorlist);
 
-		for(i = 0; i < r.length; i++) {
+		var rl = r.length;
+		var gl = g.length;
+		for(i = 0; i < rl; i++) {
 			if(item = index[r[i][2]]) {
 				item[2] = 0;
 			}
 		}
 
 		i = 0; var j = 0; var k = 0;
-		var rl = r.length;
-		var gl = g.length;
-		var mail = dropHandler["index"];
-		var newmail = dropHandler["new"];
+		var mail = mailHandler["index"];
+		var newmail = mailHandler["new"];
 		var id;
 		while(i<rl || j<gl) {
 			while(j<gl && g[j][2]==0) {
@@ -518,8 +587,8 @@ function findVisits(html, isGiven)
 function fetchMails(event)
 {
 	today = null;
-	dropHandler = {"index":{}, "new":{}, "found":0, "html": null};
-	switchView(mailview, event);
+	mailHandler = {"newmail":false, "new":{}, "undelivered":false, "sent":false, "index":{}, "found":0};
+	switchView(maillist, event);
 
 	showListMessage(maillist,"Loading …");
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=new", function(html) {
@@ -537,81 +606,35 @@ function fetchMails(event)
 			setMailCount(parseInt(item[1]));
 		} else {
 			setMailCount();
-			showListMessage(maillist,"No New Messages");
 			return;
 		}
 
 		regex = /set=(\d+)[^>]*>([^<]+)[^?]*\?id=(\d+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
-
-		var index = {};
-		var mails = clusterItems(html, regex, index, false);
-		for(var attr in index) {
-			dropHandler["new"][attr] = index[attr];
-		}
-
-		clearNode(maillist);
-
-		for(var prevID = 0, item = mails; item; item = item.next) {
-			appendMailRow(maillist, item[1], item[2], item[3], item[4], item[5], item.timestamp, item[6]=="i", item[1]==prevID);
-			prevID = item[1];
-		}
-
-		regex = /<option value=\"(\d+)\">([^<]*)<\/option>/gi;
-		while(item = regex.exec(html)) {
-			if(item[1]!="0" && !index[item[1]]) {
-				appendMailRow(maillist, item[1], item[2], null, "…");
-				index[item[1]] = item;
-			}
-		}
-
-		findDropped(index);
+		findMails(html, regex, 0);
 	}, function(status) {
 		noLogin();
 		showListMessage(maillist, "Cannot access new messages.", "The server responded with error "+status+".", true);
 	});
 
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=sent", function(html) {
-		findDropped({}, html);
+		regex = /set=(\d+)[^>]*>([^<]+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)</gi;
+		findMails(html, regex, 2);
 	});
 
-	showListMessage(sentlist,"Loading …");
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=sentUnread", function(html) {
 		setFetchTime();
 		var regex = /name="messagelist"/gi;
 		if(!regex.exec(html)) {
 			noLogin();
-			showListMessage(sentlist, "Cannot retrieve sent messages.", "Ensure you are logged in.", true);
+			showListMessage(maillist, "Cannot retrieve sent messages.", "Ensure you are logged in.", true);
 			return;
 		}
 
 		regex = /set=(\d+)[^>]*>([^<]+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)</gi;
-
-		var index = {};
-		var mails = clusterItems(html, regex, index, true);
-
-		clearNode(sentlist);
-
-		var prevID = 0;
-		for(var item = mails; item; item = item.next) {
-			appendMailRow(sentlist, item[1], item[2], null, item[3], item[4], item.timestamp, null, item[1]==prevID, "To");
-			prevID = item[1];
-		}
-		if(prevID==0) {
-			showListMessage(sentlist,"No Sent Messages");
-		}
-
-		regex = /<option value=\"(\d+)\">([^<]*)<\/option>/gi;
-		while(item = regex.exec(html)) {
-			if(item[1]!="0" && !index[item[1]]) {
-				appendMailRow(sentlist, item[1], item[2], null, "…", null, null, null, false, "To");
-				index[item[1]] = item;
-			}
-		}
-
-		findDropped(index);
+		findMails(html, regex, 1);
 	}, function(status) {
 		noLogin();
-		showListMessage(sentlist, "Cannot access sent messages.", "The server responded with error "+status+".", true);
+		showListMessage(maillist, "Cannot access sent messages.", "The server responded with error "+status+".", true);
 	});
 }
 
@@ -723,13 +746,11 @@ function home()
 function init()
 {
 	maillist = document.getElementById("mails");
-	sentlist = document.getElementById("sent");
 	mailcount = document.getElementById("mcount");
 	userlist = document.getElementById("users");
 	visitorlist = document.getElementById("visitors");
 	visitorcount = document.getElementById("vcount");
 
-	mailview = document.getElementById("mailview");
 	info = document.getElementById("info");
 
 	userPicMap = {};
@@ -737,7 +758,7 @@ function init()
 	userPic = document.getElementById("userpic");
 	userPic.style.display = "none";
 
-	lastView = mailview;
+	lastView = maillist;
 	userlist.style.display = "none";
 	visitorlist.style.display = "none";
 	lastButton = mailcount.parentElement;
