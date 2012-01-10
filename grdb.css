@@ -151,12 +151,18 @@ ul li:first-child {
 	background:	#eef;
 }
 
+#mails li.mini {
+	float:		left;
+	width:		14em;
+	border-left: 1px solid #fff;
+}
+
 #mails li.sent {
-	background:	#eee;
+	background:	#e9e1ee;
 }
 
 #mails li.sent:nth-child(2n) {
-	background:	#ddd;
+	background:	#d8d0dd;
 }
 
 #mails li[data-msg]:hover {
@@ -223,23 +229,24 @@ h2[data-label]:before {
 	font-size:	0.75em;
 	content:	attr(data-label);
 	color:		#fff;
-	background:	#aaa;
+	background:	#a9a;
 	line-height: 1em;
 	padding:	0 0.2em;
 	margin-right: 0.25em;
 	border-radius: 0.3em;
+	-webkit-box-shadow: #fff 0 1px 0;
 }
 
 li.drop h2[data-label]:before {
-	color:		#ddd;
-	text-shadow: #888 0 -1px 0;
+	color:		#dcd;
+	text-shadow: #878 0 -1px 0;
 }
 
 #mails li.sent h3 {
-	color:		#888;
+	color:		#878;
 }
 
-#mails li:hover h3, ul li.low h3, li.drop h3 {
+#mails li[data-msg]:hover h3, ul li.low h3, li.drop h3 {
 	color:		inherit;
 }
 
@@ -250,6 +257,10 @@ ul li.low {
 #mails h3[data-att] {
 	padding:	0 0 0 18px;
 	background:	url(pic.png) left center no-repeat;
+}
+
+#mails li.sent h3[data-att] {
+	background-image: url(pic-d.png);
 }
 
 #visitors h3[data-give] {
@@ -291,6 +302,10 @@ li.new {
 
 li.drop {
 	color:		#888;
+}
+
+li.sent.drop {
+	color:		#878;
 }
 
 li.drop p, li.drop h3 {

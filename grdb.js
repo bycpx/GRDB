@@ -204,6 +204,7 @@ function appendMailRow(senderID, sender, msgID, subject, datetime, timestamp, ha
 		row.appendChild(cell);
 	} else if(subject == undefined) {
 		row.appendChild(create("p","…"));
+		row.setAttribute("class",row.getAttribute("class")+" mini");
 	}
 	maillist.appendChild(row);
 }
@@ -498,14 +499,14 @@ function findMails(html, regex, type)
 				curID = u[1];
 				prvID = 0;
 				while(u && curID == u[1]) {
-					appendMailRow(u[1], u[2], null, u[3], u[4], u.timestamp, false, prvID==curID, true);
+					appendMailRow(u[1], u[2], null, u[3], u[4], u.timestamp, u[5]=="i", prvID==curID, true);
 					prvID = curID;
 					u = u.next;
 					k++;
 				}
 			}
 			while(i<dl && (!n || d[i].timestamp>=n.timestamp) && (!u || d[i].timestamp>=u.timestamp)) {
-				appendMailRow(d[i][1], d[i][2], -1, d[i][3], d[i][4], d[i].timestamp, false, false, true);
+				appendMailRow(d[i][1], d[i][2], -1, d[i][3], d[i][4], d[i].timestamp, d[i][5]=="i", false, true);
 				i++;
 				k++;
 			}
@@ -617,7 +618,7 @@ function fetchMails(event)
 	});
 
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=sent", function(html) {
-		regex = /set=(\d+)[^>]*>([^<]+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)</gi;
+		regex = /set=(\d+)[^>]*>([^<]+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
 		findMails(html, regex, 2);
 	});
 
@@ -630,7 +631,7 @@ function fetchMails(event)
 			return;
 		}
 
-		regex = /set=(\d+)[^>]*>([^<]+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)</gi;
+		regex = /set=(\d+)[^>]*>([^<]+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
 		findMails(html, regex, 1);
 	}, function(status) {
 		noLogin();
