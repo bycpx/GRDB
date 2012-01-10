@@ -514,6 +514,8 @@ function findMails(html, regex, type)
 		if(k==0) {
 			showListMessage(maillist,"No Messages");
 		}
+	} else {
+		showListMessage(maillist, "Loading", Math.floor(100*mailHandler["found"]/3)+"%");
 	}
 }
 
@@ -582,6 +584,8 @@ function findVisits(html, isGiven)
 		} else {
 			setBadge(visitorcount, i+"+"+k);
 		}
+	} else {
+		showListMessage(visitorlist, "Loading", Math.floor(100*visitHandler["found"]/visitHandler["total"])+"%");
 	}
 }
 
