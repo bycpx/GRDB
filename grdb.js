@@ -198,7 +198,7 @@ function appendMailRow(senderID, sender, msgID, subject, datetime, timestamp, ha
 		if(age<=0.5) {
 			cell.setAttribute("data-age","new");
 		}
-		if(age>10) {
+		if(age > (sent?3:10)) {
 			cell.setAttribute("data-age","old");
 		}
 		if(hasAttachment) {
@@ -524,7 +524,7 @@ function findMails(html, regex, type)
 			showListMessage(maillist,"No Messages");
 		}
 	} else {
-		showListMessage(maillist, "Loading", Math.floor(100*mailHandler["found"]/3)+"%");
+		showListMessage(maillist, "Loading", Math.round(100*mailHandler["found"]/3)+"%");
 	}
 }
 
@@ -594,7 +594,7 @@ function findVisits(html, isGiven)
 			setBadge(visitorcount, i+"+"+k);
 		}
 	} else {
-		showListMessage(visitorlist, "Loading", Math.floor(100*visitHandler["found"]/visitHandler["total"])+"%");
+		showListMessage(visitorlist, "Loading", Math.round(100*visitHandler["found"]/visitHandler["total"])+"%");
 	}
 }
 
