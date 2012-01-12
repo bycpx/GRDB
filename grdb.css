@@ -278,6 +278,21 @@ ul li.low {
 	background:	url(f/def_b.png) left center no-repeat;
 }
 
+#visitors h2 a:after {
+	content:	"?";
+	font-size:	0.5em;
+	color:		#888;
+	vertical-align: top;
+}
+
+#visitors h2 a:hover:after {
+	color:		inherit;
+}
+
+#visitors h2 a[data-pic]:after {
+	content:	none;
+}
+
 ul h3[data-age] {
 	font-weight: bold;
 }
