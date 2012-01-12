@@ -141,7 +141,16 @@ function visitIcon(received, given)
 {
 	var img;
 	if(received && received!=-1 && (img=visitIcons[received])) {
-		return img+((given && given!=-1)?"_b":"_r");
+		if(given && given!=-1) {
+			if(visitIcons[given]==img) {
+				return img+"_m";
+			}
+			if(given==48) {
+				return img+"_t";
+			}
+			return img+"_b";
+		}
+		return img+"_r";
 	}
 	if((!received || received==-1) && given && given!=-1 && (img=visitIcons[given])) {
 		return img+"_g";
