@@ -692,7 +692,7 @@ function fetchVisitors(event)
 
 	showListMessage(visitorlist, "Loading …");
 	fetchURL_didFetch_error(base+"/search/index.php?action=execute&searchType=myVisitors", function(html) {
-		var regex = /searchType=myVisitors/gi;
+		var regex = /page=search/gi;
 		if(!regex.exec(html)) {
 			noLogin();
 			showListMessage(visitorlist, "Cannot retrieve visitors.", "Ensure you are logged in.", true);
@@ -705,7 +705,7 @@ function fetchVisitors(event)
 		showListMessage(visitorlist, "Cannot access visitors.", "The server responded with error "+status+".", true);
 	});
 	fetchURL_didFetch_error(base+"/search/?action=execute&searchType=myVisits", function(html) {
-		var regex = /searchType=myVisits/gi;
+		var regex = /page=search/gi;
 		if(!regex.exec(html)) {
 			noLogin();
 			showListMessage(visitorlist, "Cannot retrieve your visits.", "Ensure you are logged in.", true);
