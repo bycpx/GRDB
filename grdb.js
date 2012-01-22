@@ -620,7 +620,6 @@ function fetchMails(event)
 			setMailCount(parseInt(item[1]));
 		} else {
 			setMailCount();
-			return;
 		}
 
 		regex = /set=(\d+)[^>]*>([^<]+)[^?]*\?id=(\d+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
