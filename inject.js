@@ -7,6 +7,20 @@ function messageDisplayChanged(event)
 	}
 }
 
+function userDisplayChanged(event)
+{
+	if(event.type=="DOMCharacterDataModified") {
+		safari.self.tab.dispatchMessage("userCountDidChange", parseInt(event.newValue));
+	}
+}
+
+function visitorDisplayChanged(event)
+{
+	if(event.type=="DOMCharacterDataModified") {
+		safari.self.tab.dispatchMessage("visitorCountDidChange", parseInt(event.newValue));
+	}
+}
+
 if(window.top===window) {
 	if(window.location.href && window.location.href.indexOf("/logout/")!=-1) {
 		safari.self.tab.dispatchMessage("sessionDidEnd");
@@ -14,7 +28,12 @@ if(window.top===window) {
 } else {
 	if(document.getElementById("msgDisplay_c")) {
 		document.getElementById("msgDisplay_c").addEventListener("DOMCharacterDataModified", messageDisplayChanged, false);
-	} else if(document.getElementById("m_cell")) {
-		document.getElementById("m_cell").addEventListener("DOMCharacterDataModified", messageDisplayChanged, false);
 	}
+	if(document.getElementById("favDisplay_c")) {
+		document.getElementById("favDisplay_c").addEventListener("DOMCharacterDataModified", userDisplayChanged, false);
+	}
+	if(document.getElementById("visDisplay_c")) {
+		document.getElementById("visDisplay_c").addEventListener("DOMCharacterDataModified", visitorDisplayChanged, false);
+	}
+
 }

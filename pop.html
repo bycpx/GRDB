@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<html>
+<head>
+<style>
+body {
+	font: 14px/20px 'Lucida Grande', sans-serif;
+}
+
+ul {
+	margin:		0;
+	padding:	0;
+	list-style-type: none;
+}
+
+li {
+	text-shadow: #fff 0 1px 0;
+}
+
+li[data-count]:after {
+	float:		right;
+	min-width:	1em;
+	margin:		2px 0 0;
+	padding:	0.1em 0.5em;
+	font:		bold 12px/14px Helvetica, sans-serif;
+	text-align:	center;
+	color:		#fff;
+	background:	#9ab;
+	text-shadow: none;
+	content:	attr(data-count);
+	border-radius: 1em;
+	box-shadow:	#fff 0 1px 0;
+}
+</style>
+<script>
+function nn(val)
+{
+	if(val) {
+		return val;
+	}
+	return "–";
+}
+function displayCounts(messages, user, visitors)
+{
+	document.getElementById("messages").setAttribute("data-count", nn(messages));
+	document.getElementById("user").setAttribute("data-count", nn(user));
+	document.getElementById("visitors").setAttribute("data-count", nn(visitors));
+}
+</script>
+</head>
+<body>
+<ul>
+<li id="messages" data-count="--">Mailbox</li>
+<li id="user" data-count="--">User</li>
+<li id="visitors" data-count="--">Visitors</li>
+</ul>
+</body>
+</html>

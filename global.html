@@ -3,6 +3,8 @@
 
 var base = safari.extension.settings["protocol"] + "://" + safari.extension.settings["site"];
 var msgCount = 0;
+var userCount = 0;
+var visitorCount = 0;
 var hasSession = false;
 
 safari.application.addEventListener("validate", function(event) {
@@ -31,6 +33,14 @@ safari.application.addEventListener("command", function(event) {
 	}
 }, false);
 
+safari.application.addEventListener("popover", function(event) {
+	switch(event.target.identifier) {
+		case "GRDBPopover":
+			event.target.contentWindow.displayCounts(msgCount, userCount, visitorCount);
+		break;
+	}
+}, false);
+
 safari.application.addEventListener("message", function(message) {
 	switch(message.name) {
 		case "messageCountDidChange":
@@ -38,9 +48,19 @@ safari.application.addEventListener("message", function(message) {
 			msgCount = message.message;
 			validateToolbarItems();
 		break;
+		case "userCountDidChange":
+			hasSession = true;
+			userCount = message.message;
+		break;
+		case "visitorCountDidChange":
+			hasSession = true;
+			visitorCount = message.message;
+		break;
 		case "sessionDidEnd":
 			hasSession = false;
 			msgCount = 0;
+			userCount = 0;
+			visitorCount = 0;
 			validateToolbarItems();
 		break;
 		case "openBase":

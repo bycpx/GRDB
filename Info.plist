@@ -5,7 +5,7 @@
 	<key>Author</key>
 	<string>Useless Coding</string>
 	<key>Builder Version</key>
-	<string>7534.52.7</string>
+	<string>7534.53.10</string>
 	<key>CFBundleDisplayName</key>
 	<string>GRDB</string>
 	<key>CFBundleIdentifier</key>
@@ -13,13 +13,26 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.6.2</string>
+	<string>1.7</string>
 	<key>CFBundleVersion</key>
-	<string>28</string>
+	<string>29</string>
 	<key>Chrome</key>
 	<dict>
 		<key>Global Page</key>
 		<string>global.html</string>
+		<key>Popovers</key>
+		<array>
+			<dict>
+				<key>Filename</key>
+				<string>pop.html</string>
+				<key>Height</key>
+				<real>76</real>
+				<key>Identifier</key>
+				<string>GRDBPopover</string>
+				<key>Width</key>
+				<real>120</real>
+			</dict>
+		</array>
 		<key>Toolbar Items</key>
 		<array>
 			<dict>
@@ -33,6 +46,8 @@
 				<string>GRDB</string>
 				<key>Palette Label</key>
 				<string>GRDB Menu</string>
+				<key>Popover</key>
+				<string>GRDBPopover</string>
 				<key>Tool Tip</key>
 				<string>Show GRDB Menu</string>
 			</dict>
