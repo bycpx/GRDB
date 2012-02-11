@@ -1,7 +1,7 @@
 /* GRDB Helper Script */
 
 var maillist, userlist, visitorlist;
-var mailcount, visitorcount, info;
+var mailbutton, visitorbutton, userbutton, info;
 var lastView, lastButton;
 var userPic;
 var base, pbase, today;
@@ -291,12 +291,10 @@ function appendVisitorRow(id, name, datetime, timestamp, receivedID, received, g
 
 function setBadge(node, cont)
 {
-	clearNode(node);
 	if(cont) {
-		var badge = create("span", cont);
-		badge.setAttribute("class","badge");
-		node.appendChild(badge);
+		node.setAttribute("data-badge",cont);
 	} else {
+		node.removeAttribute("data-badge");
 		return 0;
 	}
 	return cont;
@@ -304,7 +302,7 @@ function setBadge(node, cont)
 
 function setMailCount(count)
 {
-	count = setBadge(mailcount, count);
+	count = setBadge(mailbutton, count);
 	safari.self.tab.dispatchMessage("messageCountDidChange", count);
 }
 
@@ -375,15 +373,12 @@ function onlyThis(event)
 	event.stopPropagation();
 }
 
-function switchView(view, event)
+function switchView(view, button)
 {
-	if(event) {
-		var button = event.target;
-		if(button!=lastButton) {
-			lastButton.setAttribute("class","");
-			button.setAttribute("class","act");
-			lastButton = button;
-		}
+	if(button!=lastButton) {
+		lastButton.setAttribute("class","");
+		button.setAttribute("class","act");
+		lastButton = button;
 	}
 	if(view!=lastView) {
 		setText(info, "GRDB.");
@@ -397,8 +392,9 @@ function switchView(view, event)
 
 function noLogin()
 {
-	clearNode(mailcount);
-	clearNode(visitorcount);
+	setBadge(mailbutton);
+	setBadge(visitorbutton);
+	setBadge(userbutton);
 	if(window.safari) {
 		safari.self.tab.dispatchMessage("sessionDidEnd");
 	}
@@ -594,7 +590,7 @@ function findVisits(html, isGiven)
 		if(i==0 && k==0) {
 			showListMessage(visitorlist,"No Visitors");
 		} else {
-			setBadge(visitorcount, i+"+"+k);
+			setBadge(visitorbutton, i+"+"+k);
 		}
 	} else {
 		showListMessage(visitorlist, "Loading", Math.round(100*visitHandler["found"]/visitHandler["total"])+"%");
@@ -605,7 +601,7 @@ function fetchMails(event)
 {
 	today = null;
 	mailHandler = {"newmail":false, "new":{}, "undelivered":false, "sent":false, "index":{}, "found":0};
-	switchView(maillist, event);
+	switchView(maillist, mailbutton);
 
 	showListMessage(maillist,"Loading …");
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=new", function(html) {
@@ -656,9 +652,11 @@ function fetchMails(event)
 
 function fetchUsers(event)
 {
-	switchView(userlist, event);
+	today = null;
+	switchView(userlist, userbutton);
 	showListMessage(userlist, "Loading …");
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=all", function(html) {
+		setFetchTime();
 		var regex = /name="messagelist"/gi;
 		if(!regex.test(html)) {
 			noLogin();
@@ -676,10 +674,9 @@ function fetchUsers(event)
 				i--;
 			}
 		}
+		setBadge(userbutton,i);
 		if(i==0) {
 			showListMessage(userlist,"No Users");
-		} else {
-			setText(info, i+" users.");
 		}
 	}, function(status) {
 		noLogin();
@@ -691,7 +688,7 @@ function fetchVisitors(event)
 {
 	today = null;
 	visitHandler = {"received":[], "given":[], "index":{}, "found":0, "total":2};
-	switchView(visitorlist, event);
+	switchView(visitorlist, visitorbutton);
 
 	showListMessage(visitorlist, "Loading …");
 	fetchURL_didFetch_error(base+"/search/index.php?action=execute&searchType=myVisitors", function(html) {
@@ -763,10 +760,11 @@ function home()
 function init()
 {
 	maillist = document.getElementById("mails");
-	mailcount = document.getElementById("mcount");
-	userlist = document.getElementById("users");
+	mailbutton = document.getElementById("mail");
 	visitorlist = document.getElementById("visitors");
-	visitorcount = document.getElementById("vcount");
+	visitorbutton = document.getElementById("visitor");
+	userlist = document.getElementById("users");
+	userbutton = document.getElementById("user");
 
 	info = document.getElementById("info");
 
@@ -778,7 +776,7 @@ function init()
 	lastView = maillist;
 	userlist.style.display = "none";
 	visitorlist.style.display = "none";
-	lastButton = mailcount.parentElement;
+	lastButton = mailbutton;
 
 	safari.self.tab.dispatchMessage("retrieveBase");
 }

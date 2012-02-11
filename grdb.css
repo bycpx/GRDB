@@ -59,8 +59,9 @@ nav a.act {
 	background:	-webkit-gradient(linear, 0% 0%, 100% 0%, from(rgba(255,255,255,0)), color-stop(0.5, rgba(255,255,255,0.75)), to(rgba(255,255,255,0)));
 }
 
-.badge {
+nav a[data-badge]:after {
 	display:	inline-block;
+	content:	attr(data-badge);
 	margin:		0 0 0 0.5em;
 	padding:	0 0.4em;
 	background:	#aaa -webkit-gradient(linear, 0% 0%, 0% 100%, from(#888), to(#aaa));
