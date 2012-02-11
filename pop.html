@@ -17,6 +17,15 @@ li {
 	text-shadow: #fff 0 1px 0;
 }
 
+li[onclick] {
+	cursor:		default;
+	font-weight: bold;
+}
+
+li[onclick]:hover {
+	color:		#448;
+}
+
 li[data-count]:after {
 	float:		right;
 	min-width:	1em;
@@ -40,19 +49,30 @@ function nn(val)
 	}
 	return "–";
 }
+
 function displayCounts(messages, user, visitors)
 {
 	document.getElementById("messages").setAttribute("data-count", nn(messages));
 	document.getElementById("user").setAttribute("data-count", nn(user));
 	document.getElementById("visitors").setAttribute("data-count", nn(visitors));
 }
+
+function showMails()
+{
+	safari.extension.globalPage.contentWindow.showMails();
+}
+
+function showVisitors()
+{
+	safari.extension.globalPage.contentWindow.showVisitors();
+}
 </script>
 </head>
 <body>
 <ul>
-<li id="messages" data-count="--">Mailbox</li>
+<li id="messages" data-count="--" onclick="showMails()">Mailbox</li>
 <li id="user" data-count="--">User</li>
-<li id="visitors" data-count="--">Visitors</li>
+<li id="visitors" data-count="--" onclick="showVisitors()">Visitors</li>
 </ul>
 </body>
 </html>

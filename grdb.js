@@ -20,11 +20,17 @@ var visitIcons = {
 
 safari.self.addEventListener("message", function(message) {
 	switch(message.name) {
-		case "fetch":
+		case "fetchMails":
 			if(message.message) {
 				base = message.message;
 			}
 			fetchMails();
+		break;
+		case "fetchVisitors":
+			if(message.message) {
+				base = message.message;
+			}
+			fetchVisitors();
 		break;
 	}
 }, false);
@@ -568,8 +574,8 @@ function findVisits(html, isGiven)
 		}
 
 		i = 0; var j = 0; var k = 0;
-		var mail = mailHandler["index"];
-		var newmail = mailHandler["new"];
+		var mail = mailHandler["index"] || {};
+		var newmail = mailHandler["new"] || {};
 		var id;
 		while(i<rl || j<gl) {
 			while(j<gl && g[j][2]==0) {
@@ -782,6 +788,7 @@ function init()
 
 	info = document.getElementById("info");
 
+	mailHandler = {};
 	userPicMap = {};
 	pbase = "http://s.gayromeo.com/img/usr/";
 	userPic = document.getElementById("userpic");
@@ -792,5 +799,5 @@ function init()
 	visitorlist.style.display = "none";
 	lastButton = mailbutton;
 
-	safari.self.tab.dispatchMessage("retrieveBase");
+	safari.self.tab.dispatchMessage("ready");
 }

@@ -6,6 +6,8 @@ var msgCount = 0;
 var userCount = 0;
 var visitorCount = 0;
 var hasSession = false;
+var readyFunc;
+
 
 safari.application.addEventListener("validate", function(event) {
 	switch(event.command) {
@@ -21,14 +23,7 @@ safari.application.addEventListener("validate", function(event) {
 safari.application.addEventListener("command", function(event) {
 	switch(event.command) {
 		case "displayMenu":
-			if(hasSession) {
-				var menuTab = activateTabWithURL(safari.extension.baseURI + "grdb.html");
-				if(menuTab) {
-					menuTab.page.dispatchMessage("fetch", base);
-				}
-			} else {
-				activateTabWithURL(base+"/");
-			}
+			showMails();
 		break;
 	}
 }, false);
@@ -66,8 +61,10 @@ safari.application.addEventListener("message", function(message) {
 		case "openBase":
 			activateTabWithURL(base+"/");
 		break;
-		case "retrieveBase":
-			message.target.page.dispatchMessage("fetch", base);
+		case "ready":
+			if(readyFunc) {
+				readyFunc(message.target);
+			}
 		break;
 		case "findUser":
 			performUserSearch(message.message);
@@ -78,6 +75,40 @@ safari.application.addEventListener("message", function(message) {
 safari.extension.settings.addEventListener("change", function(event) {
 	base = safari.extension.settings["protocol"] + "://" + safari.extension.settings["site"];
 }, false);
+
+function showMails()
+{
+	if(!hasSession) {
+		activateTabWithURL(base+"/");
+		return;
+	}
+	activateTabWithURL(safari.extension.baseURI + "grdb.html", function (tab) {
+		tab.page.dispatchMessage("fetchMails", base);
+	});
+	hidePopover("GRDBPopover");
+}
+
+function showVisitors()
+{
+	if(!hasSession) {
+		activateTabWithURL(base+"/");
+		return;
+	}
+	activateTabWithURL(safari.extension.baseURI + "grdb.html", function (tab) {
+		tab.page.dispatchMessage("fetchVisitors", base);
+	});
+	hidePopover("GRDBPopover");
+}
+
+function hidePopover(name)
+{
+	var popovers = safari.extension.popovers;
+	for(var i=0; i<popovers.length; i++) {
+		if(popovers[i].identifier==name) {
+			popovers[i].hide();
+		}
+	}
+}
 
 function performUserSearch(user)
 {
@@ -101,9 +132,10 @@ function validateToolbarItems()
 	}
 }
 
-function activateTabWithURL(url)
+function activateTabWithURL(url, aReadyFunc)
 {
 	var theTab;
+	readyFunc = null;
 
 	for(windowIndex in safari.application.browserWindows) {
 		for(tabIndex in safari.application.browserWindows[windowIndex].tabs) {
@@ -113,6 +145,9 @@ function activateTabWithURL(url)
 				theTab.activate();
 				if(!theTab.url || theTab.url!=url) {
 					theTab.url = url;
+					readyFunc = aReadyFunc;
+				} else if(aReadyFunc) {
+					aReadyFunc(theTab);
 				}
 				return theTab;
 			}
@@ -124,6 +159,7 @@ function activateTabWithURL(url)
 	}
 	theTab = safari.application.activeBrowserWindow.openTab();
 	theTab.url = url;
+	readyFunc = aReadyFunc;
 	return theTab;
 }
 
