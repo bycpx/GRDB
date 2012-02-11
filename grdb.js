@@ -390,13 +390,16 @@ function switchView(view, button)
 
 // -
 
-function noLogin()
+function noLogin(handler)
 {
 	setBadge(mailbutton);
 	setBadge(visitorbutton);
 	setBadge(userbutton);
 	if(window.safari) {
 		safari.self.tab.dispatchMessage("sessionDidEnd");
+	}
+	if(handler) {
+		handler["fail"] = true;
 	}
 }
 
@@ -600,15 +603,15 @@ function findVisits(html, isGiven)
 function fetchMails(event)
 {
 	today = null;
-	mailHandler = {"newmail":false, "new":{}, "undelivered":false, "sent":false, "index":{}, "found":0};
+	mailHandler = {"newmail":false, "new":{}, "undelivered":false, "sent":false, "index":{}, "found":0, "fail":false};
 	switchView(maillist, mailbutton);
 
 	showListMessage(maillist,"Loading …");
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=new", function(html) {
 		setFetchTime();
 		var regex = /name="messagelist"/gi;
-		if(!regex.test(html)) {
-			noLogin();
+		if(mailHandler["fail"] || !regex.test(html)) {
+			noLogin(mailHandler);
 			showListMessage(maillist, "Cannot retrieve new messages.", "Ensure you are logged in.", true);
 			return;
 		}
@@ -624,20 +627,31 @@ function fetchMails(event)
 		regex = /set=(\d+)[^>]*>([^<]+)[^?]*\?id=(\d+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
 		findMails(html, regex, 0);
 	}, function(status) {
-		noLogin();
+		noLogin(mailHandler);
 		showListMessage(maillist, "Cannot access new messages.", "The server responded with error "+status+".", true);
 	});
 
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=sent", function(html) {
+		setFetchTime();
+		var regex = /name="messagelist"/gi;
+		if(mailHandler["fail"] || !regex.test(html)) {
+			noLogin(mailHandler);
+			showListMessage(maillist, "Cannot retrieve all sent messages.", "Ensure you are logged in.", true);
+			return;
+		}
+
 		regex = /set=(\d+)[^>]*>([^<]+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
 		findMails(html, regex, 2);
+	}, function(status) {
+		noLogin(mailHandler);
+		showListMessage(maillist, "Cannot access all sent messages.", "The server responded with error "+status+".", true);
 	});
 
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=sentUnread", function(html) {
 		setFetchTime();
 		var regex = /name="messagelist"/gi;
-		if(!regex.test(html)) {
-			noLogin();
+		if(mailHandler["fail"] || !regex.test(html)) {
+			noLogin(mailHandler);
 			showListMessage(maillist, "Cannot retrieve sent messages.", "Ensure you are logged in.", true);
 			return;
 		}
@@ -645,7 +659,7 @@ function fetchMails(event)
 		regex = /set=(\d+)[^>]*>([^<]+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
 		findMails(html, regex, 1);
 	}, function(status) {
-		noLogin();
+		noLogin(mailHandler);
 		showListMessage(maillist, "Cannot access sent messages.", "The server responded with error "+status+".", true);
 	});
 }
@@ -687,34 +701,34 @@ function fetchUsers(event)
 function fetchVisitors(event)
 {
 	today = null;
-	visitHandler = {"received":[], "given":[], "index":{}, "found":0, "total":2};
+	visitHandler = {"received":[], "given":[], "index":{}, "found":0, "total":2, "fail":false};
 	switchView(visitorlist, visitorbutton);
 
 	showListMessage(visitorlist, "Loading …");
 	fetchURL_didFetch_error(base+"/search/index.php?action=execute&searchType=myVisitors", function(html) {
 		var regex = /page=search/gi;
-		if(!regex.test(html)) {
-			noLogin();
+		if(visitHandler["fail"] || !regex.test(html)) {
+			noLogin(visitHandler);
 			showListMessage(visitorlist, "Cannot retrieve visitors.", "Ensure you are logged in.", true);
 			return;
 		}
 
 		fetchNextVisitPage(html, regex, false);
 	}, function(status) {
-		noLogin();
+		noLogin(visitHandler);
 		showListMessage(visitorlist, "Cannot access visitors.", "The server responded with error "+status+".", true);
 	});
 	fetchURL_didFetch_error(base+"/search/?action=execute&searchType=myVisits", function(html) {
 		var regex = /page=search/gi;
-		if(!regex.test(html)) {
-			noLogin();
+		if(visitHandler["fail"] || !regex.test(html)) {
+			noLogin(visitHandler);
 			showListMessage(visitorlist, "Cannot retrieve your visits.", "Ensure you are logged in.", true);
 			return;
 		}
 
 		fetchNextVisitPage(html, regex, true);
 	}, function(status) {
-		noLogin();
+		noLogin(visitHandler);
 		showListMessage(visitorlist, "Cannot access your visits.", "The server responded with error "+status+".", true);
 	});
 }
