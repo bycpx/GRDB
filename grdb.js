@@ -532,6 +532,9 @@ function findVisits(html, isGiven)
 {
 	visitHandler["found"]++;
 	setFetchTime();
+	if(html) {
+		html = html.replace(/<wbr>/, "");
+	}
 	var regex = /(?:\/usr\/([^\.]*)\.[^\n]*\n\s*)?<td class="resHeadline"[^?]*\?set=(\d+)[^;]*;">([^<]*)<\/a>[^\n]*\n\s*<td[^>]*>(?:(?:<[^>]*>[^<]*<\/[^>]*>)|[\s0-9.a-z'"&;])*;([^<]*)<\/td>[\s\S]*?(<img [a-z="0-9\/]*\/(\d+)[^:]*: ([^"]*)"[^>]*>\s*)?<span>[^<]*<\/span>\s*<br \/>\s*<br \/><br \/>/gi;
 	var item, i;
 
@@ -608,7 +611,7 @@ function fetchMails(event)
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=new", function(html) {
 		setFetchTime();
 		var regex = /name="messagelist"/gi;
-		if(!regex.exec(html)) {
+		if(!regex.test(html)) {
 			noLogin();
 			showListMessage(maillist, "Cannot retrieve new messages.", "Ensure you are logged in.", true);
 			return;
@@ -637,7 +640,7 @@ function fetchMails(event)
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=sentUnread", function(html) {
 		setFetchTime();
 		var regex = /name="messagelist"/gi;
-		if(!regex.exec(html)) {
+		if(!regex.test(html)) {
 			noLogin();
 			showListMessage(maillist, "Cannot retrieve sent messages.", "Ensure you are logged in.", true);
 			return;
@@ -657,7 +660,7 @@ function fetchUsers(event)
 	showListMessage(userlist, "Loading …");
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=all", function(html) {
 		var regex = /name="messagelist"/gi;
-		if(!regex.exec(html)) {
+		if(!regex.test(html)) {
 			noLogin();
 			showListMessage(userlist, "Cannot retrieve users.", "Ensure you are logged in.", true);
 			return;
@@ -693,7 +696,7 @@ function fetchVisitors(event)
 	showListMessage(visitorlist, "Loading …");
 	fetchURL_didFetch_error(base+"/search/index.php?action=execute&searchType=myVisitors", function(html) {
 		var regex = /page=search/gi;
-		if(!regex.exec(html)) {
+		if(!regex.test(html)) {
 			noLogin();
 			showListMessage(visitorlist, "Cannot retrieve visitors.", "Ensure you are logged in.", true);
 			return;
@@ -706,7 +709,7 @@ function fetchVisitors(event)
 	});
 	fetchURL_didFetch_error(base+"/search/?action=execute&searchType=myVisits", function(html) {
 		var regex = /page=search/gi;
-		if(!regex.exec(html)) {
+		if(!regex.test(html)) {
 			noLogin();
 			showListMessage(visitorlist, "Cannot retrieve your visits.", "Ensure you are logged in.", true);
 			return;
@@ -721,6 +724,7 @@ function fetchVisitors(event)
 
 function fetchNextVisitPage(html, regex, isGiven)
 {
+	regex.lastIndex = 0;
 	nextregex = /\d<\/a>&nbsp;\|&nbsp;<a href="([^"]*)">/gi;
 	var url = nextregex.exec(html);
 
@@ -734,7 +738,7 @@ function fetchNextVisitPage(html, regex, isGiven)
 	}
 
 	fetchURL_didFetch_error(base+"/search/"+url[1], function(html) {
-		if(!regex.exec(html)) {
+		if(!regex.test(html)) {
 			findVisits(null, isGiven);
 			return;
 		}
