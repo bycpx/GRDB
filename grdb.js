@@ -1,11 +1,11 @@
 /* GRDB Helper Script */
 
-var maillist, userlist, visitorlist;
-var mailbutton, visitorbutton, userbutton, info;
+var maillist, userlist, visitorlist, threadlist;
+var mailbutton, userbutton, visitorbutton, threadbutton, info;
 var lastView, lastButton;
 var userPic;
 var base, pbase, today;
-var mailHandler, visitHandler, userPicMap;
+var mailHandler, visitHandler, userStatMap, userPicMap;
 
 var visitIcons = {
 	10:"like", 11:"like", 13:"like", 14:"like", 15:"like", 16:"like", 17:"like", 19:"like", 31:"like", 42:"like", 47:"like", 50:"like", 51:"like", 52:"like", 53:"like",
@@ -25,6 +25,12 @@ safari.self.addEventListener("message", function(message) {
 				base = message.message;
 			}
 			fetchMails();
+		break;
+		case "fetchUsers":
+			if(message.message) {
+				base = message.message;
+			}
+			fetchUsers();
 		break;
 		case "fetchVisitors":
 			if(message.message) {
@@ -93,6 +99,9 @@ function createUserLink(id, name)
 		link.setAttribute("data-pic",pic);
 		link.addEventListener("mouseover", showUserPic, false);
 		link.addEventListener("mouseout", hideUserPic, false);
+	}
+	if(stat = userStatMap[id]) {
+		link.setAttribute("data-online",stat);
 	}
 	return link;
 }
@@ -224,21 +233,16 @@ function appendMailRow(senderID, sender, msgID, subject, datetime, timestamp, ha
 	maillist.appendChild(row);
 }
 
-function appendUserRow(id, name)
+function appendUserRow(id, name, status, msgID)
 {
-	var cell, link;
+	var cell;
 	var row = create("li");
 	cell = create("div");
 	cell.setAttribute("class","action");
-	link = create("a","→");
-	link.setAttribute("href",base+"/msg/history_email.php?uid="+id);
-	link.style.backgroundImage = "url(ffwd.png)";
-	link.setAttribute("title","Forward via E-Mail");
-	link.setAttribute("target","_blank");
-	link.addEventListener("click", markLow, false);
-	cell.appendChild(link);
-	cell.appendChild(createHistoryLink(id));
+	cell.appendChild(createMsgLink(id, msgID));
+	cell.appendChild(createHistoryLink(id, msgID));
 	row.appendChild(cell);
+	row.appendChild(create("h3",status));
 	cell = create("h2");
 	cell.appendChild(createUserLink(id, name));
 	row.appendChild(cell);
@@ -293,6 +297,27 @@ function appendVisitorRow(id, name, datetime, timestamp, receivedID, received, g
 		row.appendChild(cell);
 	}
 	visitorlist.appendChild(row);
+}
+
+function appendThreadRow(id, name)
+{
+	var cell, link;
+	var row = create("li");
+	cell = create("div");
+	cell.setAttribute("class","action");
+	link = create("a","→");
+	link.setAttribute("href",base+"/msg/history_email.php?uid="+id);
+	link.style.backgroundImage = "url(ffwd.png)";
+	link.setAttribute("title","Forward via E-Mail");
+	link.setAttribute("target","_blank");
+	link.addEventListener("click", markLow, false);
+	cell.appendChild(link);
+	cell.appendChild(createHistoryLink(id));
+	row.appendChild(cell);
+	cell = create("h2");
+	cell.appendChild(createUserLink(id, name));
+	row.appendChild(cell);
+	threadlist.appendChild(row);
 }
 
 function setBadge(node, cont)
@@ -675,9 +700,9 @@ function fetchUsers(event)
 	today = null;
 	switchView(userlist, userbutton);
 	showListMessage(userlist, "Loading …");
-	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=all", function(html) {
+	fetchURL_didFetch_error(base+"/myuser/?page=romeo&filterSpecial=favourites&sort=2&sortDirection=-1", function(html) {
 		setFetchTime();
-		var regex = /name="messagelist"/gi;
+		var regex = /class="user-table"/gi;
 		if(!regex.test(html)) {
 			noLogin();
 			showListMessage(userlist, "Cannot retrieve users.", "Ensure you are logged in.", true);
@@ -686,17 +711,36 @@ function fetchUsers(event)
 
 		clearNode(userlist);
 
-		regex = /<option value=\"(\d+)\">([^<]*)<\/option>/gi;
-		for(var i = 0, item; item = regex.exec(html); i++) {
-			if(item[1]!="0") {
-				appendUserRow(item[1], item[2]);
+		regex = /(?:\/usr\/([^\.]*)\.[^>]*><\/a><\/td>)?<td class="profileMemoColumn"[^?]*\?set=(\d+)[^>]*>([^<]*)<\/a>.*?<td class="onlineStatus"><[^"]*"([^"]*)">([^<]*)<\/span>/gi;
+		var i, id, item, stat;
+		var mail = mailHandler["index"] || {};
+		var newmail = mailHandler["new"] || {};
+		for(i=0; item = regex.exec(html); i++) {
+			if(item[4]=="isOnline") {
+				if(item[5]=="Away") {
+					stat = 1;
+				} else { // online
+					stat = 2;
+				}
+			} else if(item[4]=="deleted") {
+				stat = -2;
+			} else { // offline
+				stat = -1;
+			}
+			id = item[2];
+			if(item[1]) {
+				userPicMap[id] = item[1];
+			}
+			userStatMap[id] = stat;
+			if(stat>0) {
+				appendUserRow(id, item[3], item[5], newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0));
 			} else {
 				i--;
 			}
 		}
-		setBadge(userbutton,i);
+		setBadge(userbutton, i);
 		if(i==0) {
-			showListMessage(userlist,"No Users");
+			showListMessage(userlist, "No Users online");
 		}
 	}, function(status) {
 		noLogin();
@@ -766,6 +810,41 @@ function fetchNextVisitPage(html, regex, isGiven)
 	});
 }
 
+function fetchThreads(event)
+{
+	today = null;
+	switchView(threadlist, threadbutton);
+	showListMessage(threadlist, "Loading …");
+	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=all", function(html) {
+		setFetchTime();
+		var regex = /name="messagelist"/gi;
+		if(!regex.test(html)) {
+			noLogin();
+			showListMessage(threadlist, "Cannot retrieve conversations.", "Ensure you are logged in.", true);
+			return;
+		}
+
+		clearNode(threadlist);
+
+		regex = /<option value=\"(\d+)\">([^<]*)<\/option>/gi;
+		var i, item;
+		for(i=0; item = regex.exec(html); i++) {
+			if(item[1]!="0") {
+				appendThreadRow(item[1], item[2]);
+			} else {
+				i--;
+			}
+		}
+		setBadge(threadbutton,i);
+		if(i==0) {
+			showListMessage(threadlist,"No Conversations");
+		}
+	}, function(status) {
+		noLogin();
+		showListMessage(threadlist, "Cannot access conversations.", "The server responded with error "+status+".", true);
+	});
+}
+
 function findUsers(event)
 {
 	event.preventDefault();
@@ -781,14 +860,17 @@ function init()
 {
 	maillist = document.getElementById("mails");
 	mailbutton = document.getElementById("mail");
-	visitorlist = document.getElementById("visitors");
-	visitorbutton = document.getElementById("visitor");
 	userlist = document.getElementById("users");
 	userbutton = document.getElementById("user");
+	visitorlist = document.getElementById("visitors");
+	visitorbutton = document.getElementById("visitor");
+	threadlist = document.getElementById("threads");
+	threadbutton = document.getElementById("thread");
 
 	info = document.getElementById("info");
 
 	mailHandler = {};
+	userStatMap = {};
 	userPicMap = {};
 	pbase = "http://s.gayromeo.com/img/usr/";
 	userPic = document.getElementById("userpic");
@@ -797,6 +879,7 @@ function init()
 	lastView = maillist;
 	userlist.style.display = "none";
 	visitorlist.style.display = "none";
+	threadlist.style.display = "none";
 	lastButton = mailbutton;
 
 	safari.self.tab.dispatchMessage("ready");

@@ -134,21 +134,21 @@ ul li:first-child {
 	border-top: none;
 }
 
-#users li {
-	width:		13em;
-	padding:	0 0 0 3em;
-	float:		left;
-}
-
-#visitors li {
+.double li {
 	width:		21em;
 	padding:	0 0 0 3em;
 	float:		left;
 }
 
+.triple li {
+	width:		13em;
+	padding:	0 0 0 3em;
+	float:		left;
+}
+
 #mails li:nth-child(2n),
-#users li:nth-child(2n),
-#visitors li:nth-child(4n+2), #visitors li:nth-child(4n+3) {
+.double li:nth-child(4n+2), .double li:nth-child(4n+3),
+.triple li:nth-child(2n) {
 	background:	#eef;
 }
 
@@ -180,7 +180,7 @@ ul div.action {
 	font-weight: bold;
 }
 
-#users div.action, #visitors div.action {
+#users div.action, #visitors div.action, #threads div.action {
 	margin:		0 0 0 -3em;
 	width:		3em;
 }
@@ -243,6 +243,31 @@ li.drop h2[data-label]:before {
 	text-shadow: #878 0 -1px 0;
 }
 
+h2 a[data-online] {
+	padding-right: 16px;
+	background-image: url(st_off.png);
+	background-repeat: no-repeat;
+	background-position: 100% 0;
+}
+
+h2 a[data-online="1"] {
+	background-image: url(st_away.png);
+}
+
+h2 a[data-online="2"] {
+	background-image: url(st_on.png);
+}
+
+h2 a[data-online="-2"] {
+	background-image: url(st_del.png);
+	text-decoration: line-through;
+	text-shadow: none;
+}
+
+h2 a[data-online]:hover {
+	background-position-y: -16px;
+}
+
 #mails li.sent h3 {
 	color:		#878;
 }
@@ -279,18 +304,18 @@ ul li.low {
 	background:	url(f/def_b.png) left center no-repeat;
 }
 
-#visitors h2 a:after {
+#users h2 a:after, #visitors h2 a:after {
 	content:	"?";
 	font-size:	0.5em;
 	color:		#888;
 	vertical-align: top;
 }
 
-#visitors h2 a:hover:after {
+#users h2 a:hover:after, #visitors h2 a:hover:after {
 	color:		inherit;
 }
 
-#visitors h2 a[data-pic]:after {
+#users h2 a[data-pic]:after, #visitors h2 a[data-pic]:after {
 	content:	none;
 }
 

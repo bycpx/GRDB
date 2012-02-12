@@ -78,24 +78,27 @@ safari.extension.settings.addEventListener("change", function(event) {
 
 function showMails()
 {
-	if(!hasSession) {
-		activateTabWithURL(base+"/");
-		return;
-	}
-	activateTabWithURL(safari.extension.baseURI + "grdb.html", function (tab) {
-		tab.page.dispatchMessage("fetchMails", base);
-	});
-	hidePopover("GRDBPopover");
+	showSection("fetchMails");
+}
+
+function showUsers()
+{
+	showSection("fetchUsers");
 }
 
 function showVisitors()
+{
+	showSection("fetchVisitors");
+}
+
+function showSection(section)
 {
 	if(!hasSession) {
 		activateTabWithURL(base+"/");
 		return;
 	}
 	activateTabWithURL(safari.extension.baseURI + "grdb.html", function (tab) {
-		tab.page.dispatchMessage("fetchVisitors", base);
+		tab.page.dispatchMessage(section, base);
 	});
 	hidePopover("GRDBPopover");
 }
