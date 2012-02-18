@@ -149,7 +149,7 @@ ul li:first-child {
 #mails li:nth-child(2n),
 .double li:nth-child(4n+2), .double li:nth-child(4n+3),
 .triple li:nth-child(2n) {
-	background:	#eef;
+	background:	#eef8ff;
 }
 
 #mails li.mini {
@@ -159,16 +159,20 @@ ul li:first-child {
 }
 
 #mails li.sent {
-	background:	#e9e1ee;
+	background:	#d8d0dd;
 }
 
 #mails li.sent:nth-child(2n) {
-	background:	#d8d0dd;
+	background:	#e9e1ee;
 }
 
 #mails li[data-msg]:hover {
 	color:		#1af;
 	cursor:		pointer;
+}
+
+#mails li.low {
+	background:	#fff;
 }
 
 ul div.action {
