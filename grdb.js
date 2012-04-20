@@ -173,14 +173,15 @@ function visitIcon(received, given)
 	return null;
 }
 
-function appendMailRow(senderID, sender, msgID, subject, datetime, timestamp, hasAttachment, dup, sent)
+function appendMailRow(senderID, sender, msgID, subject, datetime, timestamp, hasAttachment, dup, sent, drop)
 {
 	var cell, link;
 	var row = create("li");
 
-	if(msgID==-1) {
+	if(drop) {
 		row.setAttribute("class","drop");
-	} else if(msgID) {
+	}
+	if(msgID) {
 		row.setAttribute("data-msg",msgID);
 		row.addEventListener("click", handleMailClick, false);
 	}
@@ -458,7 +459,7 @@ function clusterItems(html, regex, more, index, isSent)
 		}
 	}
 
-	while(item = more.exec(html)) {
+	while(more && (item = more.exec(html))) {
 		if(item[1]!="0" && !index[item[1]]) {
 			item.timestamp = null;
 			if(last) {
@@ -490,32 +491,49 @@ function findMails(html, regex, type)
 				index[attr] = i_n[attr];
 			}
 		break;
-		case 1: // undelivered
+		case 1: // received
+			mailHandler["received"] = clusterItems(html, regex, null, {}, false);
+		break;
+		case 2: // undelivered
 			var i_u = {}
 			mailHandler["undelivered"] = clusterItems(html, regex, more, i_u, true);
 			for(attr in i_u) {
 				index[attr] = i_u[attr];
 			}
 		break;
-		case 2: // sent
+		case 3: // sent
 			mailHandler["sent"] = clusterItems(html, regex, more, {}, true);
 		break;
 	}
 
-	if(mailHandler["found"] >= 3) {
+	if(mailHandler["found"] >= 4) {
 		clearNode(maillist);
 
 		var n = mailHandler["newmail"];
+		var r = mailHandler["received"];
 		var u = mailHandler["undelivered"];
 		var s = mailHandler["sent"];
 		var d = [];
 		var i = 0;
 
-		for(var item = s; item; item = item.next) {
-			if(!index[item[1]]) {
-				d[i] = item;
-				index[item[1]] = item;
-				i++;
+		while(s || r) {
+			while(s && (!r || index[s[1]] || s.timestamp>=r.timestamp)) {
+				if(!index[s[1]]) {
+					s.sent = true;
+					d[i] = s;
+					index[s[1]] = s;
+					i++;
+				}
+				s = s.next;
+			}
+			while(r && (!s || index[r[1]] || r.timestamp>=s.timestamp)) {
+				if(!index[r[1]]) {
+					r.sent = false;
+					d[i] = r;
+					index[r[1]] = r;
+					i++;
+				}
+				r = r.next;
 			}
 		}
 
@@ -545,7 +563,11 @@ function findMails(html, regex, type)
 				}
 			}
 			while(i<dl && (!n || d[i].timestamp>=n.timestamp) && (!u || d[i].timestamp>=u.timestamp)) {
-				appendMailRow(d[i][1], d[i][2], -1, d[i][3], d[i][4], d[i].timestamp, d[i][5]=="i", false, true);
+				if(d[i].sent) {
+					appendMailRow(d[i][1], d[i][2], null, d[i][3], d[i][4], d[i].timestamp, d[i][5]=="i", false, true, true);
+				} else {
+					appendMailRow(d[i][1], d[i][2], d[i][3], d[i][4], d[i][5] ? d[i][5].replace(/(\d\d\.\d\d)\.\d\d/,"$1 ") : '', d[i].timestamp, d[i][6]=="i", false, false, true);
+				}
 				i++;
 				k++;
 			}
@@ -554,7 +576,7 @@ function findMails(html, regex, type)
 			showListMessage(maillist,"No Messages");
 		}
 	} else {
-		showListMessage(maillist, "Loading", Math.round(100*mailHandler["found"]/3)+"%");
+		showListMessage(maillist, "Loading", Math.round(100*mailHandler["found"]/4)+"%");
 	}
 }
 
@@ -634,7 +656,7 @@ function findVisits(html, isGiven)
 function fetchMails(event)
 {
 	today = null;
-	mailHandler = {"newmail":false, "new":{}, "undelivered":false, "sent":false, "index":{}, "found":0, "fail":false};
+	mailHandler = {"newmail":false, "new":{}, "received":false, "undelivered":false, "sent":false, "index":{}, "found":0, "fail":false};
 	switchView(maillist, mailbutton);
 
 	showListMessage(maillist,"Loading …");
@@ -662,6 +684,22 @@ function fetchMails(event)
 		showListMessage(maillist, "Cannot access new messages.", "The server responded with error "+status+".", true);
 	});
 
+	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=all", function(html) {
+		setFetchTime();
+		var regex = /name="messagelist"/gi;
+		if(mailHandler["fail"] || !regex.test(html)) {
+			noLogin(mailHandler);
+			showListMessage(maillist, "Cannot retrieve all received messages.", "Ensure you are logged in.", true);
+			return;
+		}
+
+		regex = /set=(\d+)[^>]*>([^<]+)[^?]*\?id=(\d+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
+		findMails(html, regex, 1);
+	}, function(status) {
+		noLogin(mailHandler);
+		showListMessage(maillist, "Cannot access all received messages.", "The server responded with error "+status+".", true);
+	});
+
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=sent", function(html) {
 		setFetchTime();
 		var regex = /name="messagelist"/gi;
@@ -672,7 +710,7 @@ function fetchMails(event)
 		}
 
 		regex = /set=(\d+)[^>]*>([^<]+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
-		findMails(html, regex, 2);
+		findMails(html, regex, 3);
 	}, function(status) {
 		noLogin(mailHandler);
 		showListMessage(maillist, "Cannot access all sent messages.", "The server responded with error "+status+".", true);
@@ -688,7 +726,7 @@ function fetchMails(event)
 		}
 
 		regex = /set=(\d+)[^>]*>([^<]+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
-		findMails(html, regex, 1);
+		findMails(html, regex, 2);
 	}, function(status) {
 		noLogin(mailHandler);
 		showListMessage(maillist, "Cannot access sent messages.", "The server responded with error "+status+".", true);
