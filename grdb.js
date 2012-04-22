@@ -116,9 +116,9 @@ function createHistoryLink(id, conv)
 	return link;
 }
 
-function createMsgLink(id, msgID)
+function createMsgLink(id, msgID, sent)
 {
-	var link = create("a", "M");
+	var link = create("a", sent?"R":"M");
 	link.setAttribute("href",base+"/msg/?uid="+id);
 	if(msgID && msgID!=-1) {
 		link.setAttribute("data-msg", msgID);
@@ -126,7 +126,7 @@ function createMsgLink(id, msgID)
 		link.style.backgroundImage = "url(msg_hi.png)";
 		link.setAttribute("title","Read Message");
 	} else {
-		link.style.backgroundImage = "url(msg.png)";
+		link.style.backgroundImage = sent?"url(reply.png)":"url(msg.png)";
 		link.setAttribute("title","Message");
 	}
 	link.setAttribute("target","_blank");
@@ -194,15 +194,17 @@ function appendMailRow(senderID, sender, msgID, subject, datetime, timestamp, ha
 		link = createHistoryLink(senderID);
 		link.addEventListener("click", onlyThis, false);
 		cell.appendChild(link);
+		if(sent) {
+			link = createMsgLink(senderID, null, true);
+			link.addEventListener("click", onlyThis, false);
+			cell.appendChild(link);
+		}
 		row.appendChild(cell);
 
 		cell = create("h2");
 		link = createUserLink(senderID, sender);
 		link.addEventListener("click", onlyThis, false);
 		cell.appendChild(link);
-		if(sent) {
-			cell.setAttribute("data-label","To");
-		}
 		row.appendChild(cell);
 	}
 	if(timestamp) {

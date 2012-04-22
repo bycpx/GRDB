@@ -159,7 +159,12 @@ ul li:first-child {
 }
 
 #mails li.sent {
+	padding:	0 0 0 3em;
 	background:	#d8d0dd;
+}
+
+#mails li.mini.sent {
+	width:		12.9em;
 }
 
 #mails li.sent:nth-child(2n) {
@@ -184,7 +189,7 @@ ul div.action {
 	font-weight: bold;
 }
 
-#users div.action, #visitors div.action, #threads div.action {
+#users div.action, #visitors div.action, #threads div.action, #mails li.sent div.action {
 	margin:		0 0 0 -3em;
 	width:		3em;
 }
@@ -228,25 +233,6 @@ ul h3 {
 	color:		#26a;
 }
 
-h2[data-label]:before {
-	position:	relative;
-	top:		-0.1em;
-	font-size:	0.75em;
-	content:	attr(data-label);
-	color:		#fff;
-	background:	#a9a;
-	line-height: 1em;
-	padding:	0 0.2em;
-	margin-right: 0.25em;
-	border-radius: 0.3em;
-	-webkit-box-shadow: #fff 0 1px 0;
-}
-
-li.drop h2[data-label]:before {
-	color:		#dcd;
-	text-shadow: #878 0 -1px 0;
-}
-
 h2 a[data-online] {
 	padding-right: 16px;
 	background-image: url(st_off.png);
@@ -281,7 +267,7 @@ h2 a[data-online]:hover {
 }
 
 ul li.low {
-	color:		#aaa;
+	color:		#999;
 }
 
 #mails h3[data-att] {
@@ -346,7 +332,7 @@ li.new {
 }
 
 li.drop {
-	color:		#888;
+	color:		#999;
 }
 
 li.sent.drop {
