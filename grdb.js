@@ -152,6 +152,11 @@ function daysSince(datestring)
 	return dayDiff(date,today);
 }
 
+function displayDate(datestring)
+{
+	return datestring ? datestring.replace(/(\d\d\.\d\d)\.\d\d/,"$1. ") : '';
+}
+
 function visitIcon(received, given)
 {
 	var img;
@@ -208,7 +213,7 @@ function appendMailRow(senderID, sender, msgID, subject, datetime, timestamp, ha
 		row.appendChild(cell);
 	}
 	if(timestamp) {
-		cell = create("h3", datetime);
+		cell = create("h3", displayDate(datetime));
 		age = dayDiff(timestamp,today);
 		if(age>1) {
 			cell.setAttribute("title",Math.floor(age)+" days old");
@@ -443,7 +448,7 @@ function clusterItems(html, regex, more, index, isSent)
 
 	for(item = null; item = regex.exec(html); index[item[1]] = item) {
 		if(isSent) {
-			item.timestamp = timestamp(item[4].replace(/\s/,"."+today.getFullYear()+" "));
+			item.timestamp = timestamp(item[4]);
 		} else {
 			item.timestamp = timestamp(item[5]);
 		}
@@ -519,7 +524,7 @@ function findMails(html, regex, type)
 		var i = 0;
 
 		while(s || r) {
-			while(s && (!r || index[s[1]] || s.timestamp>=r.timestamp)) {
+			while(s && !(r && !index[s[1]] && s.timestamp<r.timestamp)) {
 				if(!index[s[1]]) {
 					s.sent = true;
 					d[i] = s;
@@ -528,7 +533,7 @@ function findMails(html, regex, type)
 				}
 				s = s.next;
 			}
-			while(r && (!s || index[r[1]] || r.timestamp>=s.timestamp)) {
+			while(r && !(s && !index[r[1]] && r.timestamp<s.timestamp)) {
 				if(!index[r[1]]) {
 					r.sent = false;
 					d[i] = r;
@@ -544,17 +549,17 @@ function findMails(html, regex, type)
 		var k = 0;
 		var curID, prvID;
 		while(n || u || i<dl) {
-			while(n && (!u || n.timestamp>=u.timestamp) && (i>=dl || n.timestamp>=d[i].timestamp)) {
+			while(n && !(u && n.timestamp<u.timestamp) && !(i<dl && n.timestamp<d[i].timestamp)) {
 				curID = n[1];
 				prvID = 0;
 				while(n && curID == n[1]) {
-					appendMailRow(n[1], n[2], n[3], n[4], n[5] ? n[5].replace(/(\d\d\.\d\d)\.\d\d/,"$1 ") : '', n.timestamp, n[6]=="i", prvID==curID, false);
+					appendMailRow(n[1], n[2], n[3], n[4], n[5], n.timestamp, n[6]=="i", prvID==curID, false);
 					prvID = curID;
 					n = n.next;
 					k++;
 				}
 			}
-			while(u && (!n || u.timestamp>=n.timestamp) && (i>=dl || u.timestamp>=d[i].timestamp)) {
+			while(u && !(n && u.timestamp<n.timestamp) && !(i<dl && u.timestamp<d[i].timestamp)) {
 				curID = u[1];
 				prvID = 0;
 				while(u && curID == u[1]) {
@@ -564,11 +569,11 @@ function findMails(html, regex, type)
 					k++;
 				}
 			}
-			while(i<dl && (!n || d[i].timestamp>=n.timestamp) && (!u || d[i].timestamp>=u.timestamp)) {
+			while(i<dl && !(n && d[i].timestamp<n.timestamp) && !(u && d[i].timestamp<u.timestamp)) {
 				if(d[i].sent) {
 					appendMailRow(d[i][1], d[i][2], null, d[i][3], d[i][4], d[i].timestamp, d[i][5]=="i", false, true, true);
 				} else {
-					appendMailRow(d[i][1], d[i][2], d[i][3], d[i][4], d[i][5] ? d[i][5].replace(/(\d\d\.\d\d)\.\d\d/,"$1 ") : '', d[i].timestamp, d[i][6]=="i", false, false, true);
+					appendMailRow(d[i][1], d[i][2], d[i][3], d[i][4], d[i][5], d[i].timestamp, d[i][6]=="i", false, false, true);
 				}
 				i++;
 				k++;
@@ -662,6 +667,7 @@ function fetchMails(event)
 	switchView(maillist, mailbutton);
 
 	showListMessage(maillist,"Loading …");
+	// NEW
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=new", function(html) {
 		setFetchTime();
 		var regex = /name="messagelist"/gi;
@@ -686,6 +692,7 @@ function fetchMails(event)
 		showListMessage(maillist, "Cannot access new messages.", "The server responded with error "+status+".", true);
 	});
 
+	// RECEIVED
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=all", function(html) {
 		setFetchTime();
 		var regex = /name="messagelist"/gi;
@@ -702,6 +709,7 @@ function fetchMails(event)
 		showListMessage(maillist, "Cannot access all received messages.", "The server responded with error "+status+".", true);
 	});
 
+	// SENT
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=sent", function(html) {
 		setFetchTime();
 		var regex = /name="messagelist"/gi;
@@ -718,6 +726,7 @@ function fetchMails(event)
 		showListMessage(maillist, "Cannot access all sent messages.", "The server responded with error "+status+".", true);
 	});
 
+	// UNDELIVERD
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=sentUnread", function(html) {
 		setFetchTime();
 		var regex = /name="messagelist"/gi;
