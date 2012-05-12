@@ -13,7 +13,7 @@ header {
 	min-height:		48px;
 	color:		#555;
 	background:	#bbb -webkit-gradient(linear, 0% 0%, 0% 100%, from(#ccc), to(#aaa));
-	text-shadow: 0 1px 0 #fff;
+	text-shadow: #fff 0 1px 0;
 	border-top:	1px solid #eee;
 	border-bottom: 1px solid #666;
 }
@@ -71,8 +71,8 @@ nav a[data-badge]:after {
 	line-height: 1.3em;
 	min-width:	1.25em;
 	border-radius: 1em;
-	text-shadow: 0 1px 0 #666;
-	-webkit-box-shadow: 0 1px 0 #fff;
+	text-shadow: rgba(0,0,0, 0.5) 0 1px 0;
+	box-shadow:	#fff 0 1px 0, rgba(0,0,0, 0.5) 0 1px 2px inset;
 }
 
 #userpic {
@@ -86,7 +86,7 @@ nav a[data-badge]:after {
 	padding:	5px;
 	border:		1px solid rgba(0,0,0, 0.25);
 	border-radius: 5px;
-	-webkit-box-shadow: 0 3px 6px rgba(0,0,0, 0.25);
+	box-shadow:	rgba(0,0,0, 0.25) 0 3px 6px;
 	-webkit-transition-property: top, left;
 	-webkit-transition-duration: 0.5s;
 	z-index:	10;
@@ -106,7 +106,7 @@ ul {
 	padding:	0.1em 0 0.25em;
 	border:		1px solid rgba(0,0,0, 0.25);
 	border-radius: 0.25em;
-	-webkit-box-shadow: 0 3px 6px rgba(0,0,0, 0.25);
+	box-shadow:	rgba(0,0,0, 0.25) 0 3px 6px;
 }
 
 ul a {
@@ -114,13 +114,13 @@ ul a {
 	color:		inherit;
 	border-radius: 0.3em;
 	text-decoration: none;
-	text-shadow: 0 1px 0 #fff;
+	text-shadow: #fff 0 1px 0;
 }
 
 ul a:hover {
 	color:		#fff;
 	background-color:	#1af;
-	text-shadow: 0 1px 0 #158;
+	text-shadow: #158 0 1px 0;
 }
 
 ul li {
