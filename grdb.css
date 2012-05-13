@@ -14,18 +14,19 @@ header {
 	color:		#555;
 	background:	#bbb -webkit-gradient(linear, 0% 0%, 0% 100%, from(#ccc), to(#aaa));
 	text-shadow: #fff 0 1px 0;
-	border-top:	1px solid #eee;
-	border-bottom: 1px solid #666;
+	border-top:	thin solid #eee;
+	border-bottom: thin solid #666;
 }
 
 header h1 {
 	float:		left;
 	font-size:	1.5em;
-	margin:		0 1em;
-	padding:	0 0 0 42px;
+	margin:		0 0 0 1em;
+	padding:	0 1em 0 42px;
 	height:		100%;
 	line-height: 48px;
 	background:	url(Icon-32.png) no-repeat left center;
+	border-right: thin dotted #666;
 	cursor:		default;
 }
 
@@ -40,14 +41,15 @@ header form {
 }
 
 nav a {
-	display:	inline-block;
+	display:	block;
+	float:		left;
 	color:		inherit;
 	text-decoration: none;
 	height:		100%;
 	padding:	0 2em;
 	line-height: 48px;
 	font-weight: bold;
-	border-left: 1px dotted #666;
+	border-right: thin dotted #666;
 	cursor:		pointer;
 }
 
@@ -56,7 +58,8 @@ nav a:hover {
 }
 
 nav a.act {
-	background:	-webkit-gradient(linear, 0% 0%, 100% 0%, from(rgba(255,255,255,0)), color-stop(0.5, rgba(255,255,255,0.75)), to(rgba(255,255,255,0)));
+	color:		#333;
+	background:	-webkit-gradient(linear, 0% 0%, 0% 100%, from(rgba(255,255,255,0.75)), to(rgba(255,255,255,0)));
 }
 
 nav a[data-badge]:after {
@@ -75,6 +78,10 @@ nav a[data-badge]:after {
 	box-shadow:	#fff 0 1px 0, rgba(0,0,0, 0.5) 0 1px 2px inset;
 }
 
+nav a.act[data-badge]:after {
+	background:	#1af -webkit-gradient(linear, 0% 0%, 0% 100%, from(#26a), to(#1af));
+}
+
 #userpic {
 	display:	block;
 	position:	absolute;
@@ -84,7 +91,7 @@ nav a[data-badge]:after {
 	max-height:	100px;
 	background:	#fff;
 	padding:	5px;
-	border:		1px solid rgba(0,0,0, 0.25);
+	border:		thin solid rgba(0,0,0, 0.25);
 	border-radius: 5px;
 	box-shadow:	rgba(0,0,0, 0.25) 0 3px 6px;
 	-webkit-transition-property: top, left;
@@ -104,7 +111,7 @@ ul {
 	margin:		1em auto;
 	width:		48em;
 	padding:	0.1em 0 0.25em;
-	border:		1px solid rgba(0,0,0, 0.25);
+	border:		thin solid rgba(0,0,0, 0.25);
 	border-radius: 0.25em;
 	box-shadow:	rgba(0,0,0, 0.25) 0 3px 6px;
 }
@@ -127,7 +134,7 @@ ul li {
 	overflow:	hidden;
 	line-height: 1.75em;
 	padding:	0 0 0 2em;
-	border-top: 1px solid #fff;
+	border-top: thin solid #fff;
 }
 
 ul li:first-child {
@@ -155,7 +162,7 @@ ul li:first-child {
 #mails li.mini {
 	float:		left;
 	width:		14em;
-	border-left: 1px solid #fff;
+	border-left: thin solid #fff;
 }
 
 #mails li.sent {
