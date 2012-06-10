@@ -18,6 +18,8 @@ var visitIcons = {
 	48:"ok"
 };
 
+var VISITS = "grdb_visits";
+
 safari.self.addEventListener("message", function(message) {
 	switch(message.name) {
 		case "fetchMails":
@@ -130,6 +132,32 @@ function createMsgLink(id, msgID, sent)
 		link.setAttribute("title","Message");
 	}
 	link.setAttribute("target","_blank");
+	return link;
+}
+
+function createPin(id, name, tapID, tap, sticky)
+{
+	var link = create("a", "P");
+	link.addEventListener("click", function(event) {
+		if(this.getAttribute("data-sticky")!="0") {
+			unstoreVisit(id);
+			this.style.backgroundImage = "url(pin.png)";
+			this.setAttribute("data-sticky",0);
+		} else {
+			storeVisit(id, name, tapID, tap);
+			this.style.backgroundImage = "url(pin_hi.png)";
+			this.setAttribute("data-sticky",1);
+		}
+	}, false);
+	if(sticky) {
+		link.style.backgroundImage = "url(pin_hi.png)";
+		link.setAttribute("data-sticky", sticky);
+		link.setAttribute("title","unsticky");
+	} else {
+		link.style.backgroundImage = "url(pin.png)";
+		link.setAttribute("data-sticky", 0);
+		link.setAttribute("title","Make sticky");
+	}
 	return link;
 }
 
@@ -257,11 +285,11 @@ function appendUserRow(id, name, status, msgID)
 	userlist.appendChild(row);
 }
 
-function appendVisitorRow(id, name, datetime, timestamp, receivedID, received, givenID, given, msgID)
+function appendVisitorRow(id, name, datetime, timestamp, receivedID, received, givenID, given, msgID, sticky)
 {
 	var cell;
 	var row = create("li");
-	if(givenID==-1) {
+	if(givenID==-1 || sticky==1) {
 		row.setAttribute("class","new");
 	}
 	if(receivedID==-1) {
@@ -269,6 +297,7 @@ function appendVisitorRow(id, name, datetime, timestamp, receivedID, received, g
 	}
 	cell = create("div");
 	cell.setAttribute("class","action");
+	cell.appendChild(createPin(id, name, givenID, given, sticky));
 	cell.appendChild(createMsgLink(id, msgID));
 	cell.appendChild(createHistoryLink(id, msgID));
 	row.appendChild(cell);
@@ -277,6 +306,7 @@ function appendVisitorRow(id, name, datetime, timestamp, receivedID, received, g
 	row.appendChild(cell);
 	if(timestamp) {
 		cell = create("h3", datetime.replace(/-/," "));
+
 		age = dayDiff(timestamp,today);
 		if(age<=0.5) {
 			cell.setAttribute("data-age","new");
@@ -284,26 +314,28 @@ function appendVisitorRow(id, name, datetime, timestamp, receivedID, received, g
 		if(age>2.5) {
 			cell.setAttribute("data-age","old");
 		}
-		if(img = visitIcon(receivedID, givenID)) {
-			cell.style.backgroundImage = "url(f/"+img+".png)";
-		}
-		if(receivedID && receivedID!=-1) {
-			cell.setAttribute("data-recv",receivedID);
-			cell.setAttribute("title",received);
-		}
-		if(givenID && givenID!=-1) {
-			cell.setAttribute("data-give",givenID);
-			if(prev = cell.getAttribute("title")) {
-				prev += "\n";
-			} else {
-				prev = "";
-			}
-			if(givenID != receivedID) {
-				cell.setAttribute("title", prev+"⇠ "+given);
-			}
-		}
-		row.appendChild(cell);
+	} else {
+		cell = create("h3", datetime);
 	}
+	if(img = visitIcon(receivedID, givenID)) {
+		cell.style.backgroundImage = "url(f/"+img+".png)";
+	}
+	if(receivedID && receivedID!=-1) {
+		cell.setAttribute("data-recv",receivedID);
+		cell.setAttribute("title",received);
+	}
+	if(givenID && givenID!=-1) {
+		cell.setAttribute("data-give",givenID);
+		if(prev = cell.getAttribute("title")) {
+			prev += "\n";
+		} else {
+			prev = "";
+		}
+		if(givenID != receivedID) {
+			cell.setAttribute("title", prev+"⇠ "+given);
+		}
+	}
+	row.appendChild(cell);
 	visitorlist.appendChild(row);
 }
 
@@ -372,6 +404,25 @@ function handleMailClick(event)
 	popup.opener = null;
 	this.setAttribute("class","low");
 	event.preventDefault();
+}
+
+function storeVisit(id, name, tapID, tap)
+{
+	list = JSON.parse(localStorage.getItem(VISITS)) || [];
+	list[list.length] = [id, name, tapID, tap];
+	localStorage.setItem(VISITS, JSON.stringify(list));
+}
+
+function unstoreVisit(id)
+{
+	list = JSON.parse(localStorage.getItem(VISITS)) || [];
+	for(var i=0; i<list.length; i++) {
+		if(list[i][0]==id) {
+			list.splice(i,1);
+			i--;
+		}
+	}
+	localStorage.setItem(VISITS, JSON.stringify(list));
 }
 
 function showUserPic(event)
@@ -619,6 +670,23 @@ function findVisits(html, isGiven)
 	if(visitHandler["found"]>=visitHandler["total"]) {
 		clearNode(visitorlist);
 
+		var s = JSON.parse(localStorage.getItem(VISITS)) || [];
+		for(i=0; i<s.length; i++) {
+			if(item = index[s[i][0]]) {
+				s[i][1] = item[3];
+				s[i][2] = item[6];
+				s[i][3] = item[7];
+
+				item[8] = 2;
+			} else {
+				item = [0,0,s[i][0],s[i][1],"??.??. ??:??",0,s[i][2],s[i][3],1];
+				item.timestamp = null;
+				g[g.length] = item;
+				index[s[i][0]] = item;
+			}
+		}
+		localStorage.setItem(VISITS, JSON.stringify(s));
+
 		var rl = r.length;
 		var gl = g.length;
 		for(i = 0; i < rl; i++) {
@@ -635,15 +703,15 @@ function findVisits(html, isGiven)
 			while(j<gl && g[j][2]==0) {
 				j++;
 			}
-			while(i<rl && (j>=gl || r[i].timestamp>=g[j].timestamp)) {
+			while(i<rl && !(j<gl && r[i].timestamp<g[j].timestamp)) {
 				id = r[i][2];
 				item = index[id];
-				appendVisitorRow(id, r[i][3], r[i][4], r[i].timestamp, r[i][6], r[i][7], item ? item[6] : -1, item ? item[7] : null, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0));
+				appendVisitorRow(id, r[i][3], r[i][4], r[i].timestamp, r[i][6], r[i][7], item ? item[6] : -1, item ? item[7] : null, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), item ? item[8] : 0);
 				i++;
 			}
-			while(j<gl && (i>=rl || r[i].timestamp<g[j].timestamp)) {
+			while(j<gl && !(i<rl && g[j].timestamp<r[i].timestamp)) {
 				if(id = g[j][2]) {
-					appendVisitorRow(id, g[j][3], g[j][4], g[j].timestamp, -1, null, g[j][6], g[j][7], newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0));
+					appendVisitorRow(id, g[j][3], g[j][4], g[j].timestamp, -1, null, g[j][6], g[j][7], newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), g[j][8]);
 					k++;
 				}
 				j++;

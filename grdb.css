@@ -147,6 +147,11 @@ ul li:first-child {
 	float:		left;
 }
 
+#visitors li {
+	width:		20em;
+	padding:	0 0 0 4em;
+}
+
 .triple li {
 	width:		13em;
 	padding:	0 0 0 3em;
@@ -196,9 +201,14 @@ ul div.action {
 	font-weight: bold;
 }
 
-#users div.action, #visitors div.action, #threads div.action, #mails li.sent div.action {
+#users div.action, #threads div.action, #mails li.sent div.action {
 	margin:		0 0 0 -3em;
 	width:		3em;
+}
+
+#visitors div.action {
+	margin:		0 0 0 -4em;
+	width:		4em;
 }
 
 div.action a {
@@ -209,6 +219,7 @@ div.action a {
 	text-indent: -10em;
 	background-position: center 0px;
 	background-repeat: no-repeat;
+	cursor:		pointer;
 }
 
 div.action a:hover {
