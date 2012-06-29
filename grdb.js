@@ -998,6 +998,4 @@ function init()
 	visitorlist.style.display = "none";
 	threadlist.style.display = "none";
 	lastButton = mailbutton;
-
-	safari.self.tab.dispatchMessage("ready");
 }

@@ -6,7 +6,7 @@ var msgCount = 0;
 var userCount = 0;
 var visitorCount = 0;
 var hasSession = false;
-var readyFunc;
+var panel = new Panel();
 
 
 safari.application.addEventListener("validate", function(event) {
@@ -61,11 +61,6 @@ safari.application.addEventListener("message", function(message) {
 		case "openBase":
 			activateTabWithURL(base+"/");
 		break;
-		case "ready":
-			if(readyFunc) {
-				readyFunc(message.target);
-			}
-		break;
 		case "findUser":
 			performUserSearch(message.message);
 		break;
@@ -93,14 +88,12 @@ function showVisitors()
 
 function showSection(section)
 {
+	hidePopover("GRDBPopover");
 	if(!hasSession) {
 		activateTabWithURL(base+"/");
 		return;
 	}
-	activateTabWithURL(safari.extension.baseURI + "grdb.html", function (tab) {
-		tab.page.dispatchMessage(section, base);
-	});
-	hidePopover("GRDBPopover");
+	panel.message(section, base);
 }
 
 function hidePopover(name)
@@ -135,26 +128,31 @@ function validateToolbarItems()
 	}
 }
 
-function activateTabWithURL(url, aReadyFunc)
+function activateTabWithURL(url)
 {
-	var theTab;
-	readyFunc = null;
+	var theTab, emptyTab;
 
 	for(windowIndex in safari.application.browserWindows) {
 		for(tabIndex in safari.application.browserWindows[windowIndex].tabs) {
 			theTab = safari.application.browserWindows[windowIndex].tabs[tabIndex];
-			if((theTab.url && theTab.url.indexOf(url)!=-1) || theTab.url=="") {
-				theTab.browserWindow.activate();
-				theTab.activate();
-				if(!theTab.url || theTab.url!=url) {
+			if(theTab.url && theTab.url.indexOf(url)!=-1) {
+				if(theTab.url!=url) {
+					theTab.browserWindow.activate();
+					theTab.activate();
 					theTab.url = url;
-					readyFunc = aReadyFunc;
-				} else if(aReadyFunc) {
-					aReadyFunc(theTab);
 				}
 				return theTab;
+			} else if(theTab.url=="") {
+				emptyTab = theTab;
 			}
 		}
+	}
+
+	if(emptyTab) {
+		emptyTab.browserWindow.activate();
+		emptyTab.activate();
+		emptyTab.url = url;
+		return emptyTab;
 	}
 
 	if(!safari.application.activeBrowserWindow) {
@@ -162,8 +160,44 @@ function activateTabWithURL(url, aReadyFunc)
 	}
 	theTab = safari.application.activeBrowserWindow.openTab();
 	theTab.url = url;
-	readyFunc = aReadyFunc;
 	return theTab;
+}
+
+function Panel() {
+	var theTab=null;
+
+	function makeTab(readyFunc) {
+		theTab = activateTabWithURL(safari.extension.baseURI + "grdb.html");
+		theTab.addEventListener("navigate", function() {
+			readyFunc(theTab);
+		}, false);
+		theTab.addEventListener("close", function() {
+			theTab = null;
+		}, false);
+	}
+
+	this.isOpen = function () {
+		return theTab!==null;
+	}
+
+	this.message = function (message, value) {
+		messageFunc = function(tab) {
+			tab.page.dispatchMessage(message, value);
+		};
+		if(theTab) {
+			theTab.browserWindow.activate();
+			theTab.activate();
+			messageFunc(theTab);
+		} else {
+			makeTab(messageFunc);
+		}
+	}
+
+	this.lenientMessage = function (message, value) {
+		if(theTab) {
+			theTab.page.dispatchMessage(message, value);
+		}
+	}
 }
 
 </script>
