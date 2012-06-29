@@ -40,6 +40,9 @@ safari.self.addEventListener("message", function(message) {
 			}
 			fetchVisitors();
 		break;
+		case "userOnline":
+			userStatMap[message.message[0]] = message.message[1];
+		break;
 	}
 }, false);
 
