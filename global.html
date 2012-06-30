@@ -65,14 +65,7 @@ safari.application.addEventListener("message", function(message) {
 			performUserSearch(message.message);
 		break;
 		case "userSeen":
-			stat = 0;
-			switch(message.message[1]) {
-				case "": stat=-2; break;
-				case "0": stat=1; break;
-				case "--": stat=-1; break;
-				default: stat=2; break;
-			}
-			panel.lenientMessage("userOnline",[message.message[0], stat]);
+			panel.lenientMessage("userOnline", message.message);
 		break;
 	}
 }, false);
