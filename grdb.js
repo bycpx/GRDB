@@ -155,12 +155,11 @@ function createPin(id, name, tapID, tap, sticky)
 	if(sticky) {
 		link.style.backgroundImage = "url(pin_hi.png)";
 		link.setAttribute("data-sticky", sticky);
-		link.setAttribute("title","unsticky");
 	} else {
 		link.style.backgroundImage = "url(pin.png)";
 		link.setAttribute("data-sticky", 0);
-		link.setAttribute("title","Make sticky");
 	}
+	link.setAttribute("title","Pin");
 	return link;
 }
 
