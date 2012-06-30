@@ -20,6 +20,7 @@ header {
 
 header h1 {
 	float:		left;
+	position:	relative;
 	font-size:	1.5em;
 	margin:		0 0 0 1em;
 	padding:	0 1em 0 42px;
@@ -28,6 +29,24 @@ header h1 {
 	background:	url(Icon-32.png) no-repeat left center;
 	border-right: thin dotted #666;
 	cursor:		default;
+	color:		#fff;
+	text-shadow: rgba(0,0,0, 0.4) 0 1px 3px;
+}
+
+header h1:hover {
+	text-shadow: #26a 0 1px 5px;
+}
+
+header h1 .hi {
+	position:	relative;
+}
+
+header h1 .lo {
+	position:	absolute;
+	top:		1px;
+	left:		42px;
+	text-shadow: none;
+	color:		rgba(0,0,0, 0.12);
 }
 
 header nav {
@@ -83,7 +102,7 @@ nav a.act[data-badge]:after {
 }
 
 #userpic {
-	display:	block;
+	display:	none;
 	position:	absolute;
 	top:		0;
 	left:		0;

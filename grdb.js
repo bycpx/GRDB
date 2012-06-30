@@ -384,7 +384,6 @@ function setFetchTime()
 {
 	if(!today) {
 		today = new Date();
-		clearNode(info);
 		setText(info, today.toLocaleString());
 	}
 }
@@ -996,7 +995,6 @@ function init()
 	userPicMap = {};
 	pbase = "http://s.gayromeo.com/img/usr/";
 	userPic = document.getElementById("userpic");
-	userPic.style.display = "none";
 
 	lastView = maillist;
 	userlist.style.display = "none";
