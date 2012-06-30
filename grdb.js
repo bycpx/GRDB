@@ -660,14 +660,14 @@ function findVisits(html, isGiven)
 			item.timestamp = timestamp(item[4].replace(/-/,today.getFullYear()+" "));
 			index[item[2]] = item;
 			userPicMap[item[2]] = item[1];
-			userStatMap[item[2]] = item[5]=="0f0"?2:-1;
+			userStatMap[item[2]] = item[5]=="0f0" ? 2 : item[5]=="ff0"?1:-1;
 			g[i] = item;
 		}
 	} else {
 		for(i = r.length; item = regex.exec(html); i++) {
 			item.timestamp = timestamp(item[4].replace(/-/,today.getFullYear()+" "));
 			userPicMap[item[2]] = item[1];
-			userStatMap[item[2]] = item[5]=="0f0"?2:-1;
+			userStatMap[item[2]] = item[5]=="0f0" ? 2 : item[5]=="ff0"?1:-1;
 			r[i] = item;
 		}
 	}
