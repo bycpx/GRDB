@@ -648,7 +648,7 @@ function findVisits(html, isGiven)
 	if(html) {
 		html = html.replace(/<wbr>/, "");
 	}
-	var regex = /(?:\/usr\/([^\.]*)\.[^\n]*\n\s*)?<td class="resHeadline"[^?]*\?set=(\d+)[^;]*;">([^<]*)<\/a>[^\n]*\n\s*<td[^>]*>(?:(?:<[^>]*>[^<]*<\/[^>]*>)|[\s0-9.a-z'"&;])*;([^<]*)<\/td>[\s\S]*?(<img [a-z="0-9\/]*\/(\d+)[^:]*: ([^"]*)"[^>]*>\s*)?<span>[^<]*<\/span>\s*<br \/>\s*<br \/><br \/>/gi;
+	var regex = /(?:\/usr\/([^\.]*)\.[^\n]*\n\s*)?<td class="resHeadline"[^?]*\?set=(\d+)[^;]*;">([^<]*)<\/a>[^\n]*\n\s*<td[^>]*>(?:(?:<[^>]*>[^<]*<\/[^>]*>)|[\s0-9.a-z'"&;])*;([^<]*)<\/td>[\s\S]*?<tr[^>]*>\s*<td[^>]*>\s*<span(?:\s+style="color:#([^;]*);)?[^>]*>[\s\S]*?(<img [a-z="0-9\/]*\/(\d+)[^:]*: ([^"]*)"[^>]*>\s*)?<span>[^<]*<\/span>\s*<br \/>\s*<br \/><br \/>/gi;
 	var item, i;
 
 	var r = visitHandler["received"];
@@ -660,12 +660,14 @@ function findVisits(html, isGiven)
 			item.timestamp = timestamp(item[4].replace(/-/,today.getFullYear()+" "));
 			index[item[2]] = item;
 			userPicMap[item[2]] = item[1];
+			userStatMap[item[2]] = item[5]=="0f0"?2:-1;
 			g[i] = item;
 		}
 	} else {
 		for(i = r.length; item = regex.exec(html); i++) {
 			item.timestamp = timestamp(item[4].replace(/-/,today.getFullYear()+" "));
 			userPicMap[item[2]] = item[1];
+			userStatMap[item[2]] = item[5]=="0f0"?2:-1;
 			r[i] = item;
 		}
 	}
@@ -677,12 +679,12 @@ function findVisits(html, isGiven)
 		for(i=0; i<s.length; i++) {
 			if(item = index[s[i][0]]) {
 				s[i][1] = item[3];
-				s[i][2] = item[6];
-				s[i][3] = item[7];
+				s[i][2] = item[7];
+				s[i][3] = item[8];
 
-				item[8] = 2;
+				item[9] = 2;
 			} else {
-				item = [0,0,s[i][0],s[i][1],"??.??. ??:??",0,s[i][2],s[i][3],1];
+				item = [0,0,s[i][0],s[i][1],"??.??. ??:??","",0,s[i][2],s[i][3],1];
 				item.timestamp = null;
 				g[g.length] = item;
 				index[s[i][0]] = item;
@@ -709,12 +711,12 @@ function findVisits(html, isGiven)
 			while(i<rl && !(j<gl && r[i].timestamp<g[j].timestamp)) {
 				id = r[i][2];
 				item = index[id];
-				appendVisitorRow(id, r[i][3], r[i][4], r[i].timestamp, r[i][6], r[i][7], item ? item[6] : -1, item ? item[7] : null, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), item ? item[8] : 0);
+				appendVisitorRow(id, r[i][3], r[i][4], r[i].timestamp, r[i][7], r[i][8], item ? item[7] : -1, item ? item[8] : null, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), item ? item[9] : 0);
 				i++;
 			}
 			while(j<gl && !(i<rl && g[j].timestamp<r[i].timestamp)) {
 				if(id = g[j][2]) {
-					appendVisitorRow(id, g[j][3], g[j][4], g[j].timestamp, -1, null, g[j][6], g[j][7], newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), g[j][8]);
+					appendVisitorRow(id, g[j][3], g[j][4], g[j].timestamp, -1, null, g[j][7], g[j][8], newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), g[j][9]);
 					k++;
 				}
 				j++;
