@@ -146,9 +146,9 @@ function activateTabWithURL(url)
 		for(tabIndex in safari.application.browserWindows[windowIndex].tabs) {
 			theTab = safari.application.browserWindows[windowIndex].tabs[tabIndex];
 			if(theTab.url && theTab.url.indexOf(url)!=-1) {
+				theTab.browserWindow.activate();
+				theTab.activate();
 				if(theTab.url!=url) {
-					theTab.browserWindow.activate();
-					theTab.activate();
 					theTab.url = url;
 				}
 				return theTab;
