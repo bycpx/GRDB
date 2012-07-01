@@ -192,6 +192,9 @@ function displayDate(datestring)
 
 function stripStats(stats)
 {
+	if(!stats) {
+		return null;
+	}
 	var cleanstats = stats.replace(/<[^>]*>/g, "");
 	var regex = /[0-9][0-9a-z'"]*/g;
 	var res = "";
