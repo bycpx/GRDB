@@ -23,7 +23,7 @@ safari.application.addEventListener("validate", function(event) {
 safari.application.addEventListener("command", function(event) {
 	switch(event.command) {
 		case "displayMenu":
-			showMails();
+			showMails(true);
 		break;
 	}
 }, false);
@@ -31,7 +31,7 @@ safari.application.addEventListener("command", function(event) {
 safari.application.addEventListener("popover", function(event) {
 	switch(event.target.identifier) {
 		case "GRDBPopover":
-			event.target.contentWindow.displayCounts(msgCount, userCount, visitorCount);
+			event.target.contentWindow.displayCounts(hasSession, msgCount, userCount, visitorCount);
 		break;
 	}
 }, false);
@@ -74,8 +74,18 @@ safari.extension.settings.addEventListener("change", function(event) {
 	base = safari.extension.settings["protocol"] + "://" + safari.extension.settings["site"];
 }, false);
 
-function showMails()
+function openHome()
 {
+	hidePopover("GRDBPopover");
+	activateTabWithURL(base+"/");
+}
+
+function showMails(main)
+{
+	if(main && !hasSession) {
+		activateTabWithURL(base+"/");
+		return;
+	}
 	showSection("fetchMails");
 }
 
@@ -92,10 +102,6 @@ function showVisitors()
 function showSection(section)
 {
 	hidePopover("GRDBPopover");
-	if(!hasSession) {
-		activateTabWithURL(base+"/");
-		return;
-	}
 	panel.message(section, base);
 }
 

@@ -4,7 +4,31 @@
 <head>
 <style>
 body {
-	font: 14px/20px 'Lucida Grande', sans-serif;
+	margin:		4px 8px;
+	font:		14px/20px 'Lucida Grande', sans-serif;
+	width:		124px;
+}
+
+h1 {
+	font-size:	1em;
+	padding:	0 0 0.25em 0;
+	margin:		0 0 0.25em 0;
+	text-shadow: #fff 0 1px 0;
+	border-bottom: thin dotted #666;
+}
+
+h1[data-stat]:after {
+	float:		right;
+	margin:		3px 0 0;
+	font:		bold 12px/14px Helvetica, sans-serif;
+	width:		1em;
+	padding:	0 0.5em;
+	color:		#888;
+	text-align:	center;
+}
+
+h1[data-stat="0"]:after {
+	content:	"✕";
 }
 
 ul {
@@ -17,12 +41,11 @@ li {
 	text-shadow: #fff 0 1px 0;
 }
 
-li[onclick] {
+li[onclick], h1[onclick] {
 	cursor:		default;
-	font-weight: bold;
 }
 
-li[onclick]:hover {
+li[onclick]:hover, h1[onclick]:hover {
 	color:		#448;
 }
 
@@ -38,7 +61,18 @@ li[data-count]:after {
 	text-shadow: none;
 	content:	attr(data-count);
 	border-radius: 1em;
-	box-shadow:	#fff 0 1px 0;
+	box-shadow:	rgba(0,0,0, 0.25) 0 1px 0 inset, #fff 0 1px 0;
+}
+
+li[data-count]:hover:after {
+	background:	#88a;
+}
+
+ul.off li {
+	color:		#888 !important;
+}
+ul.off li:after {
+	background:	#aaa !important;
 }
 </style>
 <script>
@@ -50,11 +84,19 @@ function nn(val)
 	return "–";
 }
 
-function displayCounts(messages, user, visitors)
+function displayCounts(online, messages, user, visitors)
 {
-	document.getElementById("messages").setAttribute("data-count", nn(messages));
+	document.getElementById("home").setAttribute("data-stat",online?"1":"0");
+	msg = document.getElementById("messages");
+	msg.setAttribute("data-count", nn(messages));
 	document.getElementById("user").setAttribute("data-count", nn(user));
 	document.getElementById("visitors").setAttribute("data-count", nn(visitors));
+	msg.parentElement.className = online?"":"off";
+}
+
+function openHome()
+{
+	safari.extension.globalPage.contentWindow.openHome();
 }
 
 function showMails()
@@ -74,7 +116,8 @@ function showVisitors()
 </script>
 </head>
 <body>
-<ul>
+<h1 id="home" data-stat="0" onclick="openHome()">GRDB</h1>
+<ul class="off">
 <li id="messages" data-count="--" onclick="showMails()">Mailbox</li>
 <li id="user" data-count="--" onclick="showUsers()">Favourites</li>
 <li id="visitors" data-count="--" onclick="showVisitors()">Visitors</li>
