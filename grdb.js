@@ -5,7 +5,7 @@ var mailbutton, userbutton, visitorbutton, threadbutton, info;
 var lastView, lastButton;
 var userPic;
 var base, pbase, today;
-var mailHandler, visitHandler, userStatMap, userPicMap;
+var mailHandler, visitHandler, userOnlineMap, userPicMap;
 
 var visitIcons = {
 	10:"like", 11:"like", 13:"like", 14:"like", 15:"like", 16:"like", 17:"like", 19:"like", 31:"like", 42:"like", 47:"like", 50:"like", 51:"like", 52:"like", 53:"like",
@@ -41,7 +41,7 @@ safari.self.addEventListener("message", function(message) {
 			fetchVisitors();
 		break;
 		case "userOnline":
-			userStatMap[message.message[0]] = message.message[1];
+			userOnlineMap[message.message[0]] = message.message[1];
 		break;
 	}
 }, false);
@@ -95,18 +95,21 @@ function absAttr(node, attr)
 
 // -
 
-function createUserLink(id, name)
+function createUserLink(id, name, stats)
 {
 	var link = create("a", name);
 	link.setAttribute("href", base+"/auswertung/setcard/?set="+id);
 	link.setAttribute("target","_blank");
+	if(stats) {
+		link.setAttribute("title",stats);
+	}
 	if(pic = userPicMap[id]) {
 		link.setAttribute("data-pic",pic);
 		link.addEventListener("mouseover", showUserPic, false);
 		link.addEventListener("mouseout", hideUserPic, false);
 	}
-	if(stat = userStatMap[id]) {
-		link.setAttribute("data-online",stat);
+	if(online = userOnlineMap[id]) {
+		link.setAttribute("data-online",online);
 	}
 	return link;
 }
@@ -185,6 +188,17 @@ function daysSince(datestring)
 function displayDate(datestring)
 {
 	return datestring ? datestring.replace(/(\d\d\.\d\d)\.\d\d/,"$1. ") : '';
+}
+
+function stripStats(stats)
+{
+	var cleanstats = stats.replace(/<[^>]*>/g, "");
+	var regex = /[0-9][0-9a-z'"]*/g;
+	var res = "";
+	for(var i=0; stat = regex.exec(cleanstats); i++) {
+		res = res + (i?" · ":'') + stat;
+	}
+	return res;
 }
 
 function visitIcon(received, given)
@@ -271,7 +285,7 @@ function appendMailRow(senderID, sender, msgID, subject, datetime, timestamp, ha
 	maillist.appendChild(row);
 }
 
-function appendUserRow(id, name, status, msgID)
+function appendUserRow(id, name, online, msgID)
 {
 	var cell;
 	var row = create("li");
@@ -280,14 +294,14 @@ function appendUserRow(id, name, status, msgID)
 	cell.appendChild(createMsgLink(id, msgID));
 	cell.appendChild(createHistoryLink(id, msgID));
 	row.appendChild(cell);
-	row.appendChild(create("h3",status));
+	row.appendChild(create("h3",online));
 	cell = create("h2");
 	cell.appendChild(createUserLink(id, name));
 	row.appendChild(cell);
 	userlist.appendChild(row);
 }
 
-function appendVisitorRow(id, name, datetime, timestamp, receivedID, received, givenID, given, msgID, sticky)
+function appendVisitorRow(id, name, stats, datetime, timestamp, receivedID, received, givenID, given, msgID, sticky)
 {
 	var cell;
 	var row = create("li");
@@ -304,7 +318,7 @@ function appendVisitorRow(id, name, datetime, timestamp, receivedID, received, g
 	cell.appendChild(createHistoryLink(id, msgID));
 	row.appendChild(cell);
 	cell = create("h2");
-	cell.appendChild(createUserLink(id, name));
+	cell.appendChild(createUserLink(id, name, stats));
 	row.appendChild(cell);
 	if(timestamp) {
 		cell = create("h3", datetime.replace(/-/," "));
@@ -646,7 +660,7 @@ function findVisits(html, isGiven)
 	if(html) {
 		html = html.replace(/<wbr>/, "");
 	}
-	var regex = /(?:\/usr\/([^\.]*)\.[^\n]*\n\s*)?<td class="resHeadline"[^?]*\?set=(\d+)[^;]*;">([^<]*)<\/a>[^\n]*\n\s*<td[^>]*>(?:(?:<[^>]*>[^<]*<\/[^>]*>)|[\s0-9.a-z'"&;])*;([^<]*)<\/td>[\s\S]*?<tr[^>]*>\s*<td[^>]*>\s*<span(?:\s+style="color:#([^;]*);)?[^>]*>[\s\S]*?(<img [a-z="0-9\/]*\/(\d+)[^:]*: ([^"]*)"[^>]*>\s*)?<span>[^<]*<\/span>\s*<br \/>\s*<br \/><br \/>/gi;
+	var regex = /(?:\/usr\/([^\.]*)\.[^\n]*\n\s*)?<td class="resHeadline"[^?]*\?set=(\d+)[^;]*;">([^<]*)<\/a>[^\n]*\n\s*<td[^>]*>\s*((?:(?:<[^>]*>[^<]*<\/[^>]*>)|[\s0-9.a-z'"&;])*);([^<]*)<\/td>[\s\S]*?<tr[^>]*>\s*<td[^>]*>\s*<span(?:\s+style="color:#([^;]*);)?[^>]*>[\s\S]*?(<img [a-z="0-9\/]*\/(\d+)[^:]*: ([^"]*)"[^>]*>\s*)?<span>[^<]*<\/span>\s*<br \/>\s*<br \/><br \/>/gi;
 	var item, i;
 
 	var r = visitHandler["received"];
@@ -655,17 +669,17 @@ function findVisits(html, isGiven)
 
 	if(isGiven) {
 		for(i = g.length; item = regex.exec(html); i++) {
-			item.timestamp = timestamp(item[4].replace(/-/,today.getFullYear()+" "));
+			item.timestamp = timestamp(item[5].replace(/-/,today.getFullYear()+" "));
 			index[item[2]] = item;
 			userPicMap[item[2]] = item[1];
-			userStatMap[item[2]] = item[5]=="0f0" ? 2 : item[5]=="ff0"?1:-1;
+			userOnlineMap[item[2]] = item[6]=="0f0" ? 2 : item[6]=="ff0"?1:-1;
 			g[i] = item;
 		}
 	} else {
 		for(i = r.length; item = regex.exec(html); i++) {
-			item.timestamp = timestamp(item[4].replace(/-/,today.getFullYear()+" "));
+			item.timestamp = timestamp(item[5].replace(/-/,today.getFullYear()+" "));
 			userPicMap[item[2]] = item[1];
-			userStatMap[item[2]] = item[5]=="0f0" ? 2 : item[5]=="ff0"?1:-1;
+			userOnlineMap[item[2]] = item[6]=="0f0" ? 2 : item[6]=="ff0"?1:-1;
 			r[i] = item;
 		}
 	}
@@ -677,12 +691,12 @@ function findVisits(html, isGiven)
 		for(i=0; i<s.length; i++) {
 			if(item = index[s[i][0]]) {
 				s[i][1] = item[3];
-				s[i][2] = item[7];
-				s[i][3] = item[8];
+				s[i][2] = item[8];
+				s[i][3] = item[9];
 
-				item[9] = 2;
+				item[10] = 2;
 			} else {
-				item = [0,0,s[i][0],s[i][1],"??.??. ??:??","",0,s[i][2],s[i][3],1];
+				item = [0,0,s[i][0],s[i][1],null,"??.??. ??:??","",0,s[i][2],s[i][3],1];
 				item.timestamp = null;
 				g[g.length] = item;
 				index[s[i][0]] = item;
@@ -709,12 +723,12 @@ function findVisits(html, isGiven)
 			while(i<rl && !(j<gl && r[i].timestamp<g[j].timestamp)) {
 				id = r[i][2];
 				item = index[id];
-				appendVisitorRow(id, r[i][3], r[i][4], r[i].timestamp, r[i][7], r[i][8], item ? item[7] : -1, item ? item[8] : null, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), item ? item[9] : 0);
+				appendVisitorRow(id, r[i][3], stripStats(r[i][4]), r[i][5], r[i].timestamp, r[i][8], r[i][9], item ? item[8] : -1, item ? item[9] : null, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), item ? item[10] : 0);
 				i++;
 			}
 			while(j<gl && !(i<rl && g[j].timestamp<r[i].timestamp)) {
 				if(id = g[j][2]) {
-					appendVisitorRow(id, g[j][3], g[j][4], g[j].timestamp, -1, null, g[j][7], g[j][8], newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), g[j][9]);
+					appendVisitorRow(id, g[j][3], stripStats(g[j][4]), g[j][5], g[j].timestamp, -1, null, g[j][8], g[j][9], newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), g[j][10]);
 					k++;
 				}
 				j++;
@@ -832,27 +846,27 @@ function fetchUsers(event)
 		clearNode(userlist);
 
 		regex = /(?:\/usr\/([^\.]*)\.[^>]*><\/a><\/td>)?<td class="profileMemoColumn"[^?]*\?set=(\d+)[^>]*>([^<]*)<\/a>.*?<td class="onlineStatus"><[^"]*"([^"]*)">([^<]*)<\/span>/gi;
-		var i, id, item, stat;
+		var i, id, item, online;
 		var mail = mailHandler["index"] || {};
 		var newmail = mailHandler["new"] || {};
 		for(i=0; item = regex.exec(html); i++) {
 			if(item[4]=="isOnline") {
 				if(item[5]=="Away") {
-					stat = 1;
+					online = 1;
 				} else { // online
-					stat = 2;
+					online = 2;
 				}
 			} else if(item[4]=="deleted") {
-				stat = -2;
+				online = -2;
 			} else { // offline
-				stat = -1;
+				online = -1;
 			}
 			id = item[2];
 			if(item[1]) {
 				userPicMap[id] = item[1];
 			}
-			userStatMap[id] = stat;
-			if(stat>0) {
+			userOnlineMap[id] = online;
+			if(online>0) {
 				appendUserRow(id, item[3], item[5], newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0));
 			} else {
 				i--;
@@ -990,7 +1004,7 @@ function init()
 	info = document.getElementById("info");
 
 	mailHandler = {};
-	userStatMap = {};
+	userOnlineMap = {};
 	userPicMap = {};
 	pbase = "http://s.gayromeo.com/img/usr/";
 	userPic = document.getElementById("userpic");
