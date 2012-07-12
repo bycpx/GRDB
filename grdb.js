@@ -551,6 +551,19 @@ function clusterItems(html, regex, more, index, isSent)
 	return first;
 }
 
+function prepareVisitor(item, tapex)
+{
+	item.timestamp = timestamp(item[5].replace(/-/,today.getFullYear()+" "));
+	tapex.lastIndex = 0;
+	if(tap = tapex.exec(item[7])) {
+		item[8] = tap[1];
+		item[9] = tap[2];
+	}
+	item[7] = null;
+	userPicMap[item[2]] = item[1];
+	userOnlineMap[item[2]] = item[6]=="0f0" ? 2 : item[6]=="ff0"?1:-1;
+}
+
 function findMails(html, regex, type)
 {
 	mailHandler["found"]++;
@@ -663,7 +676,9 @@ function findVisits(html, isGiven)
 	if(html) {
 		html = html.replace(/<wbr>/, "");
 	}
-	var regex = /(?:\/usr\/([^\.]*)\.[^\n]*\n\s*)?<td class="resHeadline"[^?]*\?set=(\d+)[^;]*;">([^<]*)<\/a>[^\n]*\n\s*<td[^>]*>\s*((?:(?:<[^>]*>[^<]*<\/[^>]*>)|[\s0-9.a-z'"&;])*);([^<]*)<\/td>[\s\S]*?<tr[^>]*>\s*<td[^>]*>\s*<span(?:\s+style="color:#([^;]*);)?[^>]*>[\s\S]*?(<img [a-z="0-9\/]*\/(\d+)[^:]*: ([^"]*)"[^>]*>\s*)?<span>[^<]*<\/span>\s*<br \/>\s*<br \/><br \/>/gi;
+	var regex = /(?:\/usr\/([^\.]*)\.[^\n]*\n\s*)?<td class="resHeadline"[^?]*\?set=(\d+)[^>]*>([^<]*)<\/a>[^\n]*\n\s*<td[^>]*>\s*((?:(?:<[^>]*>[^<]*<\/[^>]*>)|[\s0-9.a-z'"&;])*);([^<]*)<\/td>(?:[^<]+|<(?!tr))*<tr[^>]*>\s*<td[^>]*>\s*<span(?:\s+style="color:#([^;]*);)?[^>]*>([\s\S]*?)<br \/>\s*<br \/><br \/>/gi;
+	var tapex = /footprints\/(\d+)_\d+\.png[^:]*:\s+([^"]*)"/gi;
+
 	var item, i;
 
 	var r = visitHandler["received"];
@@ -672,17 +687,13 @@ function findVisits(html, isGiven)
 
 	if(isGiven) {
 		for(i = g.length; item = regex.exec(html); i++) {
-			item.timestamp = timestamp(item[5].replace(/-/,today.getFullYear()+" "));
+			prepareVisitor(item, tapex);
 			index[item[2]] = item;
-			userPicMap[item[2]] = item[1];
-			userOnlineMap[item[2]] = item[6]=="0f0" ? 2 : item[6]=="ff0"?1:-1;
 			g[i] = item;
 		}
 	} else {
 		for(i = r.length; item = regex.exec(html); i++) {
-			item.timestamp = timestamp(item[5].replace(/-/,today.getFullYear()+" "));
-			userPicMap[item[2]] = item[1];
-			userOnlineMap[item[2]] = item[6]=="0f0" ? 2 : item[6]=="ff0"?1:-1;
+			prepareVisitor(item, tapex);
 			r[i] = item;
 		}
 	}
