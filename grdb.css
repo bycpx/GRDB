@@ -401,18 +401,18 @@ ul li.low {
 	background:	url(f/def_b.png) left center no-repeat;
 }
 
-#users h2 a:after, #visitors h2 a:after {
+#visitors h2 a:after {
 	content:	"?";
 	font-size:	0.5em;
 	color:		#888;
 	vertical-align: top;
 }
 
-#users h2 a:hover:after, #visitors h2 a:hover:after {
+#visitors h2 a:hover:after {
 	color:		inherit;
 }
 
-#users h2 a[data-pic]:after, #visitors h2 a[data-pic]:after {
+#visitors h2 a[data-pic]:after {
 	content:	none;
 }
 
@@ -442,10 +442,29 @@ li.drop {
 	color:		#999;
 }
 
-li.sent.drop {
+#mails li.sent.drop {
 	color:		#878;
 }
 
 li.drop p, li.drop h3 {
 	text-decoration: line-through;
+}
+
+ul.recv li,
+ul.ignored li,
+ul.new li,
+ul.sent li,
+ul.drop li,
+ul.taps li {
+	display:	none;
+}
+
+ul.recv li.recv,
+ul.ignored li.recv.drop,
+ul.new li.recv.new,
+ul.sent li.sent,
+ul.drop li.sent.drop,
+ul.taps li.taps,
+ul li.msg {
+	display:	list-item;
 }

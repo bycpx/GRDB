@@ -228,18 +228,21 @@ function visitIcon(received, given)
 
 function appendMailRow(senderID, sender, msgID, subject, datetime, timestamp, hasAttachment, dup, sent, drop)
 {
-	var cell, link;
+	var cell, link, klasse;
 	var row = create("li");
 
-	if(drop) {
-		row.setAttribute("class","drop");
+	if(sent) {
+		klasse = "sent";
+	} else {
+		klasse = "recv";
 	}
+	if(drop) {
+		klasse += " drop";
+	}
+	row.setAttribute("class",klasse);
 	if(msgID) {
 		row.setAttribute("data-msg",msgID);
 		row.addEventListener("click", handleMailClick, false);
-	}
-	if(sent) {
-		row.setAttribute("class",row.getAttribute("class")+" sent");
 	}
 	if(!dup) {
 		cell = create("div");
@@ -307,14 +310,20 @@ function appendUserRow(id, name, online, msgID)
 
 function appendVisitorRow(id, name, stats, datetime, timestamp, receivedID, received, givenID, given, msgID, sticky)
 {
-	var cell;
+	var cell, klasse;
 	var row = create("li");
-	if(givenID==-1 || sticky==1) {
-		row.setAttribute("class","new");
+	if(givenID!=-1 && sticky!=1 && receivedID!=-1) {
+		klasse = "recv sent";
+	} else if(receivedID==-1) {
+		klasse = "sent drop";
+	} else if(givenID==-1 || sticky==1) {
+		klasse = "recv new";
 	}
-	if(receivedID==-1) {
-		row.setAttribute("class","drop");
+	if(givenID>0 || receivedID>0) {
+		klasse+=" taps";
 	}
+	row.setAttribute("class",klasse);
+
 	cell = create("div");
 	cell.setAttribute("class","action");
 	cell.appendChild(createPin(id, name, givenID, given, sticky));
@@ -411,7 +420,7 @@ function showListMessage(node, text, des, error)
 {
 	clearNode(node);
 	var row = create("li");
-	row.setAttribute("class", error?"err":"low");
+	row.setAttribute("class", error?"msg err":"msg low");
 	row.appendChild(create("h2",text));
 	if(des) {
 		row.appendChild(create("p",des));
@@ -423,7 +432,7 @@ function handleMailClick(event)
 {
 	var popup = window.open(base+"/msg/?id="+this.getAttribute("data-msg"), null, "width=336,height=450,scrollbars=yes");
 	popup.opener = null;
-	this.setAttribute("class","low");
+	this.setAttribute("class",this.getAttribute("class")+" low");
 	event.preventDefault();
 }
 
@@ -722,6 +731,9 @@ function findVisits(html, isGiven)
 
 	if(visitHandler["found"]>=visitHandler["total"]) {
 		clearNode(visitorlist);
+		setBadge(visitorbutton[0], r.length);
+		setBadge(visitorbutton[2], r.length);
+		setBadge(visitorbutton[3], g.length);
 
 		var s = JSON.parse(localStorage.getItem(VISITS)) || [];
 		for(i=0; i<s.length; i++) {
@@ -780,14 +792,11 @@ function findVisits(html, isGiven)
 			}
 		}
 
+		setBadge(visitorbutton[4], neu);
+		setBadge(visitorbutton[5], ign);
+
 		if(i==0 && k==0) {
 			showListMessage(visitorlist,"No Visitors");
-		} else {
-			setBadge(visitorbutton[0], i);
-			setBadge(visitorbutton[2], i);
-			setBadge(visitorbutton[3], k);
-			setBadge(visitorbutton[4], neu);
-			setBadge(visitorbutton[5], ign);
 		}
 	} else {
 		showListMessage(visitorlist, "Loading", Math.round(100*visitHandler["found"]/visitHandler["total"])+"%");
@@ -798,7 +807,12 @@ function fetchMails(event)
 {
 	today = null;
 	mailHandler = {"newmail":false, "new":{}, "received":false, "undelivered":false, "sent":false, "threads":[], "index":{}, "found":0, "fail":false};
-	switchView(maillist, mailbutton[0], mailbutton[1]);
+	if(event===false) {
+		switchView(maillist, mailbutton[0]);
+	} else {
+		switchView(maillist, mailbutton[0], mailbutton[1]);
+		maillist.removeAttribute("class");
+	}
 
 	showListMessage(maillist,"Loading …");
 	// NEW
@@ -855,7 +869,6 @@ function fetchMails(event)
 
 	// SENT
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=sent", function(html) {
-		setFetchTime();
 		var regex = /name="messagelist"/gi;
 		if(mailHandler["fail"] || !regex.test(html)) {
 			noLogin(mailHandler);
@@ -872,7 +885,6 @@ function fetchMails(event)
 
 	// UNDELIVERD
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=sentUnread", function(html) {
-		setFetchTime();
 		var regex = /name="messagelist"/gi;
 		if(mailHandler["fail"] || !regex.test(html)) {
 			noLogin(mailHandler);
@@ -897,7 +909,12 @@ function fetchMails(event)
 function fetchUsers(event)
 {
 	today = null;
-	switchView(userlist, userbutton[0], userbutton[1]);
+	if(event===false) {
+		switchView(userlist, userbutton[0]);
+	} else {
+		switchView(userlist, userbutton[0], userbutton[1]);
+		userlist.setAttribute("class","double");
+	}
 	showListMessage(userlist, "Loading …");
 	fetchURL_didFetch_error(base+"/myuser/?page=romeo&filterSpecial=favourites&sort=2&sortDirection=-1", function(html) {
 		var regex = /class="user-table"/gi;
@@ -951,7 +968,12 @@ function fetchVisitors(event)
 {
 	today = null;
 	visitHandler = {"received":[], "given":[], "index":{}, "found":0, "total":2, "fail":false};
-	switchView(visitorlist, visitorbutton[0], visitorbutton[1]);
+	if(event===false) {
+		switchView(visitorlist, visitorbutton[0]);
+	} else {
+		switchView(visitorlist, visitorbutton[0], visitorbutton[1]);
+		visitorlist.setAttribute("class","double");
+	}
 
 	showListMessage(visitorlist, "Loading …");
 	fetchURL_didFetch_error(base+"/search/index.php?action=execute&searchType=myVisitors", function(html) {
@@ -1031,19 +1053,33 @@ function findUsers(event)
 	safari.self.tab.dispatchMessage("findUser", event.target[0].value);
 }
 
-function filterMails(event)
+function applyFilter(event, list, filter, button, func)
 {
-	switchView(maillist, mailbutton[0], event.target);
+	if(event.target==lastRow) {
+		func(false);
+		return;
+	}
+	if(filter) {
+		list.setAttribute("class", filter);
+	} else {
+		list.removeAttribute("class");
+	}
+	switchView(list, button, event.target);
 }
 
-function filterUsers(event)
+function filterMails(event, filter)
 {
-	switchView(userlist, userbutton[0], event.target);
+	applyFilter(event, maillist, filter, mailbutton[0], fetchMails);
 }
 
-function filterVisitors(event)
+function filterUsers(event, filter)
 {
-	switchView(visitorlist, visitorbutton[0], event.target);
+	applyFilter(event, userlist, "double "+filter, userbutton[0], fetchUsers);
+}
+
+function filterVisitors(event, filter)
+{
+	applyFilter(event, visitorlist, "double "+filter, visitorbutton[0], fetchVisitors);
 }
 
 function home()

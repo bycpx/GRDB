@@ -19,37 +19,35 @@
 </header>
 <aside>
 <nav>
-<a id="allmail" class="act" onclick="filterMails(event)">All</a>
+<a id="allmail" class="act" onclick="filterMails(event)">All Messages</a>
 <hr />
-<a id="inbox" onclick="filterMails(event)">Inbox</a>
-<a onclick="filterMails(event)">Ignored</a>
+<a id="inbox" onclick="filterMails(event,'recv')">Inbox</a>
+<a onclick="filterMails(event,'ignored')">Ignored</a>
 <hr />
-<a id="sent" onclick="filterMails(event)">Sent</a>
-<a onclick="filterMails(event)">Dropped</a>
+<a id="sent" onclick="filterMails(event,'sent')">Sent</a>
+<a onclick="filterMails(event,'drop')">Dropped</a>
 <hr />
 <a id="thread" onclick="showThreads(event)">Conversations</a>
 </nav>
 <nav>
-<a id="alluser" onclick="filterUsers(event)">All</a>
-<hr />
-<a onclick="filterUsers(event)">++</a>
+<a id="alluser" onclick="filterUsers(event)">All Favourites</a>
 </nav>
 <nav>
-<a id="allvisitor" onclick="filterVisitors(event)">All</a>
+<a id="allvisitor" onclick="filterVisitors(event)">All Visits</a>
 <hr />
-<a id="received" onclick="filterVisitors(event)">Received</a>
-<a id="new" onclick="filterVisitors(event)">New</a>
+<a id="received" onclick="filterVisitors(event,'recv')">Received</a>
+<a id="new" onclick="filterVisitors(event,'new')">New</a>
 <hr />
-<a id="given" onclick="filterVisitors(event)">Given</a>
-<a id="ignored" onclick="filterVisitors(event)">Unseen</a>
+<a id="given" onclick="filterVisitors(event,'sent')">Given</a>
+<a id="ignored" onclick="filterVisitors(event,'drop')">Unseen</a>
 <hr />
-<a onclick="filterVisitors(event)">Taps</a>
+<a onclick="filterVisitors(event,'taps')">Taps</a>
 </nav>
 </aside>
 <ul id="mails"></ul>
+<ul id="threads" class="triple"></ul>
 <ul id="users" class="double"></ul>
 <ul id="visitors" class="double"></ul>
-<ul id="threads" class="triple"></ul>
 <img id="userpic" />
 <footer id="info">GRDB. A Useless Safari extension.</footer>
 </body>
