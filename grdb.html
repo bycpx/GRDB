@@ -12,17 +12,45 @@
 <h1 onclick="home()" title="Open home page"><span class="hi">GRDB</span><span class="lo">GRDB</span></h1>
 <form onsubmit="findUsers(event)"><input name="q" type="search" placeholder="Find users" results="10" /></form>
 <nav>
-<a id="mail" class="act" onclick="fetchMails(event)">Mailbox</a>
+<a id="mail" class="act" onclick="fetchMails(event)">Messages</a>
 <a id="user" onclick="fetchUsers(event)">Favourites</a>
 <a id="visitor" onclick="fetchVisitors(event)">Visitors</a>
-<a id="thread" onclick="fetchThreads(event)">Conversations</a>
 </nav>
 </header>
+<aside>
+<nav>
+<a id="allmail" class="act" onclick="filterMails(event)">All</a>
+<hr />
+<a id="inbox" onclick="filterMails(event)">Inbox</a>
+<a onclick="filterMails(event)">Ignored</a>
+<hr />
+<a id="sent" onclick="filterMails(event)">Sent</a>
+<a onclick="filterMails(event)">Dropped</a>
+<hr />
+<a id="thread" onclick="showThreads(event)">Conversations</a>
+</nav>
+<nav>
+<a id="alluser" onclick="filterUsers(event)">All</a>
+<hr />
+<a onclick="filterUsers(event)">++</a>
+</nav>
+<nav>
+<a id="allvisitor" onclick="filterVisitors(event)">All</a>
+<hr />
+<a id="received" onclick="filterVisitors(event)">Received</a>
+<a id="new" onclick="filterVisitors(event)">New</a>
+<hr />
+<a id="given" onclick="filterVisitors(event)">Given</a>
+<a id="ignored" onclick="filterVisitors(event)">Unseen</a>
+<hr />
+<a onclick="filterVisitors(event)">Taps</a>
+</nav>
+</aside>
 <ul id="mails"></ul>
 <ul id="users" class="double"></ul>
 <ul id="visitors" class="double"></ul>
 <ul id="threads" class="triple"></ul>
 <img id="userpic" />
-<footer id="info">GRDB. A useless Safari extension.</footer>
+<footer id="info">GRDB. A Useless Safari extension.</footer>
 </body>
 </html>

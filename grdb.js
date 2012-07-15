@@ -1,9 +1,10 @@
 /* GRDB Helper Script */
 
-var maillist, userlist, visitorlist, threadlist;
-var mailbutton, userbutton, visitorbutton, threadbutton, info;
-var lastView, lastButton;
-var userPic;
+var maillist, userlist, visitorlist, threadlist, info, userPic;
+var mailbutton=[];
+var userbutton=[];
+var visitorbutton=[];
+var lastView, lastButton, lastRow;
 var base, pbase, today;
 var mailHandler, visitHandler, userOnlineMap, userPicMap;
 
@@ -392,7 +393,9 @@ function setBadge(node, cont)
 
 function setMailCount(count)
 {
-	count = setBadge(mailbutton, count);
+	count = setBadge(mailbutton[0], count);
+	setBadge(mailbutton[2], count);
+	if(window.safari)
 	safari.self.tab.dispatchMessage("messageCountDidChange", count);
 }
 
@@ -481,15 +484,24 @@ function onlyThis(event)
 	event.stopPropagation();
 }
 
-function switchView(view, button)
+function switchView(view, button, row)
 {
-	if(button!=lastButton) {
+	if(row && row!=lastRow) {
+		lastRow.setAttribute("class","");
+		row.setAttribute("class","act");
+		if(row.parentElement!=lastRow.parentElement) {
+			lastRow.parentElement.style.display = "none";
+			row.parentElement.setAttribute("style","");
+		}
+		lastRow = row;
+	}
+	if(button && button!=lastButton) {
+		setText(info, "GRDB.");
 		lastButton.setAttribute("class","");
 		button.setAttribute("class","act");
 		lastButton = button;
 	}
-	if(view!=lastView) {
-		setText(info, "GRDB.");
+	if(view && view!=lastView) {
 		lastView.style.display = "none";
 		view.setAttribute("style","");
 		lastView = view;
@@ -500,9 +512,19 @@ function switchView(view, button)
 
 function noLogin(handler)
 {
-	setBadge(mailbutton);
-	setBadge(visitorbutton);
-	setBadge(userbutton);
+	setBadge(mailbutton[0]);
+	setBadge(mailbutton[1]);
+	setBadge(mailbutton[2]);
+	setBadge(mailbutton[3]);
+	setBadge(mailbutton[4]);
+	setBadge(userbutton[0]);
+	setBadge(userbutton[1]);
+	setBadge(visitorbutton[0]);
+	setBadge(visitorbutton[1]);
+	setBadge(visitorbutton[2]);
+	setBadge(visitorbutton[3]);
+	setBadge(visitorbutton[4]);
+	setBadge(visitorbutton[5]);
 	if(window.safari) {
 		safari.self.tab.dispatchMessage("sessionDidEnd");
 	}
@@ -726,23 +748,32 @@ function findVisits(html, isGiven)
 			}
 		}
 
-		i = 0; var j = 0; var k = 0;
+		i = 0; var j = 0; var k = 0; var neu = 0; var ign = 0;
 		var mail = mailHandler["index"] || {};
 		var newmail = mailHandler["new"] || {};
 		var id;
 		while(i<rl || j<gl) {
 			while(j<gl && g[j][2]==0) {
 				j++;
+				k++;
 			}
 			while(i<rl && !(j<gl && r[i].timestamp<g[j].timestamp)) {
 				id = r[i][2];
 				item = index[id];
 				appendVisitorRow(id, r[i][3], stripStats(r[i][4]), r[i][5], r[i].timestamp, r[i][8], r[i][9], item ? item[8] : -1, item ? item[9] : null, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), item ? item[10] : 0);
+				if(!item) {
+					neu++;
+				}
 				i++;
 			}
 			while(j<gl && !(i<rl && g[j].timestamp<r[i].timestamp)) {
 				if(id = g[j][2]) {
 					appendVisitorRow(id, g[j][3], stripStats(g[j][4]), g[j][5], g[j].timestamp, -1, null, g[j][8], g[j][9], newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), g[j][10]);
+					if(g[j].timestamp) {
+						ign++;
+					}
+				}
+				if(g[j].timestamp) {
 					k++;
 				}
 				j++;
@@ -752,7 +783,11 @@ function findVisits(html, isGiven)
 		if(i==0 && k==0) {
 			showListMessage(visitorlist,"No Visitors");
 		} else {
-			setBadge(visitorbutton, i+"+"+k);
+			setBadge(visitorbutton[0], i);
+			setBadge(visitorbutton[2], i);
+			setBadge(visitorbutton[3], k);
+			setBadge(visitorbutton[4], neu);
+			setBadge(visitorbutton[5], ign);
 		}
 	} else {
 		showListMessage(visitorlist, "Loading", Math.round(100*visitHandler["found"]/visitHandler["total"])+"%");
@@ -762,13 +797,12 @@ function findVisits(html, isGiven)
 function fetchMails(event)
 {
 	today = null;
-	mailHandler = {"newmail":false, "new":{}, "received":false, "undelivered":false, "sent":false, "index":{}, "found":0, "fail":false};
-	switchView(maillist, mailbutton);
+	mailHandler = {"newmail":false, "new":{}, "received":false, "undelivered":false, "sent":false, "threads":[], "index":{}, "found":0, "fail":false};
+	switchView(maillist, mailbutton[0], mailbutton[1]);
 
 	showListMessage(maillist,"Loading …");
 	// NEW
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=new", function(html) {
-		setFetchTime();
 		var regex = /name="messagelist"/gi;
 		if(mailHandler["fail"] || !regex.test(html)) {
 			noLogin(mailHandler);
@@ -793,13 +827,24 @@ function fetchMails(event)
 
 	// RECEIVED
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=all", function(html) {
-		setFetchTime();
 		var regex = /name="messagelist"/gi;
 		if(mailHandler["fail"] || !regex.test(html)) {
 			noLogin(mailHandler);
 			showListMessage(maillist, "Cannot retrieve all received messages.", "Ensure you are logged in.", true);
 			return;
 		}
+
+		regex = /<option value=\"(\d+)\">([^<]*)<\/option>/gi;
+		var t = mailHandler["threads"];
+		var i, item;
+		for(i=0; item = regex.exec(html); i++) {
+			if(item[1]!="0") {
+				t[i] = [item[1], item[2]];
+			} else {
+				i--;
+			}
+		}
+		setBadge(mailbutton[4], i);
 
 		regex = /set=(\d+)[^>]*>([^<]+)[^?]*\?id=(\d+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
 		findMails(html, regex, 1);
@@ -835,6 +880,12 @@ function fetchMails(event)
 			return;
 		}
 
+		var item = null;
+		regex = /width="350">&nbsp;\s+(\d+)/gi;
+		if(item = regex.exec(html)) {
+			setBadge(mailbutton[3], item[1]);
+		}
+
 		regex = /set=(\d+)[^>]*>([^<]+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
 		findMails(html, regex, 2);
 	}, function(status) {
@@ -846,10 +897,9 @@ function fetchMails(event)
 function fetchUsers(event)
 {
 	today = null;
-	switchView(userlist, userbutton);
+	switchView(userlist, userbutton[0], userbutton[1]);
 	showListMessage(userlist, "Loading …");
 	fetchURL_didFetch_error(base+"/myuser/?page=romeo&filterSpecial=favourites&sort=2&sortDirection=-1", function(html) {
-		setFetchTime();
 		var regex = /class="user-table"/gi;
 		if(!regex.test(html)) {
 			noLogin();
@@ -857,6 +907,7 @@ function fetchUsers(event)
 			return;
 		}
 
+		setFetchTime();
 		clearNode(userlist);
 
 		regex = /(?:\/usr\/([^\.]*)\.[^>]*><\/a><\/td>)?<td class="profileMemoColumn"[^?]*\?set=(\d+)[^>]*>([^<]*)<\/a>.*?<td class="onlineStatus"><[^"]*"([^"]*)">([^<]*)<\/span>/gi;
@@ -886,7 +937,7 @@ function fetchUsers(event)
 				i--;
 			}
 		}
-		setBadge(userbutton, i);
+		setBadge(userbutton[0], i);
 		if(i==0) {
 			showListMessage(userlist, "No Favourites Online");
 		}
@@ -900,7 +951,7 @@ function fetchVisitors(event)
 {
 	today = null;
 	visitHandler = {"received":[], "given":[], "index":{}, "found":0, "total":2, "fail":false};
-	switchView(visitorlist, visitorbutton);
+	switchView(visitorlist, visitorbutton[0], visitorbutton[1]);
 
 	showListMessage(visitorlist, "Loading …");
 	fetchURL_didFetch_error(base+"/search/index.php?action=execute&searchType=myVisitors", function(html) {
@@ -958,45 +1009,41 @@ function fetchNextVisitPage(html, regex, isGiven)
 	});
 }
 
-function fetchThreads(event)
+function showThreads(event)
 {
-	today = null;
-	switchView(threadlist, threadbutton);
-	showListMessage(threadlist, "Loading …");
-	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=all", function(html) {
-		setFetchTime();
-		var regex = /name="messagelist"/gi;
-		if(!regex.test(html)) {
-			noLogin();
-			showListMessage(threadlist, "Cannot retrieve conversations.", "Ensure you are logged in.", true);
-			return;
-		}
+	switchView(threadlist, mailbutton[0], mailbutton[4]);
+	clearNode(threadlist);
 
-		clearNode(threadlist);
-
-		regex = /<option value=\"(\d+)\">([^<]*)<\/option>/gi;
-		var i, item;
-		for(i=0; item = regex.exec(html); i++) {
-			if(item[1]!="0") {
-				appendThreadRow(item[1], item[2]);
-			} else {
-				i--;
-			}
-		}
-		setBadge(threadbutton,i);
-		if(i==0) {
-			showListMessage(threadlist,"No Conversations");
-		}
-	}, function(status) {
-		noLogin();
-		showListMessage(threadlist, "Cannot access conversations.", "The server responded with error "+status+".", true);
-	});
+	var t = mailHandler["threads"];
+	var tl = t.length;
+	var i;
+	for(i=0; i<tl; i++) {
+		appendThreadRow(t[i][0], t[i][1]);
+	}
+	if(i==0) {
+		showListMessage(threadlist,"No Conversations");
+	}
 }
 
 function findUsers(event)
 {
 	event.preventDefault();
 	safari.self.tab.dispatchMessage("findUser", event.target[0].value);
+}
+
+function filterMails(event)
+{
+	switchView(maillist, mailbutton[0], event.target);
+}
+
+function filterUsers(event)
+{
+	switchView(userlist, userbutton[0], event.target);
+}
+
+function filterVisitors(event)
+{
+	switchView(visitorlist, visitorbutton[0], event.target);
 }
 
 function home()
@@ -1007,13 +1054,24 @@ function home()
 function init()
 {
 	maillist = document.getElementById("mails");
-	mailbutton = document.getElementById("mail");
-	userlist = document.getElementById("users");
-	userbutton = document.getElementById("user");
-	visitorlist = document.getElementById("visitors");
-	visitorbutton = document.getElementById("visitor");
 	threadlist = document.getElementById("threads");
-	threadbutton = document.getElementById("thread");
+	mailbutton[0] = document.getElementById("mail");
+	mailbutton[1] = document.getElementById("allmail");
+	mailbutton[2] = document.getElementById("inbox");
+	mailbutton[3] = document.getElementById("sent");
+	mailbutton[4] = document.getElementById("thread");
+
+	userlist = document.getElementById("users");
+	userbutton[0] = document.getElementById("user");
+	userbutton[1] = document.getElementById("alluser");
+
+	visitorlist = document.getElementById("visitors");
+	visitorbutton[0] = document.getElementById("visitor");
+	visitorbutton[1] = document.getElementById("allvisitor");
+	visitorbutton[2] = document.getElementById("received");
+	visitorbutton[3] = document.getElementById("given");
+	visitorbutton[4] = document.getElementById("new");
+	visitorbutton[5] = document.getElementById("ignored");
 
 	info = document.getElementById("info");
 
@@ -1027,5 +1085,8 @@ function init()
 	userlist.style.display = "none";
 	visitorlist.style.display = "none";
 	threadlist.style.display = "none";
-	lastButton = mailbutton;
+	lastButton = mailbutton[0];
+	lastRow = mailbutton[1];
+	userbutton[1].parentElement.style.display = "none";
+	visitorbutton[1].parentElement.style.display = "none";
 }

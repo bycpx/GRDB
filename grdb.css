@@ -22,12 +22,13 @@ header h1 {
 	float:		left;
 	position:	relative;
 	font-size:	1.5em;
-	margin:		0 0 0 1em;
-	padding:	0 1em 0 42px;
+	margin:		0 0 0 10px;
+	padding:	0 0 0 55px;
+	width:		90px;
 	height:		100%;
 	line-height: 48px;
 	background:	url(Icon-32.png) no-repeat left center;
-	border-right: thin dotted #666;
+	border-right: thin solid #666;
 	cursor:		default;
 	color:		#fff;
 	text-shadow: rgba(0,0,0, 0.4) 0 1px 3px;
@@ -44,7 +45,7 @@ header h1 .hi {
 header h1 .lo {
 	position:	absolute;
 	top:		1px;
-	left:		42px;
+	left:		55px;
 	text-shadow: none;
 	color:		rgba(0,0,0, 0.12);
 }
@@ -59,7 +60,7 @@ header form {
 	line-height: 48px;
 }
 
-nav a {
+header nav a {
 	display:	block;
 	float:		left;
 	color:		inherit;
@@ -72,16 +73,16 @@ nav a {
 	cursor:		pointer;
 }
 
-nav a:hover {
+header nav a:hover {
 	color:		#333;
 }
 
-nav a.act {
+header nav a.act {
 	color:		#333;
 	background:	-webkit-gradient(linear, 0% 0%, 0% 100%, from(rgba(255,255,255,0.75)), to(rgba(255,255,255,0)));
 }
 
-nav a[data-badge]:after {
+header nav a[data-badge]:after {
 	display:	inline-block;
 	content:	attr(data-badge);
 	margin:		0 0 0 0.5em;
@@ -94,11 +95,77 @@ nav a[data-badge]:after {
 	min-width:	1.25em;
 	border-radius: 1em;
 	text-shadow: rgba(0,0,0, 0.5) 0 1px 0;
-	box-shadow:	#fff 0 1px 0, rgba(0,0,0, 0.5) 0 1px 2px inset;
+	box-shadow:	rgba(0,0,0, 0.5) 0 1px 2px inset, #fff 0 1px 0;
 }
 
-nav a.act[data-badge]:after {
+header nav a.act[data-badge]:after {
 	background:	#1af -webkit-gradient(linear, 0% 0%, 0% 100%, from(#26a), to(#1af));
+}
+
+aside {
+	float:		left;
+	position:	relative;
+	margin:		-1em 2em 0 0;
+	padding:	5px 8px 50px 12px;
+	width:		135px;
+	color:		#666;
+	background:	#eee;
+	border-right: thin solid #666;
+}
+
+aside:after {
+	position:	absolute;
+	bottom:		0;
+	left:		0;
+	content:	"";
+	background:	-webkit-gradient(linear, 0% 0%, 0% 100%, from(rgba(255,255,255,0)), to(#fff));
+	height:		50px;
+	width:		156px;
+}
+
+aside nav a {
+	display:	block;
+	font-weight: bold;
+	height:		24px;
+	line-height: 24px;
+	text-shadow: #fff 0 1px 0;
+	cursor:		pointer;
+}
+
+aside nav a:hover {
+	color:		#000;
+}
+
+aside nav a.act {
+	color:		#000;
+	background:	url(act.png) top right no-repeat;
+	margin:		0 -15px 0 -12px;
+	padding:	0 15px 0 12px;
+}
+
+aside nav a[data-badge]:after {
+	float:		right;
+	margin:		5px 0 0 0;
+	padding:	0 0.3em;
+	font-size:	0.8em;
+	line-height: 15px;
+	height:		14px;
+	min-width:	1.5em;
+	text-align:	center;
+	color:		#fff;
+	text-shadow: rgba(0,0,0, 0.25) 0 1px 0;
+	background:	#888;
+	box-shadow: rgba(0,0,0, 0.25) 0 1px 0 inset, #fff 0 1px 0;
+	border-radius: 1em;
+	content:	attr(data-badge);
+}
+
+aside hr {
+	margin:		0.25em -4px 0.25em -8px;
+	height:		1px;
+	background:	#ccc;
+	box-shadow:	#fff 0 1px 0;
+	border:		none;
 }
 
 #userpic {
@@ -119,7 +186,10 @@ nav a.act[data-badge]:after {
 }
 
 footer {
-	margin:		1em 0 2em;
+	clear:		left;
+	margin:		1em 0 2em 155px;
+	padding:	0 2em;
+	width:		48em;
 	color:		#aaa;
 	text-align:	center;
 }
@@ -127,7 +197,7 @@ footer {
 ul {
 	list-style-type: none;
 	overflow:	hidden;
-	margin:		1em auto;
+	margin:		1em 2em;
 	width:		48em;
 	padding:	0.1em 0 0.25em;
 	border:		thin solid rgba(0,0,0, 0.25);
