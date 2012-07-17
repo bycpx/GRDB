@@ -895,7 +895,7 @@ function fetchMails(event)
 		var item = null;
 		regex = /width="350">&nbsp;\s+(\d+)/gi;
 		if(item = regex.exec(html)) {
-			setBadge(mailbutton[3], item[1]);
+			setBadge(mailbutton[3], parseInt(item[1]));
 		}
 
 		regex = /set=(\d+)[^>]*>([^<]+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;

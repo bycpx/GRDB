@@ -23,8 +23,8 @@ header h1 {
 	position:	relative;
 	font-size:	1.5em;
 	margin:		0 0 0 10px;
-	padding:	0 0 0 55px;
-	width:		90px;
+	padding:	0 0 0 50px;
+	width:		80px;
 	height:		100%;
 	line-height: 48px;
 	background:	url(Icon-32.png) no-repeat left center;
@@ -45,7 +45,7 @@ header h1 .hi {
 header h1 .lo {
 	position:	absolute;
 	top:		1px;
-	left:		55px;
+	left:		50px;
 	text-shadow: none;
 	color:		rgba(0,0,0, 0.12);
 }
@@ -107,7 +107,7 @@ aside {
 	position:	relative;
 	margin:		-1em 2em 0 0;
 	padding:	5px 8px 50px 12px;
-	width:		135px;
+	width:		120px;
 	color:		#666;
 	background:	#eee;
 	border-right: thin solid #666;
@@ -120,7 +120,7 @@ aside:after {
 	content:	"";
 	background:	-webkit-gradient(linear, 0% 0%, 0% 100%, from(rgba(255,255,255,0)), to(#fff));
 	height:		50px;
-	width:		156px;
+	width:		141px;
 }
 
 aside nav a {
