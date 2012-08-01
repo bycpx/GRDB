@@ -64,11 +64,14 @@ function fetchURL_didFetch_error(url, didFetchFunc, errorFunc)
 	xhr.send("");
 }
 
-function create(tag, content)
+function create(tag, content, klasse)
 {
 	var node = document.createElement(tag);
 	if(content!==undefined) {
 		node.appendChild(document.createTextNode(content));
+	}
+	if(klasse) {
+		node.setAttribute("class",klasse);
 	}
 	return node;
 }
@@ -83,6 +86,13 @@ function clearNode(node)
 {
 	while(node.firstChild) {
 		node.removeChild(node.firstChild);
+	}
+}
+
+function clearNodeElements(node)
+{
+	while(node.firstElementChild) {
+		node.removeChild(node.firstElementChild);
 	}
 }
 
@@ -391,13 +401,12 @@ function appendThreadRow(id, name)
 
 function setBadge(node, cont)
 {
+	clearNodeElements(node);
 	if(cont) {
-		node.setAttribute("data-badge",cont);
-	} else {
-		node.removeAttribute("data-badge");
-		return 0;
+		node.appendChild(create("span",cont,"badge"));
+		return cont;
 	}
-	return cont;
+	return 0;
 }
 
 function setMailCount(count)

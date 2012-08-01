@@ -82,9 +82,8 @@ header nav a.act {
 	background:	-webkit-gradient(linear, 0% 0%, 0% 100%, from(rgba(255,255,255,0.75)), to(rgba(255,255,255,0)));
 }
 
-header nav a[data-badge]:after {
+header nav a span.badge {
 	display:	inline-block;
-	content:	attr(data-badge);
 	margin:		0 0 0 0.5em;
 	padding:	0 0.4em;
 	background:	#aaa -webkit-gradient(linear, 0% 0%, 0% 100%, from(#888), to(#aaa));
@@ -98,7 +97,7 @@ header nav a[data-badge]:after {
 	box-shadow:	rgba(0,0,0, 0.5) 0 1px 2px inset, #fff 0 1px 0;
 }
 
-header nav a.act[data-badge]:after {
+header nav a.act span.badge {
 	background:	#1af -webkit-gradient(linear, 0% 0%, 0% 100%, from(#26a), to(#1af));
 }
 
@@ -143,7 +142,7 @@ aside nav a.act {
 	padding:	0 15px 0 12px;
 }
 
-aside nav a[data-badge]:after {
+aside nav a span.badge {
 	float:		right;
 	margin:		5px 0 0 0;
 	padding:	0 0.3em;
@@ -157,7 +156,6 @@ aside nav a[data-badge]:after {
 	background:	#888;
 	box-shadow: rgba(0,0,0, 0.25) 0 1px 0 inset, #fff 0 1px 0;
 	border-radius: 1em;
-	content:	attr(data-badge);
 }
 
 aside hr {
