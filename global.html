@@ -217,7 +217,7 @@ function postNewNotification(newCount, type, types, tag, func)
 
 	if(diff > 0) {
 		var neu = count[tag] - seenCount[tag];
-		postNotification(neu + " New " + (neu==1?type:types), tag, func);
+		postNotification(neu + " New " + (neu==1?type:types), "Overall " + count[tag] + " " + (count[tag]==1?type:types) + ".", tag, func);
 	} else if(diff == 0) {
 		// Noop
 	} else {
@@ -225,7 +225,7 @@ function postNewNotification(newCount, type, types, tag, func)
 	}
 }
 
-function postNotification(title, tag, func)
+function postNotification(title, body, tag, func)
 {
 	if(!window.Notification) {
 		return null;
@@ -233,7 +233,7 @@ function postNotification(title, tag, func)
 	if(!notesOn[tag]) {
 		return null;
 	}
-	var note = new Notification(title, {"tag": tag});
+	var note = new Notification(title, {"body":body, "tag": tag});
 	if(func) {
 		note.onclick = func;
 	}
