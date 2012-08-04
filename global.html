@@ -12,9 +12,16 @@ var notes = {
 	"user": null,
 	"visitor": null
 };
-var msgCount = 0;
-var userCount = 0;
-var visitorCount = 0;
+var count = {
+	"message": 0,
+	"user": 0,
+	"visitor": 0
+};
+var seenCount = {
+	"message": 0,
+	"user": 0,
+	"visitor": 0
+};
 var hasSession = false;
 var panel = new Panel();
 
@@ -23,8 +30,8 @@ safari.application.addEventListener("validate", function(event) {
 	switch(event.command) {
 		case "displayMenu":
 			if("badge" in event.target) {
-				event.target.badge = msgCount;
-				event.target.toolTip = "GRDB" + (hasSession?" ("+msgCount+")":"");
+				event.target.badge = count["message"];
+				event.target.toolTip = "GRDB" + (hasSession?" ("+count["message"]+")":"");
 			}
 		break;
 	}
@@ -41,7 +48,7 @@ safari.application.addEventListener("command", function(event) {
 safari.application.addEventListener("popover", function(event) {
 	switch(event.target.identifier) {
 		case "GRDBPopover":
-			event.target.contentWindow.displayCounts(hasSession, msgCount, userCount, visitorCount);
+			event.target.contentWindow.displayCounts(hasSession, count["message"], count["user"], count["visitor"]);
 		break;
 	}
 }, false);
@@ -50,40 +57,31 @@ safari.application.addEventListener("message", function(message) {
 	switch(message.name) {
 		case "messageCountDidChange":
 			hasSession = true;
-			postNewNotification(msgCount, message.message, "Message", "Messages", "message", showMails);
-			msgCount = message.message;
+			postNewNotification(message.message, "Message", "Messages", "message", showMails);
 			validateToolbarItems();
 		break;
 		case "updateMessageCount":
-			msgCount = message.message;
-			closeNotification("message");
+			updateCount("message", message.message);
 		break;
 		case "userCountDidChange":
 			hasSession = true;
-			postNewNotification(userCount, message.message, "Favourite", "Favourites", "user", showUsers);
-			userCount = message.message;
+			postNewNotification(message.message, "Favourite", "Favourites", "user", showUsers);
 		break;
 		case "updateUserCount":
-			userCount = message.message;
-			closeNotification("user");
+			updateCount("user", message.message);
 		break;
 		case "visitorCountDidChange":
 			hasSession = true;
-			postNewNotification(visitorCount, message.message, "Visitor", "Visitors", "visitor", showVisitors);
-			visitorCount = message.message;
+			postNewNotification(message.message, "Visitor", "Visitors", "visitor", showVisitors);
 		break;
 		case "updateVisitorCount":
-			visitorCount = message.message;
-			closeNotification("visitor");
+			updateCount("visitor", message.message);
 		break;
 		case "sessionDidEnd":
 			hasSession = false;
-			msgCount = 0;
-			closeNotification("message");
-			userCount = 0;
-			closeNotification("user");
-			visitorCount = 0;
-			closeNotification("visitor");
+			updateCount("message", 0);
+			updateCount("user", 0);
+			updateCount("visitor", 0);
 			validateToolbarItems();
 		break;
 		case "openBase":
@@ -205,13 +203,25 @@ function activateTabWithURL(url)
 	return theTab;
 }
 
-function postNewNotification(oldnum, newnum, type, types, tag, func)
+function updateCount(tag, newCount)
 {
-	var diff = newnum - oldnum;
+	count[tag] = newCount;
+	seenCount[tag] = count[tag];
+	closeNotification(tag);
+}
+
+function postNewNotification(newCount, type, types, tag, func)
+{
+	var diff = newCount - count[tag];
+	count[tag] = newCount;
+
 	if(diff > 0) {
-		postNotification(diff + " New " + (diff==1?type:types), tag, func);
+		var neu = count[tag] - seenCount[tag];
+		postNotification(neu + " New " + (neu==1?type:types), tag, func);
+	} else if(diff == 0) {
+		// Noop
 	} else {
-		closeNotification(tag);
+		updateCount(tag, newCount);
 	}
 }
 
