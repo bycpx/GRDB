@@ -21,6 +21,7 @@ var visitIcons = {
 
 var VISITS = "grdb_visits";
 
+if(window.safari) {
 safari.self.addEventListener("message", function(message) {
 	switch(message.name) {
 		case "fetchMails":
@@ -46,6 +47,7 @@ safari.self.addEventListener("message", function(message) {
 		break;
 	}
 }, false);
+}
 
 function fetchURL_didFetch_error(url, didFetchFunc, errorFunc)
 {
@@ -413,8 +415,26 @@ function setMailCount(count)
 {
 	count = setBadge(mailbutton[0], count);
 	setBadge(mailbutton[2], count);
-	if(window.safari)
-	safari.self.tab.dispatchMessage("messageCountDidChange", count);
+	if(window.safari) {
+		safari.self.tab.dispatchMessage("updateMessageCount", count);
+	}
+}
+
+function setUserCount(count)
+{
+	count = setBadge(userbutton[0], count);
+	if(window.safari) {
+		safari.self.tab.dispatchMessage("updateUserCount", count);
+	}
+}
+
+function setVisitorCount(count)
+{
+	count = setBadge(visitorbutton[0], count);
+	setBadge(visitorbutton[2], count);
+	if(window.safari) {
+		safari.self.tab.dispatchMessage("updateVisitorCount", count);
+	}
 }
 
 function setFetchTime()
@@ -740,8 +760,7 @@ function findVisits(html, isGiven)
 
 	if(visitHandler["found"]>=visitHandler["total"]) {
 		clearNode(visitorlist);
-		setBadge(visitorbutton[0], r.length);
-		setBadge(visitorbutton[2], r.length);
+		setVisitorCount(r.length);
 		setBadge(visitorbutton[3], g.length);
 
 		var s = JSON.parse(localStorage.getItem(VISITS)) || [];
@@ -963,7 +982,7 @@ function fetchUsers(event)
 				i--;
 			}
 		}
-		setBadge(userbutton[0], i);
+		setUserCount(i);
 		if(i==0) {
 			showListMessage(userlist, "No Favourites Online");
 		}
@@ -1093,7 +1112,11 @@ function filterVisitors(event, filter)
 
 function home()
 {
-	safari.self.tab.dispatchMessage("openBase");
+	if(window.safari) {
+		safari.self.tab.dispatchMessage("openBase");
+	} else {
+		window.open(base);
+	}
 }
 
 function init()

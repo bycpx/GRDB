@@ -2,6 +2,16 @@
 <script>
 
 var base = safari.extension.settings["protocol"] + "://" + safari.extension.settings["site"];
+var notesOn = {
+	"message": safari.extension.settings["message"],
+	"user": safari.extension.settings["user"],
+	"visitor": safari.extension.settings["visitor"]
+};
+var notes = {
+	"message": null,
+	"user": null,
+	"visitor": null
+};
 var msgCount = 0;
 var userCount = 0;
 var visitorCount = 0;
@@ -40,22 +50,40 @@ safari.application.addEventListener("message", function(message) {
 	switch(message.name) {
 		case "messageCountDidChange":
 			hasSession = true;
+			postNewNotification(msgCount, message.message, "Message", "Messages", "message", showMails);
 			msgCount = message.message;
 			validateToolbarItems();
 		break;
+		case "updateMessageCount":
+			msgCount = message.message;
+			closeNotification("message");
+		break;
 		case "userCountDidChange":
 			hasSession = true;
+			postNewNotification(userCount, message.message, "Favourite", "Favourites", "user", showUsers);
 			userCount = message.message;
+		break;
+		case "updateUserCount":
+			userCount = message.message;
+			closeNotification("user");
 		break;
 		case "visitorCountDidChange":
 			hasSession = true;
+			postNewNotification(visitorCount, message.message, "Visitor", "Visitors", "visitor", showVisitors);
 			visitorCount = message.message;
+		break;
+		case "updateVisitorCount":
+			visitorCount = message.message;
+			closeNotification("visitor");
 		break;
 		case "sessionDidEnd":
 			hasSession = false;
 			msgCount = 0;
+			closeNotification("message");
 			userCount = 0;
+			closeNotification("user");
 			visitorCount = 0;
+			closeNotification("visitor");
 			validateToolbarItems();
 		break;
 		case "openBase":
@@ -72,6 +100,11 @@ safari.application.addEventListener("message", function(message) {
 
 safari.extension.settings.addEventListener("change", function(event) {
 	base = safari.extension.settings["protocol"] + "://" + safari.extension.settings["site"];
+	notesOn = {
+		"message": safari.extension.settings["message"],
+		"user": safari.extension.settings["user"],
+		"visitor": safari.extension.settings["visitor"],
+	};
 }, false);
 
 function openHome()
@@ -170,6 +203,39 @@ function activateTabWithURL(url)
 	theTab = safari.application.activeBrowserWindow.openTab();
 	theTab.url = url;
 	return theTab;
+}
+
+function postNewNotification(oldnum, newnum, type, types, tag, func)
+{
+	var diff = newnum - oldnum;
+	if(diff > 0) {
+		postNotification(diff + " New " + (diff==1?type:types), tag, func);
+	} else {
+		closeNotification(tag);
+	}
+}
+
+function postNotification(title, tag, func)
+{
+	if(!window.Notification) {
+		return null;
+	}
+	if(!notesOn[tag]) {
+		return null;
+	}
+	var note = new Notification(title, {"tag": tag});
+	if(func) {
+		note.onclick = func;
+	}
+	note.show();
+	notes[tag] = note;
+}
+
+function closeNotification(tag)
+{
+	if(notes[tag]) {
+		notes[tag].close();
+	}
 }
 
 function Panel() {
