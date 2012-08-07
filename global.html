@@ -62,6 +62,7 @@ safari.application.addEventListener("message", function(message) {
 		break;
 		case "updateMessageCount":
 			updateCount("message", message.message);
+			validateToolbarItems();
 		break;
 		case "userCountDidChange":
 			hasSession = true;
