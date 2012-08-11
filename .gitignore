@@ -1,0 +1,11 @@
+# OS Noise
+Icon?
+.DS_Store
+
+# Test-Files
+x-*.html
+
+# Extensions
+*.safariextz
+build/
+
