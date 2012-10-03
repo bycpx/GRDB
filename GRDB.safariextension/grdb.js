@@ -113,6 +113,7 @@ function createUserLink(id, name, stats)
 	var link = create("a", name);
 	link.setAttribute("href", base+"/auswertung/setcard/?set="+id);
 	link.setAttribute("target","_blank");
+	link.addEventListener("click", handleProfileClick, false);
 	if(stats) {
 		link.setAttribute("title",stats);
 	}
@@ -462,6 +463,12 @@ function handleMailClick(event)
 	var popup = window.open(base+"/msg/?id="+this.getAttribute("data-msg"), null, "width=336,height=450,scrollbars=yes");
 	popup.opener = null;
 	this.setAttribute("class",this.getAttribute("class")+" low");
+	event.preventDefault();
+}
+
+function handleProfileClick(event)
+{
+	window.open(this.getAttribute("href"), null, "width=470,height=590,scrollbars=yes");
 	event.preventDefault();
 }
 
