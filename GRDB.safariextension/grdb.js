@@ -21,33 +21,6 @@ var visitIcons = {
 
 var VISITS = "grdb_visits";
 
-if(window.safari) {
-safari.self.addEventListener("message", function(message) {
-	switch(message.name) {
-		case "fetchMails":
-			if(message.message) {
-				base = message.message;
-			}
-			fetchMails();
-		break;
-		case "fetchUsers":
-			if(message.message) {
-				base = message.message;
-			}
-			fetchUsers();
-		break;
-		case "fetchVisitors":
-			if(message.message) {
-				base = message.message;
-			}
-			fetchVisitors();
-		break;
-		case "userOnline":
-			userOnlineMap[message.message[0]] = message.message[1];
-		break;
-	}
-}, false);
-}
 
 function fetchURL_didFetch_error(url, didFetchFunc, errorFunc)
 {
@@ -99,12 +72,21 @@ function clearNodeElements(node)
 }
 
 function absAttr(node, attr)
-	{
+{
 	for(var val=0; node; node = node.offsetParent) {
 		val += node[attr];
-		}
-	return val;
 	}
+	return val;
+}
+
+function openWindow(url)
+{
+	if(window.safari) {
+		safari.self.tab.dispatchMessage("openTab", url);
+	} else {
+		window.open(url);
+	}
+}
 
 // -
 
@@ -1085,7 +1067,15 @@ function showThreads(event)
 function findUsers(event)
 {
 	event.preventDefault();
-	safari.self.tab.dispatchMessage("findUser", event.target[0].value);
+	var query = event.target[0].value;
+	var url;
+
+	if(id = parseInt(query)) {
+		url = base+"/auswertung/setcard/index.php?set="+id;
+	} else {
+		url = base+"/search/index.php?action=execute&searchType=direct&directMode=userName&directValue="+query;
+	}
+	openWindow(url);
 }
 
 function applyFilter(event, list, filter, button, func)
@@ -1119,11 +1109,7 @@ function filterVisitors(event, filter)
 
 function home()
 {
-	if(window.safari) {
-		safari.self.tab.dispatchMessage("openBase");
-	} else {
-		window.open(base);
-	}
+	openWindow(base+"/");
 }
 
 function init()
@@ -1164,4 +1150,32 @@ function init()
 	lastRow = mailbutton[1];
 	userbutton[1].parentElement.style.display = "none";
 	visitorbutton[1].parentElement.style.display = "none";
+}
+
+if(window.safari) {
+safari.self.addEventListener("message", function(message) {
+	switch(message.name) {
+		case "fetchMails":
+			if(message.message) {
+				base = message.message;
+			}
+			fetchMails();
+		break;
+		case "fetchUsers":
+			if(message.message) {
+				base = message.message;
+			}
+			fetchUsers();
+		break;
+		case "fetchVisitors":
+			if(message.message) {
+				base = message.message;
+			}
+			fetchVisitors();
+		break;
+		case "userOnline":
+			userOnlineMap[message.message[0]] = message.message[1];
+		break;
+	}
+}, false);
 }
