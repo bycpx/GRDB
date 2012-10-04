@@ -89,7 +89,7 @@ function displayCounts(online, messages, user, visitors)
 	document.getElementById("home").setAttribute("data-stat",online?"1":"0");
 	msg = document.getElementById("messages");
 	msg.setAttribute("data-count", nn(messages));
-	document.getElementById("user").setAttribute("data-count", nn(user));
+	document.getElementById("contacts").setAttribute("data-count", nn(user));
 	document.getElementById("visitors").setAttribute("data-count", nn(visitors));
 	msg.parentElement.className = online?"":"off";
 }
@@ -104,9 +104,9 @@ function showMails()
 	safari.extension.globalPage.contentWindow.showMails();
 }
 
-function showUsers()
+function showContacts()
 {
-	safari.extension.globalPage.contentWindow.showUsers();
+	safari.extension.globalPage.contentWindow.showContacts();
 }
 
 function showVisitors()
@@ -118,8 +118,8 @@ function showVisitors()
 <body>
 <h1 id="home" data-stat="0" onclick="openHome()">GRDB</h1>
 <ul class="off">
-<li id="messages" data-count="--" onclick="showMails()">Mailbox</li>
-<li id="user" data-count="--" onclick="showUsers()">Favourites</li>
+<li id="messages" data-count="--" onclick="showMails()">Messages</li>
+<li id="contacts" data-count="--" onclick="showContacts()">Contacts</li>
 <li id="visitors" data-count="--" onclick="showVisitors()">Visitors</li>
 </ul>
 </body>

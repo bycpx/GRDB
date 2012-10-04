@@ -181,9 +181,13 @@ function createPin(id, name, tapID, tap, sticky)
 	return link;
 }
 
-function timestamp(datestring)
+function timestamp(datestring, named)
 {
-	return new Date(datestring.replace(/(\d\d)\.(\d\d)\./, "$2/$1 "));
+	if(named) {
+		return new Date(datestring.replace(/\./g," "));
+	} else {
+		return new Date(datestring.replace(/(\d\d)\.(\d\d)\./, "$2/$1 "));
+	}
 }
 
 function dayDiff(from, to)
@@ -287,7 +291,7 @@ function appendMailRow(senderID, sender, msgID, subject, datetime, timestamp, ha
 			cell.setAttribute("data-age","new");
 		}
 		if(age > (sent?3:10)) {
-			cell.setAttribute("data-age","old");
+			cell.setAttribute("data-age","due");
 		}
 		if(hasAttachment) {
 			cell.setAttribute("data-att","true");
@@ -306,16 +310,27 @@ function appendMailRow(senderID, sender, msgID, subject, datetime, timestamp, ha
 	maillist.appendChild(row);
 }
 
-function appendContactRow(id, name, online, msgID)
+function appendContactRow(id, name, state, msgID)
 {
-	var cell;
+	var cell, ts;
 	var row = create("li");
 	cell = create("div");
 	cell.setAttribute("class","action");
 	cell.appendChild(createMsgLink(id, msgID));
 	cell.appendChild(createHistoryLink(id, msgID));
 	row.appendChild(cell);
-	row.appendChild(create("h3",online));
+	cell = create("h3",state);
+	ts = timestamp(state, true);
+	if(!isNaN(ts)) {
+		row.setAttribute("class","low");
+		if(dayDiff(ts, today)<2) {
+			cell.setAttribute("data-age","recent");
+		}
+	} else {
+		cell.setAttribute("data-age","now");
+		row.setAttribute("class","online");
+	}
+	row.appendChild(cell);
 	cell = create("h2");
 	cell.appendChild(createUserLink(id, name));
 	row.appendChild(cell);
@@ -355,7 +370,7 @@ function appendVisitorRow(id, name, stats, datetime, timestamp, receivedID, rece
 			cell.setAttribute("data-age","new");
 		}
 		if(age>2.5) {
-			cell.setAttribute("data-age","old");
+			cell.setAttribute("data-age","due");
 		}
 	} else {
 		cell = create("h3", datetime);
@@ -425,6 +440,7 @@ function setMailCount(count)
 function setContactCount(count)
 {
 	count = setBadge(contactbutton[0], count);
+	setBadge(contactbutton[2], count);
 	if(window.safari) {
 		safari.self.tab.dispatchMessage("updateContactCount", count);
 	}
@@ -779,8 +795,8 @@ function findContacts(html)
 				userPicMap[id] = item[1];
 			}
 			userOnlineMap[id] = online;
+			appendContactRow(id, item[3], item[5], newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0));
 			if(online>0) {
-				appendContactRow(id, item[3], item[5], newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0));
 				j++;
 			}
 		}
@@ -1193,6 +1209,7 @@ function init()
 	contactlist = document.getElementById("contacts");
 	contactbutton[0] = document.getElementById("contact");
 	contactbutton[1] = document.getElementById("allcontact");
+	contactbutton[2] = document.getElementById("online");
 
 	visitorlist = document.getElementById("visitors");
 	visitorbutton[0] = document.getElementById("visitor");
