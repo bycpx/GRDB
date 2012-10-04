@@ -13,7 +13,7 @@
 <form onsubmit="findUsers(event)"><input name="q" type="search" placeholder="Find users" results="10" /></form>
 <nav>
 <a id="mail" class="act" onclick="fetchMails(event)">Messages</a>
-<a id="contact" onclick="fetchContacts(event)">Favourites</a>
+<a id="contact" onclick="fetchContacts(event)">Contacts</a>
 <a id="visitor" onclick="fetchVisitors(event)">Visitors</a>
 </nav>
 </header>
@@ -30,7 +30,10 @@
 <a id="thread" onclick="showThreads(event)">Threads</a>
 </nav>
 <nav>
-<a id="allcontact" onclick="filterContacts(event)">All Favourites</a>
+<a id="allcontact" onclick="filterContacts(event)">All Contacts</a>
+<hr />
+<a id="favs" onclick="filterContacts(event,'favs')">Favourites</a>
+<a onclick="filterContacts(event,'allfavs')">All Favourites</a>
 <hr />
 <a id="online" onclick="filterContacts(event,'online')">Online</a>
 </nav>

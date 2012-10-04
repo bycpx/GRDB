@@ -432,7 +432,7 @@ ul p {
 	text-overflow: ellipsis;
 }
 
-li.new {
+li.new, li.fav {
 	color:		#26a;
 }
 
@@ -454,6 +454,8 @@ ul.new li,
 ul.sent li,
 ul.drop li,
 ul.taps li,
+ul.favs li,
+ul.allfavs li,
 ul.online li {
 	display:	none;
 }
@@ -465,6 +467,8 @@ ul.sent li.sent,
 ul.drop li.sent.drop,
 ul.taps li.taps,
 ul li.msg,
+ul.favs li.fav.online,
+ul.allfavs li.fav,
 ul.online li.online {
 	display:	list-item;
 }

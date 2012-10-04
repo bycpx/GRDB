@@ -310,9 +310,9 @@ function appendMailRow(senderID, sender, msgID, subject, datetime, timestamp, ha
 	maillist.appendChild(row);
 }
 
-function appendContactRow(id, name, state, msgID)
+function appendContactRow(id, name, timestamp, age, state, online, msgID, isFav)
 {
-	var cell, ts;
+	var cell, klasse;
 	var row = create("li");
 	cell = create("div");
 	cell.setAttribute("class","action");
@@ -320,16 +320,19 @@ function appendContactRow(id, name, state, msgID)
 	cell.appendChild(createHistoryLink(id, msgID));
 	row.appendChild(cell);
 	cell = create("h3",state);
-	ts = timestamp(state, true);
-	if(!isNaN(ts)) {
-		row.setAttribute("class","low");
-		if(dayDiff(ts, today)<2) {
+	klasse = isFav?"fav":"";
+	if(!isNaN(timestamp)) {
+		klasse += " low";
+		if(age<2) {
 			cell.setAttribute("data-age","recent");
+		} else {
+			cell.setAttribute("title",Math.floor(age) + " days ago");
 		}
-	} else {
+	} else if(online>0) {
 		cell.setAttribute("data-age","now");
-		row.setAttribute("class","online");
+		klasse += " online";
 	}
+	row.setAttribute("class",klasse);
 	row.appendChild(cell);
 	cell = create("h2");
 	cell.appendChild(createUserLink(id, name));
@@ -648,6 +651,36 @@ function prepareVisitor(item, tapex)
 	userOnlineMap[item[2]] = item[6]=="0f0" ? 2 : item[6]=="ff0"?1:-1;
 }
 
+function prepareContact(item, isFav)
+{
+	var online;
+	var id = item[2];
+
+	item.timestamp = timestamp(item[5], true);
+	if(isNaN(item.timestamp)) {
+		item.days = isFav ? 0 : 1;
+	} else {
+		item.days = dayDiff(item.timestamp, today);
+	}
+
+	if(item[4]=="isOnline") {
+		if(item[5]=="Away") {
+			online = 1;
+		} else { // online
+			online = 2;
+		}
+	} else if(item[4]=="deleted") {
+		online = -2;
+	} else { // offline
+		online = -1;
+	}
+	if(item[1]) {
+		userPicMap[id] = item[1];
+	}
+	userOnlineMap[id] = online;
+	item.online = online;
+}
+
 function findMails(html, regex, type)
 {
 	mailHandler["found"]++;
@@ -753,7 +786,7 @@ function findMails(html, regex, type)
 	}
 }
 
-function findContacts(html)
+function findContacts(html, isFav)
 {
 	contactHandler["found"]++;
 	setFetchTime();
@@ -762,48 +795,71 @@ function findContacts(html)
 
 	var item, i;
 
-	var c = contactHandler["contacts"];
+	var f = contactHandler["favs"];
+	var o = contactHandler["online"];
+	var index = contactHandler["index"];
 
-	for(i=c.length; item = regex.exec(html); i++) {
-		c[i] = item;
+	if(isFav) {
+		for(i = f.length; item = regex.exec(html); i++) {
+			prepareContact(item, true);
+			if(item.online>0) {
+				index[item[2]] = item;
+			}
+			f[i] = item;
+		}
+	} else {
+		for(i = o.length; item = regex.exec(html); i++) {
+			prepareContact(item, false);
+			o[i] = item;
+		}
 	}
 
 	if(contactHandler["found"]>=contactHandler["total"]) {
 		clearNode(contactlist);
 
-		var id, online;
+		var fl = f.length;
+		var ol = o.length;
+		var j;
+
+ 		for(j = 0; j < ol; j++) {
+ 			if(index[o[j][2]]) {
+ 				o[j][2] = 0;
+ 			}
+ 		}
+
+		var id;
 		var mail = mailHandler["index"] || {};
 		var newmail = mailHandler["new"] || {};
-		var j = 0;
-		var cl = c.length;
+		var fav = 0;
+		i = 0;
+		j = 0;
 
-		for(i=0; i<cl; i++) {
-			item = c[i];
-			if(item[4]=="isOnline") {
-				if(item[5]=="Away") {
-					online = 1;
-				} else { // online
-					online = 2;
+		while(i<fl || j<ol) {
+			while(j<ol && o[j][2]==0) {
+				j++;
+			}
+			while(i<fl && !(j<ol && f[i].days>o[j].days)) {
+				item = f[i];
+				id = item[2];
+				appendContactRow(id, item[3], item.timestamp, item.days, item[5], item.online, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), true);
+				if(item.online>0) {
+					fav++;
 				}
-			} else if(item[4]=="deleted") {
-				online = -2;
-			} else { // offline
-				online = -1;
+				i++;
 			}
-			id = item[2];
-			if(item[1]) {
-				userPicMap[id] = item[1];
-			}
-			userOnlineMap[id] = online;
-			appendContactRow(id, item[3], item[5], newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0));
-			if(online>0) {
+			while(j<ol && !(i<fl && o[j].days>f[i].days)) {
+				if(id = o[j][2]) {
+					item = o[j];
+					appendContactRow(id, item[3], item.timestamp, item.days, item[5], item.online, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0));
+				}
 				j++;
 			}
 		}
 
-		setContactCount(j);
-		if(j==0) {
-			showListMessage(contactlist, "No Favourites Online");
+		setContactCount(fav);
+		setBadge(contactbutton[3], ol);
+		if(i==0 && ol==0) {
+			showListMessage(contactlist, "No Contacts");
 		}
 	} else {
 		showListMessage(contactlist, "Loading", Math.round(100*contactHandler["found"]/contactHandler["total"])+"%");
@@ -1018,7 +1074,7 @@ function fetchMails(event)
 function fetchContacts(event)
 {
 	today = null;
-	contactHandler = {"contacts":[], "found":0, "total":1, "fail":false};
+	contactHandler = {"favs":[], "online":[], "index":{}, "found":0, "total":2, "fail":false};
 	if(event===false) {
 		switchView(contactlist, contactbutton[0]);
 	} else {
@@ -1035,7 +1091,20 @@ function fetchContacts(event)
 			return;
 		}
 
-		fetchNextContactsPage(html, regex);
+		fetchNextContactsPage(html, regex, true);
+	}, function(status) {
+		noLogin(contactHandler);
+		showListMessage(contactlist, "Cannot access favourites.", "The server responded with error "+status+".", true);
+	});
+	fetchURL_didFetch_error(base+"/myuser/?page=romeo&filterSpecial=online&sort=2&sortDirection=-1", function(html) {
+		var regex = /class="user-table"/gi;
+		if(contactHandler["fail"] || !regex.test(html)) {
+			noLogin(contactHandler);
+			showListMessage(contactlist, "Cannot retrieve favourites.", "Ensure you are logged in.", true);
+			return;
+		}
+
+		fetchNextContactsPage(html, regex, false);
 	}, function(status) {
 		noLogin(contactHandler);
 		showListMessage(contactlist, "Cannot access favourites.", "The server responded with error "+status+".", true);
@@ -1082,7 +1151,7 @@ function fetchVisitors(event)
 	});
 }
 
-function fetchNextContactsPage(html, regex)
+function fetchNextContactsPage(html, regex, isFav)
 {
 	regex.lastIndex = 0;
 	nextregex = /<a href="([^"]+)"><b>&raquo;&raquo;&raquo;/;
@@ -1091,7 +1160,7 @@ function fetchNextContactsPage(html, regex)
 	if(url && url[1]) { // there is more to do
 		contactHandler["total"]++;
 	}
-	findContacts(html);
+	findContacts(html, isFav);
 
 	if(!url) {
 		return;
@@ -1099,13 +1168,13 @@ function fetchNextContactsPage(html, regex)
 
 	fetchURL_didFetch_error(base+"/myuser/"+url[1], function(html) {
 		if(!regex.test(html)) {
-			findContacts(null);
+			findContacts(null, isFav);
 			return;
 		}
 
-		fetchNextContactsPage(html, regex);
+		fetchNextContactsPage(html, regex, isFav);
 	}, function(status) {
-		findContacts(null);
+		findContacts(null, isFav);
 	});
 }
 
@@ -1209,7 +1278,8 @@ function init()
 	contactlist = document.getElementById("contacts");
 	contactbutton[0] = document.getElementById("contact");
 	contactbutton[1] = document.getElementById("allcontact");
-	contactbutton[2] = document.getElementById("online");
+	contactbutton[2] = document.getElementById("favs");
+	contactbutton[3] = document.getElementById("online");
 
 	visitorlist = document.getElementById("visitors");
 	visitorbutton[0] = document.getElementById("visitor");
