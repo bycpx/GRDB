@@ -13,7 +13,7 @@
 <form onsubmit="findUsers(event)"><input name="q" type="search" placeholder="Find users" results="10" /></form>
 <nav>
 <a id="mail" class="act" onclick="fetchMails(event)">Messages</a>
-<a id="user" onclick="fetchUsers(event)">Favourites</a>
+<a id="contact" onclick="fetchContacts(event)">Favourites</a>
 <a id="visitor" onclick="fetchVisitors(event)">Visitors</a>
 </nav>
 </header>
@@ -30,7 +30,7 @@
 <a id="thread" onclick="showThreads(event)">Threads</a>
 </nav>
 <nav>
-<a id="alluser" onclick="filterUsers(event)">All Favourites</a>
+<a id="allcontact" onclick="filterContacts(event)">All Favourites</a>
 </nav>
 <nav>
 <a id="allvisitor" onclick="filterVisitors(event)">All Visits</a>
@@ -46,7 +46,7 @@
 </aside>
 <ul id="mails"></ul>
 <ul id="threads" class="triple"></ul>
-<ul id="users" class="double"></ul>
+<ul id="contacts" class="double"></ul>
 <ul id="visitors" class="double"></ul>
 <img id="userpic" />
 <footer id="info">GRDB. A Useless Safari extension.</footer>

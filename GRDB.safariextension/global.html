@@ -4,22 +4,22 @@
 var base = safari.extension.settings["protocol"] + "://" + safari.extension.settings["site"];
 var notesOn = {
 	"message": safari.extension.settings["message"],
-	"user": safari.extension.settings["user"],
+	"contact": safari.extension.settings["contact"],
 	"visitor": safari.extension.settings["visitor"]
 };
 var notes = {
 	"message": null,
-	"user": null,
+	"contact": null,
 	"visitor": null
 };
 var count = {
 	"message": 0,
-	"user": 0,
+	"contact": 0,
 	"visitor": 0
 };
 var seenCount = {
 	"message": 0,
-	"user": 0,
+	"contact": 0,
 	"visitor": 0
 };
 var hasSession = false;
@@ -48,7 +48,7 @@ safari.application.addEventListener("command", function(event) {
 safari.application.addEventListener("popover", function(event) {
 	switch(event.target.identifier) {
 		case "GRDBPopover":
-			event.target.contentWindow.displayCounts(hasSession, count["message"], count["user"], count["visitor"]);
+			event.target.contentWindow.displayCounts(hasSession, count["message"], count["contact"], count["visitor"]);
 		break;
 	}
 }, false);
@@ -64,12 +64,12 @@ safari.application.addEventListener("message", function(message) {
 			updateCount("message", message.message);
 			validateToolbarItems();
 		break;
-		case "userCountDidChange":
+		case "contactCountDidChange":
 			hasSession = true;
-			postNewNotification(message.message, "Favourite", "Favourites", "user", showUsers);
+			postNewNotification(message.message, "Favourite", "Favourites", "contact", showContacts);
 		break;
-		case "updateUserCount":
-			updateCount("user", message.message);
+		case "updateContactCount":
+			updateCount("contact", message.message);
 		break;
 		case "visitorCountDidChange":
 			hasSession = true;
@@ -81,7 +81,7 @@ safari.application.addEventListener("message", function(message) {
 		case "sessionDidEnd":
 			hasSession = false;
 			updateCount("message", 0);
-			updateCount("user", 0);
+			updateCount("contact", 0);
 			updateCount("visitor", 0);
 			validateToolbarItems();
 		break;
@@ -101,7 +101,7 @@ safari.extension.settings.addEventListener("change", function(event) {
 	base = safari.extension.settings["protocol"] + "://" + safari.extension.settings["site"];
 	notesOn = {
 		"message": safari.extension.settings["message"],
-		"user": safari.extension.settings["user"],
+		"contact": safari.extension.settings["contact"],
 		"visitor": safari.extension.settings["visitor"],
 	};
 }, false);
@@ -121,9 +121,9 @@ function showMails(main)
 	showSection("fetchMails");
 }
 
-function showUsers()
+function showContacts()
 {
-	showSection("fetchUsers");
+	showSection("fetchContacts");
 }
 
 function showVisitors()

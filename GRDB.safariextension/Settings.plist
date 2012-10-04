@@ -56,7 +56,7 @@
 		<key>DefaultValue</key>
 		<false/>
 		<key>Key</key>
-		<string>user</string>
+		<string>contact</string>
 		<key>Title</key>
 		<string>When Favourites Come Online</string>
 		<key>Type</key>

@@ -288,7 +288,7 @@ ul div.action {
 	font-weight: bold;
 }
 
-#users div.action, #threads div.action, #mails li.sent div.action {
+#contacts div.action, #threads div.action, #mails li.sent div.action {
 	margin:		0 0 0 -3em;
 	width:		3em;
 }

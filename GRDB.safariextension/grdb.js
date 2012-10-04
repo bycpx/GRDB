@@ -1,12 +1,13 @@
 /* GRDB Helper Script */
 
-var maillist, userlist, visitorlist, threadlist, info, userPic;
+var maillist, contactlist, visitorlist, threadlist, info, userPic;
 var mailbutton=[];
-var userbutton=[];
+var contactbutton=[];
 var visitorbutton=[];
 var lastView, lastButton, lastRow;
 var base, pbase, today;
-var mailHandler, visitHandler, userOnlineMap, userPicMap;
+var mailHandler, contactHandler, visitHandler;
+var userOnlineMap, userPicMap;
 
 var visitIcons = {
 	10:"like", 11:"like", 13:"like", 14:"like", 15:"like", 16:"like", 17:"like", 19:"like", 31:"like", 42:"like", 47:"like", 50:"like", 51:"like", 52:"like", 53:"like",
@@ -30,11 +31,11 @@ safari.self.addEventListener("message", function(message) {
 			}
 			fetchMails();
 		break;
-		case "fetchUsers":
+		case "fetchContacts":
 			if(message.message) {
 				base = message.message;
 			}
-			fetchUsers();
+			fetchContacts();
 		break;
 		case "fetchVisitors":
 			if(message.message) {
@@ -305,7 +306,7 @@ function appendMailRow(senderID, sender, msgID, subject, datetime, timestamp, ha
 	maillist.appendChild(row);
 }
 
-function appendUserRow(id, name, online, msgID)
+function appendContactRow(id, name, online, msgID)
 {
 	var cell;
 	var row = create("li");
@@ -318,7 +319,7 @@ function appendUserRow(id, name, online, msgID)
 	cell = create("h2");
 	cell.appendChild(createUserLink(id, name));
 	row.appendChild(cell);
-	userlist.appendChild(row);
+	contactlist.appendChild(row);
 }
 
 function appendVisitorRow(id, name, stats, datetime, timestamp, receivedID, received, givenID, given, msgID, sticky)
@@ -421,11 +422,11 @@ function setMailCount(count)
 	}
 }
 
-function setUserCount(count)
+function setContactCount(count)
 {
-	count = setBadge(userbutton[0], count);
+	count = setBadge(contactbutton[0], count);
 	if(window.safari) {
-		safari.self.tab.dispatchMessage("updateUserCount", count);
+		safari.self.tab.dispatchMessage("updateContactCount", count);
 	}
 }
 
@@ -562,8 +563,8 @@ function noLogin(handler)
 	setBadge(mailbutton[2]);
 	setBadge(mailbutton[3]);
 	setBadge(mailbutton[4]);
-	setBadge(userbutton[0]);
-	setBadge(userbutton[1]);
+	setBadge(contactbutton[0]);
+	setBadge(contactbutton[1]);
 	setBadge(visitorbutton[0]);
 	setBadge(visitorbutton[1]);
 	setBadge(visitorbutton[2]);
@@ -733,6 +734,63 @@ function findMails(html, regex, type)
 		}
 	} else {
 		showListMessage(maillist, "Loading", Math.round(100*mailHandler["found"]/4)+"%");
+	}
+}
+
+function findContacts(html)
+{
+	contactHandler["found"]++;
+	setFetchTime();
+
+	var regex = /(?:\/usr\/([^\.]*)\.[^>]*><\/a><\/td>)?<td class="profileMemoColumn"[^?]*\?set=(\d+)[^>]*>([^<]*)<\/a>.*?<td class="onlineStatus"><[^"]*"([^"]*)">([^<]*)<\/span>/gi;
+
+	var item, i;
+
+	var c = contactHandler["contacts"];
+
+	for(i=c.length; item = regex.exec(html); i++) {
+		c[i] = item;
+	}
+
+	if(contactHandler["found"]>=contactHandler["total"]) {
+		clearNode(contactlist);
+
+		var id, online;
+		var mail = mailHandler["index"] || {};
+		var newmail = mailHandler["new"] || {};
+		var j = 0;
+		var cl = c.length;
+
+		for(i=0; i<cl; i++) {
+			item = c[i];
+			if(item[4]=="isOnline") {
+				if(item[5]=="Away") {
+					online = 1;
+				} else { // online
+					online = 2;
+				}
+			} else if(item[4]=="deleted") {
+				online = -2;
+			} else { // offline
+				online = -1;
+			}
+			id = item[2];
+			if(item[1]) {
+				userPicMap[id] = item[1];
+			}
+			userOnlineMap[id] = online;
+			if(online>0) {
+				appendContactRow(id, item[3], item[5], newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0));
+				j++;
+			}
+		}
+
+		setContactCount(j);
+		if(j==0) {
+			showListMessage(contactlist, "No Favourites Online");
+		}
+	} else {
+		showListMessage(contactlist, "Loading", Math.round(100*contactHandler["found"]/contactHandler["total"])+"%");
 	}
 }
 
@@ -941,61 +999,30 @@ function fetchMails(event)
 	});
 }
 
-function fetchUsers(event)
+function fetchContacts(event)
 {
 	today = null;
+	contactHandler = {"contacts":[], "found":0, "total":1, "fail":false};
 	if(event===false) {
-		switchView(userlist, userbutton[0]);
+		switchView(contactlist, contactbutton[0]);
 	} else {
-		switchView(userlist, userbutton[0], userbutton[1]);
-		userlist.setAttribute("class","double");
+		switchView(contactlist, contactbutton[0], contactbutton[1]);
+		contactlist.setAttribute("class","double");
 	}
-	showListMessage(userlist, "Loading …");
+
+	showListMessage(contactlist, "Loading …");
 	fetchURL_didFetch_error(base+"/myuser/?page=romeo&filterSpecial=favourites&sort=2&sortDirection=-1", function(html) {
 		var regex = /class="user-table"/gi;
-		if(!regex.test(html)) {
-			noLogin();
-			showListMessage(userlist, "Cannot retrieve favourites.", "Ensure you are logged in.", true);
+		if(contactHandler["fail"] || !regex.test(html)) {
+			noLogin(contactHandler);
+			showListMessage(contactlist, "Cannot retrieve favourites.", "Ensure you are logged in.", true);
 			return;
 		}
 
-		setFetchTime();
-		clearNode(userlist);
-
-		regex = /(?:\/usr\/([^\.]*)\.[^>]*><\/a><\/td>)?<td class="profileMemoColumn"[^?]*\?set=(\d+)[^>]*>([^<]*)<\/a>.*?<td class="onlineStatus"><[^"]*"([^"]*)">([^<]*)<\/span>/gi;
-		var i, id, item, online;
-		var mail = mailHandler["index"] || {};
-		var newmail = mailHandler["new"] || {};
-		for(i=0; item = regex.exec(html); i++) {
-			if(item[4]=="isOnline") {
-				if(item[5]=="Away") {
-					online = 1;
-				} else { // online
-					online = 2;
-				}
-			} else if(item[4]=="deleted") {
-				online = -2;
-			} else { // offline
-				online = -1;
-			}
-			id = item[2];
-			if(item[1]) {
-				userPicMap[id] = item[1];
-			}
-			userOnlineMap[id] = online;
-			if(online>0) {
-				appendUserRow(id, item[3], item[5], newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0));
-			} else {
-				i--;
-			}
-		}
-		setUserCount(i);
-		if(i==0) {
-			showListMessage(userlist, "No Favourites Online");
-		}
+		fetchNextContactsPage(html, regex);
 	}, function(status) {
-		noLogin();
-		showListMessage(userlist, "Cannot access favourites.", "The server responded with error "+status+".", true);
+		noLogin(contactHandler);
+		showListMessage(contactlist, "Cannot access favourites.", "The server responded with error "+status+".", true);
 	});
 }
 
@@ -1036,6 +1063,33 @@ function fetchVisitors(event)
 	}, function(status) {
 		noLogin(visitHandler);
 		showListMessage(visitorlist, "Cannot access your visits.", "The server responded with error "+status+".", true);
+	});
+}
+
+function fetchNextContactsPage(html, regex)
+{
+	regex.lastIndex = 0;
+	nextregex = /<a href="([^"]+)"><b>&raquo;&raquo;&raquo;/;
+	var url = nextregex.exec(html);
+
+	if(url && url[1]) { // there is more to do
+		contactHandler["total"]++;
+	}
+	findContacts(html);
+
+	if(!url) {
+		return;
+	}
+
+	fetchURL_didFetch_error(base+"/myuser/"+url[1], function(html) {
+		if(!regex.test(html)) {
+			findContacts(null);
+			return;
+		}
+
+		fetchNextContactsPage(html, regex);
+	}, function(status) {
+		findContacts(null);
 	});
 }
 
@@ -1107,9 +1161,9 @@ function filterMails(event, filter)
 	applyFilter(event, maillist, filter, mailbutton[0], fetchMails);
 }
 
-function filterUsers(event, filter)
+function filterContacts(event, filter)
 {
-	applyFilter(event, userlist, "double "+filter, userbutton[0], fetchUsers);
+	applyFilter(event, contactlist, "double "+filter, contactbutton[0], fetchContacts);
 }
 
 function filterVisitors(event, filter)
@@ -1136,9 +1190,9 @@ function init()
 	mailbutton[3] = document.getElementById("sent");
 	mailbutton[4] = document.getElementById("thread");
 
-	userlist = document.getElementById("users");
-	userbutton[0] = document.getElementById("user");
-	userbutton[1] = document.getElementById("alluser");
+	contactlist = document.getElementById("contacts");
+	contactbutton[0] = document.getElementById("contact");
+	contactbutton[1] = document.getElementById("allcontact");
 
 	visitorlist = document.getElementById("visitors");
 	visitorbutton[0] = document.getElementById("visitor");
@@ -1157,11 +1211,11 @@ function init()
 	userPic = document.getElementById("userpic");
 
 	lastView = maillist;
-	userlist.style.display = "none";
+	contactlist.style.display = "none";
 	visitorlist.style.display = "none";
 	threadlist.style.display = "none";
 	lastButton = mailbutton[0];
 	lastRow = mailbutton[1];
-	userbutton[1].parentElement.style.display = "none";
+	contactbutton[1].parentElement.style.display = "none";
 	visitorbutton[1].parentElement.style.display = "none";
 }

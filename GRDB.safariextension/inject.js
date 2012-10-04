@@ -7,10 +7,10 @@ function messageDisplayChanged(event)
 	}
 }
 
-function userDisplayChanged(event)
+function contactDisplayChanged(event)
 {
 	if(event.type=="DOMCharacterDataModified") {
-		safari.self.tab.dispatchMessage("userCountDidChange", parseInt(event.newValue));
+		safari.self.tab.dispatchMessage("contactCountDidChange", parseInt(event.newValue));
 	}
 }
 
@@ -48,7 +48,7 @@ if(window.top===window) {
 		document.getElementById("msgDisplay_c").addEventListener("DOMCharacterDataModified", messageDisplayChanged, false);
 	}
 	if(document.getElementById("favDisplay_c")) {
-		document.getElementById("favDisplay_c").addEventListener("DOMCharacterDataModified", userDisplayChanged, false);
+		document.getElementById("favDisplay_c").addEventListener("DOMCharacterDataModified", contactDisplayChanged, false);
 	}
 	if(document.getElementById("visDisplay_c")) {
 		document.getElementById("visDisplay_c").addEventListener("DOMCharacterDataModified", visitorDisplayChanged, false);
