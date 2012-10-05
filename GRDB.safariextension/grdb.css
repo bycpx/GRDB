@@ -137,7 +137,7 @@ aside nav a:hover {
 
 aside nav a.act {
 	color:		#000;
-	background:	url(act.png) top right no-repeat;
+	background:	url(c/act.png) top right no-repeat;
 	margin:		0 -15px 0 -12px;
 	padding:	0 15px 0 12px;
 }
@@ -340,21 +340,21 @@ ul h3 {
 
 h2 a[data-online] {
 	padding-right: 16px;
-	background-image: url(st_off.png);
+	background-image: url(i/st_off.png);
 	background-repeat: no-repeat;
 	background-position: 100% 0;
 }
 
 h2 a[data-online="1"] {
-	background-image: url(st_away.png);
+	background-image: url(i/st_away.png);
 }
 
 h2 a[data-online="2"] {
-	background-image: url(st_on.png);
+	background-image: url(i/st_on.png);
 }
 
 h2 a[data-online="-2"] {
-	background-image: url(st_del.png);
+	background-image: url(i/st_del.png);
 	text-decoration: line-through;
 	text-shadow: none;
 }
@@ -377,11 +377,11 @@ ul li.low {
 
 #mails h3[data-att] {
 	padding:	0 0 0 18px;
-	background:	url(pic.png) left center no-repeat;
+	background:	url(i/pic.png) left center no-repeat;
 }
 
 #mails li.sent h3[data-att] {
-	background-image: url(pic-d.png);
+	background-image: url(i/pic-d.png);
 }
 
 #visitors h3[data-give] {

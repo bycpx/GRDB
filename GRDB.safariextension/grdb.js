@@ -133,7 +133,7 @@ function createHistoryLink(id, conv)
 {
 	var link = create("a", "⇄");
 	link.setAttribute("href",base+"/msg/history.php?uid="+id+"#lastmessage");
-	link.style.backgroundImage = conv ? "url(hist_hi.png)" : "url(hist.png)";
+	link.style.backgroundImage = conv ? "url(i/hist_hi.png)" : "url(i/hist.png)";
 	link.setAttribute("title","History");
 	link.setAttribute("target","_blank");
 	return link;
@@ -146,10 +146,10 @@ function createMsgLink(id, msgID, sent)
 	if(msgID && msgID!=-1) {
 		link.setAttribute("data-msg", msgID);
 		link.addEventListener("click", handleMailClick, false);
-		link.style.backgroundImage = "url(msg_hi.png)";
+		link.style.backgroundImage = "url(i/msg_hi.png)";
 		link.setAttribute("title","Read Message");
 	} else {
-		link.style.backgroundImage = sent?"url(reply.png)":"url(msg.png)";
+		link.style.backgroundImage = sent?"url(i/reply.png)":"url(i/msg.png)";
 		link.setAttribute("title","Message");
 	}
 	link.setAttribute("target","_blank");
@@ -162,19 +162,19 @@ function createPin(id, name, tapID, tap, sticky)
 	link.addEventListener("click", function(event) {
 		if(this.getAttribute("data-sticky")!="0") {
 			unstoreVisit(id);
-			this.style.backgroundImage = "url(pin.png)";
+			this.style.backgroundImage = "url(i/pin.png)";
 			this.setAttribute("data-sticky",0);
 		} else {
 			storeVisit(id, name, tapID, tap);
-			this.style.backgroundImage = "url(pin_hi.png)";
+			this.style.backgroundImage = "url(i/pin_hi.png)";
 			this.setAttribute("data-sticky",1);
 		}
 	}, false);
 	if(sticky) {
-		link.style.backgroundImage = "url(pin_hi.png)";
+		link.style.backgroundImage = "url(i/pin_hi.png)";
 		link.setAttribute("data-sticky", sticky);
 	} else {
-		link.style.backgroundImage = "url(pin.png)";
+		link.style.backgroundImage = "url(i/pin.png)";
 		link.setAttribute("data-sticky", 0);
 	}
 	link.setAttribute("title","Pin");
@@ -408,7 +408,7 @@ function appendThreadRow(id, name)
 	cell.setAttribute("class","action");
 	link = create("a","→");
 	link.setAttribute("href",base+"/msg/history_email.php?uid="+id);
-	link.style.backgroundImage = "url(ffwd.png)";
+	link.style.backgroundImage = "url(i/ffwd.png)";
 	link.setAttribute("title","Forward via E-Mail");
 	link.setAttribute("target","_blank");
 	link.addEventListener("click", markLow, false);
