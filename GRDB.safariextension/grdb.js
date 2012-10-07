@@ -362,9 +362,6 @@ function appendVisitorRow(id, name, stats, datetime, timestamp, receivedID, rece
 	cell.appendChild(createMsgLink(id, msgID));
 	cell.appendChild(createHistoryLink(id, msgID));
 	row.appendChild(cell);
-	cell = create("h2");
-	cell.appendChild(createUserLink(id, name, stats));
-	row.appendChild(cell);
 	if(timestamp) {
 		cell = create("h3", datetime.replace(/-/," "));
 
@@ -396,6 +393,9 @@ function appendVisitorRow(id, name, stats, datetime, timestamp, receivedID, rece
 			cell.setAttribute("title", prev+"⇠ "+given);
 		}
 	}
+	row.appendChild(cell);
+	cell = create("h2");
+	cell.appendChild(createUserLink(id, name, stats));
 	row.appendChild(cell);
 	visitorlist.appendChild(row);
 }
