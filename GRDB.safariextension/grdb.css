@@ -321,7 +321,7 @@ ul h2 {
 	text-overflow: ellipsis;
 }
 
-#mails h2, #visitors li.msg h2 {
+#mails h2, ul li.msg h2 {
 	margin-right: 0.25em;
 	float:		left;
 }

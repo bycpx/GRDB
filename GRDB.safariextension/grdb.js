@@ -310,7 +310,7 @@ function appendMailRow(senderID, sender, msgID, subject, datetime, timestamp, ha
 	maillist.appendChild(row);
 }
 
-function appendContactRow(id, name, timestamp, age, state, online, msgID, isFav)
+function appendContactRow(id, name, info, timestamp, age, state, online, msgID, isFav)
 {
 	var cell, klasse;
 	var row = create("li");
@@ -335,7 +335,7 @@ function appendContactRow(id, name, timestamp, age, state, online, msgID, isFav)
 	row.setAttribute("class",klasse);
 	row.appendChild(cell);
 	cell = create("h2");
-	cell.appendChild(createUserLink(id, name));
+	cell.appendChild(createUserLink(id, name, info));
 	row.appendChild(cell);
 	contactlist.appendChild(row);
 }
@@ -656,20 +656,20 @@ function prepareContact(item, isFav)
 	var online;
 	var id = item[2];
 
-	item.timestamp = timestamp(item[5], true);
+	item.timestamp = timestamp(item[6], true);
 	if(isNaN(item.timestamp)) {
 		item.days = isFav ? 0 : 1;
 	} else {
 		item.days = dayDiff(item.timestamp, today);
 	}
 
-	if(item[4]=="isOnline") {
-		if(item[5]=="Away") {
+	if(item[5]=="isOnline") {
+		if(item[6]=="Away") {
 			online = 1;
 		} else { // online
 			online = 2;
 		}
-	} else if(item[4]=="deleted") {
+	} else if(item[5]=="deleted") {
 		online = -2;
 	} else { // offline
 		online = -1;
@@ -790,8 +790,10 @@ function findContacts(html, isFav)
 {
 	contactHandler["found"]++;
 	setFetchTime();
-
-	var regex = /(?:\/usr\/([^\.]*)\.[^>]*><\/a><\/td>)?<td class="profileMemoColumn"[^?]*\?set=(\d+)[^>]*>([^<]*)<\/a>.*?<td class="onlineStatus"><[^"]*"([^"]*)">([^<]*)<\/span>/gi;
+	if(html) {
+		html = html.replace(/<br \/>\r\n/, "\n");
+	}
+	var regex = /(?:\/usr\/([^\.]*)\.[^>]*><\/a><\/td>)?<td class="profileMemoColumn"[^?]*\?set=(\d+)[^>]*>([^<]*)<\/a><br \/>([^<]*)<\/td>.*?<\/td><td class="onlineStatus"><[^"]*"([^"]*)">([^<]*)<\/span>/gi;
 
 	var item, i;
 
@@ -841,7 +843,7 @@ function findContacts(html, isFav)
 			while(i<fl && !(j<ol && f[i].days>o[j].days)) {
 				item = f[i];
 				id = item[2];
-				appendContactRow(id, item[3], item.timestamp, item.days, item[5], item.online, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), true);
+				appendContactRow(id, item[3], item[4], item.timestamp, item.days, item[6], item.online, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), true);
 				if(item.online>0) {
 					fav++;
 				}
@@ -850,7 +852,7 @@ function findContacts(html, isFav)
 			while(j<ol && !(i<fl && o[j].days>f[i].days)) {
 				if(id = o[j][2]) {
 					item = o[j];
-					appendContactRow(id, item[3], item.timestamp, item.days, item[5], item.online, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0));
+					appendContactRow(id, item[3], item[4], item.timestamp, item.days, item[6], item.online, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0));
 				}
 				j++;
 			}
