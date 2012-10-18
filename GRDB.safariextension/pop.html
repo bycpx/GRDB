@@ -49,8 +49,27 @@ li[onclick]:hover, h1[onclick]:hover {
 	color:		#448;
 }
 
-li[data-count]:after {
+li span {
 	float:		right;
+}
+
+li span[data-new]:before {
+	display:	inline-block;
+	min-width:	0.8em;
+	margin:		2px 1px 0 0;
+	padding:	0.1em 0.35em 0.1em 0.5em;
+	font:		bold 12px/14px Helvetica, sans-serif;
+	text-align:	center;
+	color:		#fff;
+	background:	#8ae;
+	text-shadow: rgba(0,0,0, 0.25) 0 1px 0;
+	content:	attr(data-new);
+	border-radius: 1em 0 0 1em;
+	box-shadow:	rgba(0,0,0, 0.25) 0 1px 0 inset, #fff 0 1px 0;
+}
+
+li span[data-count]:after {
+	display:	inline-block;
 	min-width:	1em;
 	margin:		2px 0 0;
 	padding:	0.1em 0.5em;
@@ -64,14 +83,24 @@ li[data-count]:after {
 	box-shadow:	rgba(0,0,0, 0.25) 0 1px 0 inset, #fff 0 1px 0;
 }
 
-li[data-count]:hover:after {
+li span[data-new][data-count]:after {
+	min-width:	0.8em;
+	padding:	0.1em 0.5em 0.1em 0.35em;
+	border-radius: 0 1em 1em 0;
+}
+
+li:hover span:before {
+	background:	#68d;
+}
+
+li:hover span:after {
 	background:	#88a;
 }
 
 ul.off li {
 	color:		#888 !important;
 }
-ul.off li:after {
+ul.off li span:before, ul.off li span:after {
 	background:	#aaa !important;
 }
 </style>
@@ -84,14 +113,24 @@ function nn(val)
 	return "–";
 }
 
-function displayCounts(online, messages, user, visitors)
+function setBadges(node, count, diff)
+{
+	node.setAttribute("data-count", nn(count));
+	if(diff) {
+		node.setAttribute("data-new", diff);
+	} else {
+		node.removeAttribute("data-new");
+	}
+}
+
+function displayCounts(online, messages, contacts, visitors, messagesNew, contactsNew, visitorsNew)
 {
 	document.getElementById("home").setAttribute("data-stat",online?"1":"0");
 	msg = document.getElementById("messages");
-	msg.setAttribute("data-count", nn(messages));
-	document.getElementById("contacts").setAttribute("data-count", nn(user));
-	document.getElementById("visitors").setAttribute("data-count", nn(visitors));
-	msg.parentElement.className = online?"":"off";
+	setBadges(msg, messages, messagesNew);
+	setBadges(document.getElementById("contacts"), contacts, contactsNew);
+	setBadges(document.getElementById("visitors"), visitors, visitorsNew);
+	msg.parentElement.parentElement.className = online?"":"off";
 }
 
 function openHome()
@@ -117,10 +156,10 @@ function showVisitors()
 </head>
 <body>
 <h1 id="home" data-stat="0" onclick="openHome()">GRDB</h1>
-<ul class="off">
-<li id="messages" data-count="--" onclick="showMails()">Messages</li>
-<li id="contacts" data-count="--" onclick="showContacts()">Contacts</li>
-<li id="visitors" data-count="--" onclick="showVisitors()">Visitors</li>
+<ul class="on">
+<li onclick="showMails()">Messages<span id="messages" data-count="--"></span></li>
+<li onclick="showContacts()">Contacts<span id="contacts" data-new="2" data-count="--"></span></li>
+<li onclick="showVisitors()">Visitors<span id="visitors" data-count="--"></span></li>
 </ul>
 </body>
 </html>

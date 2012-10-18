@@ -48,7 +48,7 @@ safari.application.addEventListener("command", function(event) {
 safari.application.addEventListener("popover", function(event) {
 	switch(event.target.identifier) {
 		case "GRDBPopover":
-			event.target.contentWindow.displayCounts(hasSession, count["message"], count["contact"], count["visitor"]);
+			event.target.contentWindow.displayCounts(hasSession, count["message"], count["contact"], count["visitor"], count["message"]-seenCount["message"], count["contact"]-seenCount["contact"], count["visitor"]-seenCount["visitor"]);
 		break;
 	}
 }, false);
