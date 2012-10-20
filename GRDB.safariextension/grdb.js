@@ -5,8 +5,10 @@ var mailbutton=[];
 var userbutton=[];
 var visitorbutton=[];
 var lastView, lastButton, lastRow;
-var base, pbase, today;
-var mailHandler, visitHandler, userOnlineMap, userPicMap;
+var base, cbase, pbase, today;
+var mailHandler = {};
+var visitHandler;
+var userOnlineMap = {}, userPicMap = {};
 
 var visitIcons = {
 	10:"like", 11:"like", 13:"like", 14:"like", 15:"like", 16:"like", 17:"like", 19:"like", 31:"like", 42:"like", 47:"like", 50:"like", 51:"like", 52:"like", 53:"like",
@@ -385,6 +387,9 @@ function appendThreadRow(id, name)
 
 function setBadge(node, cont)
 {
+	if(!node) {
+		return;
+	}
 	clearNodeElements(node);
 	if(cont) {
 		node.appendChild(create("span",cont,"badge"));
@@ -1105,6 +1110,24 @@ function home()
 	openWindow(base+"/");
 }
 
+function initViews()
+{
+	lastView = maillist;
+	userlist.style.display = "none";
+	visitorlist.style.display = "none";
+	threadlist.style.display = "none";
+	lastButton = mailbutton[0];
+	if(mailbutton[1]) {
+		lastRow = mailbutton[1];
+	}
+	if(userbutton[1]) {
+		userbutton[1].parentElement.style.display = "none";
+	}
+	if(visitorbutton[1]) {
+		visitorbutton[1].parentElement.style.display = "none";
+	}
+}
+
 function init()
 {
 	maillist = document.getElementById("mails");
@@ -1129,20 +1152,8 @@ function init()
 
 	info = document.getElementById("info");
 
-	mailHandler = {};
-	userOnlineMap = {};
-	userPicMap = {};
 	pbase = "http://s.gayromeo.com/img/usr/";
 	userPic = document.getElementById("userpic");
-
-	lastView = maillist;
-	userlist.style.display = "none";
-	visitorlist.style.display = "none";
-	threadlist.style.display = "none";
-	lastButton = mailbutton[0];
-	lastRow = mailbutton[1];
-	userbutton[1].parentElement.style.display = "none";
-	visitorbutton[1].parentElement.style.display = "none";
 }
 
 if(window.safari) {
