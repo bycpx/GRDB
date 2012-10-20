@@ -8,6 +8,11 @@ body {
 	font-family: Helvetica, sans-serif;
 }
 
+a {
+	color:		inherit;
+	text-decoration: none;
+}
+
 header {
 	margin:		0 0 1em 0;
 	min-height:		48px;
@@ -50,21 +55,44 @@ header h1 .lo {
 	color:		rgba(0,0,0, 0.12);
 }
 
+header h2 {
+	float:		left;
+	font-size:	1.5em;
+	font-weight: normal;
+	margin:		0;
+	padding:	0 0 0 30px;
+	height:		100%;
+	line-height: 48px;
+}
+
+#help {
+	float:		right;
+	margin:		13px 1em;
+	height:		18px;
+	width:		18px;
+	line-height: 18px;
+	font-weight: bold;
+	text-align:	center;
+	border-radius: 24px;
+	
+	background:	#aaa -webkit-gradient(linear, 0% 0%, 0% 100%, from(#def), to(#89a));
+	border:		1px solid #666;
+	box-shadow:	#fff 0 1px 0;
+}
+
 header nav {
 	height:		100%;
 }
 
 header form {
 	float:		right;
-	margin:		0 1em 0 1em;
+	margin:		0 1em;
 	line-height: 48px;
 }
 
 header nav a {
 	display:	block;
 	float:		left;
-	color:		inherit;
-	text-decoration: none;
 	height:		100%;
 	padding:	0 2em;
 	line-height: 48px;
@@ -205,9 +233,7 @@ ul {
 
 ul a {
 	padding:	0 0.15em;
-	color:		inherit;
 	border-radius: 0.3em;
-	text-decoration: none;
 	text-shadow: #fff 0 1px 0;
 }
 
@@ -241,6 +267,7 @@ ul li:first-child {
 }
 
 #mails li:nth-child(2n),
+.single li:nth-child(2n),
 .double li:nth-child(4n+2), .double li:nth-child(4n+3),
 .triple li:nth-child(2n) {
 	background:	#eef8ff;

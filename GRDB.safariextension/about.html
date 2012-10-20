@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<title>About GRDB</title>
+	<link rel="stylesheet" type="text/css" href="grdb.css" media="all" />
+
+<style>
+aside nav nav a {
+	margin:	0 0 0 1em;
+	font-weight: normal;
+	height:	18px;
+	line-height: 18px;
+}
+
+#cont {
+	width:	50em;
+	overflow: hidden;
+}
+
+#cont > p a {
+	color:	#26a;
+}
+
+#cont > p a:hover {
+	color:	#1af;
+}
+
+#logo {
+	float:	left;
+	margin: 0 1em 0 2em;
+}
+
+#logo + h3 {
+	margin:	1em 0 0 0;
+}
+
+#logo + h3 + p {
+	margin:	0 0 2em 0;
+}
+
+h3 {
+	color:	#26a;
+	clear:	right;
+	margin:	2em 0 1em 0;
+}
+
+img.aside {
+	float:	right;
+	margin:	-3em 0 0.5em 1.5em;
+	border:	thin solid #999;
+	border-radius: 0.25em;
+}
+
+ul {
+	margin:	1em 0.5em;
+}
+
+ul li {
+	height:	1.75em;
+}
+
+ul li img {
+	float:	left;
+	margin:	0.25em 0 0 -2em;
+}
+
+</style>
+</head>
+
+<body>
+<header>
+<h1 onclick="safari.self.tab.dispatchMessage('openBase')"><span class="hi">GRDB</span><span class="lo">GRDB</span></h1>
+<h2>About the Extension</h2>
+</header>
+<aside>
+<nav>
+<a class="act" href="#what">Description</a>
+<a href="#new">New Features</a>
+<hr />
+<a href="#button">Toolbar Button</a>
+<a href="#lists">Lists and Colours</a>
+<a href="#icons">Icons</a>
+<nav>
+<a href="#actions">Actions</a>
+<a href="#status">Status</a>
+<a href="#footprints">Footprints</a>
+</nav>
+<hr />
+<a href="#report">Report a Problem</a>
+</nav>
+</aside>
+
+<div id="cont">
+
+<img id="logo" src="Icon-64.png" alt="GRDB" />
+<h3><a name="what"></a>GRDB <small>
+Version 2.3
+</small></h3>
+<p>A Useless Safari extension.</p>
+
+<p>
+List messages, contacts, and visitors in a more concise and clear way.
+</p>
+
+<h3><a name="new"></a>New in this Version</h3>
+
+<p>This about page.</p>
+<p>Count of new items in popover.</p>
+
+<h3><a name="button"></a>Toolbar Button</h3>
+<img src="grdb.png" class="aside" />
+
+<p>
+Clicking the toolbar button opens the homepage where you can sign in.
+</p>
+
+<p>
+When signed in, the number of new messages is badged on the toolbar icon.
+Click the toolbar button to show the message list.
+</p>
+
+<p>
+Click an hold the toolbar button to see the popover with your sign-in state and item counts.
+New items are indicated to the left of the overall count.
+</p>
+
+<h3><a name="lists"></a>Lists and Colours</h3>
+
+<p>
+Lists are sorted chronologically with newest items on top.
+</p>
+
+<p>
+This dummy list explains the meaning of the different elements of the message list.
+</p>
+
+<ul id="mails">
+<li class="recv" data-msg="1"><div class="action"><a style="background-image: url(i/hist.png);" title="History" target="_blank">⇄</a></div><h2><a>Sender of the message</a></h2><h3 data-age="new">Time of reception</h3><p>Preview of the received message</p></li>
+<li class="recv" data-msg="1"><h3>Some time earlier</h3><p>Follow-Up from the same sender as the message above</p></li>
+<li class="recv" data-msg="1"><div class="action"><a style="background-image: url(i/hist.png);" title="History" target="_blank">⇄</a></div><h2><a>Sender</a></h2><h3 data-att="-" data-age="new">Time of reception</h3><p>Received message with attachments</p></li>
+<li class="recv drop" data-msg="1"><div class="action"><a style="background-image: url(i/hist.png);" title="History" target="_blank">⇄</a></div><h2><a>Sender</a></h2><h3>Time of reception</h3><p>A message you read but didn’t answer</p></li>
+<li class="sent"><div class="action"><a style="background-image: url(i/hist.png);" title="History" target="_blank">⇄</a><a style="background-image: url(i/reply.png); " title="Message" target="_blank">R</a></div><h2><a>Recipient of the message</a></h2><h3 data-age="new">Time of delivery</h3><p>Preview of the message you sent</p></li>
+<li class="sent"><div class="action"><a style="background-image: url(i/hist.png);" title="History" target="_blank">⇄</a><a style="background-image: url(i/reply.png); " title="Message" target="_blank">R</a></div><h2><a>Recipient</a></h2><h3 data-att="-">Time of delivery</h3><p>Sent message with attachments</p></li>
+<li class="sent drop"><div class="action"><a style="background-image: url(i/hist.png);" title="History" target="_blank">⇄</a><a style="background-image: url(i/reply.png); " title="Message" target="_blank">R</a></div><h2><a>Recipient</a></h2><h3>Time of delivery</h3><p>A message the recipient read but didn’t answer</p></li>
+<li class="recv" data-msg="1"><div class="action"><a style="background-image: url(i/hist.png);" title="History" target="_blank">⇄</a></div><h2><a>Sender</a></h2><h3 data-age="due">Time of reception</h3><p>When received more than 10 days ago, the date turns red</p></li>
+<li class="sent"><div class="action"><a style="background-image: url(i/hist.png);" title="History" target="_blank">⇄</a><a style="background-image: url(i/reply.png); " title="Message" target="_blank">R</a></div><h2><a>Recipient</a></h2><h3 data-age="due">Time of delivery</h3><p>When sent more than 3 days ago, the date turns red</p></li>
+<li class="sent drop mini"><div class="action"><a style="background-image: url(i/hist.png);" title="History" target="_blank">⇄</a><a style="background-image: url(i/reply.png); " title="Message" target="_blank">R</a></div><h2><a>Other Recepients</a></h2><p>…</p></li>
+<li class="sent drop mini"><div class="action"><a style="background-image: url(i/hist.png);" title="History" target="_blank">⇄</a><a style="background-image: url(i/reply.png); " title="Message" target="_blank">R</a></div><h2><a>who didn’t</a></h2><p>…</p></li>
+<li class="sent drop mini"><div class="action"><a style="background-image: url(i/hist.png);" title="History" target="_blank">⇄</a><a style="background-image: url(i/reply.png); " title="Message" target="_blank">R</a></div><h2><a>answer messages</a></h2><p>…</p></li>
+</ul>
+
+<p>
+In the contact and visitor lists entries are colour coded.
+
+Offline contacts appear grey, while online contacts and favourites appear black and blue, respectively.
+</p>
+
+<p>
+In the visitor list, black entries are profiles you visited and who visited you.
+Visitors you haven’t visited back appear blue.
+Profiles you visited but who didn’t visit you appear grey.
+</p>
+
+<p>
+You can hover over some elements to display further information.
+
+Profile picture, Visitor stats, footprint title, message age, contact note.
+</p>
+
+<h3><a name="icons"></a>Icons</h3>
+
+<p>
+Several icons are used throughout the extension.
+</p>
+
+<h4><a name="actions"></a>Actions</h4>
+
+<p>
+These icons are placed to the left of list items.
+Click them to perform the described action.
+</p>
+
+<ul class="double">
+<li><img src="i/hist.png" alt="History" />Show history</li>
+<li><img src="i/hist_hi.png" alt="History" />Show history (with messages)</li>
+<li><img src="i/ffwd.png" alt="Forward" />Forward history via e-mail</li>
+<li><img src="i/reply.png" alt="Reply" />Compose follow-up on sent message</li>
+<li><img src="i/msg.png" alt="Message" />Compose new message</li>
+<li><img src="i/msg_hi.png" alt="Message" />Read latest message from user</li>
+<li><img src="i/pin.png" alt="Pin" />Keep visitor in list</li>
+<li><img src="i/pin_hi.png" alt="Pin" />No longer keep visitor in list</li>
+</ul>
+
+<h4><a name="status"></a>Status Icons</h4>
+
+<p>
+These icons appear after profile names when there online status is known.
+</p>
+
+<ul class="double">
+<li><img src="i/st_on.png" alt="" />Online</li>
+<li><img src="i/st_away.png" alt="" />Away</li>
+<li><img src="i/st_off.png" alt="" />Offline</li>
+<li><img src="i/st_del.png" alt="" />Deleted</li>
+</ul>
+
+<h4><a name="footprints"></a>Footprints</h4>
+
+<p>
+In the visitor list, footprints are displayed with different shapes and icons.
+</p>
+
+<ul class="double">
+<li><img src="f/def_g.png" alt="" />You left a footprint on another profile</li>
+<li><img src="f/def_r.png" alt="" />You received a footprint from a visitor</li>
+<li><img src="f/def_b.png" alt="" />You and a visitor left each other footprints</li>
+<li><img src="f/def_m.png" alt="" />You left each other matching footprints</li>
+<li><img src="f/def_t.png" alt="" />You left “thank you” on a received footprint</li>
+</ul>
+
+<p>
+The icon within the footprint shape hints at the kind of footprint you left or received.
+</p>
+
+<ul class="triple">
+<li><img src="f/def_r.png" alt="" />General</li>
+<li><img src="f/date_r.png" alt="" />Date</li>
+<li><img src="f/ex_r.png" alt="" />Explicit</li>
+<li><img src="f/hi_r.png" alt="" />Greetings</li>
+<li><img src="f/hot_r.png" alt="" />Sexy</li>
+<li><img src="f/like_r.png" alt="" />Compliments</li>
+<li><img src="f/love_r.png" alt="" />Love</li>
+<li><img src="f/no_r.png" alt="" />NO</li>
+<li><img src="f/ok_r.png" alt="" />Thank you</li>
+</ul>
+
+<h3><a name="report"></a>Report a Problem</h3>
+
+<p>
+We depend on a certain structure of the GR website.
+When there are some changes on their side, some things may break.
+</p>
+
+<p>
+There may be other things that went unnoticed.
+If you find something that isn’t working as expected, don’t hesitate to report on <a href="https://github.com/bycpx/GRDB/issues/new" target="_blank">our issue page</a>.
+</p>
+
+</div>
+
+<footer>GRDB. A Useless Safari extension.</footer>
+</body>
+</html>
