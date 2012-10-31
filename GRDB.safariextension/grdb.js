@@ -359,7 +359,6 @@ function appendVisitorRow(id, name, stats, datetime, timestamp, receivedID, rece
 	cell = create("div");
 	cell.setAttribute("class","action");
 	cell.appendChild(createPin(id, name, givenID, given, sticky));
-	cell.appendChild(createMsgLink(id, msgID));
 	cell.appendChild(createHistoryLink(id, msgID));
 	row.appendChild(cell);
 	if(timestamp) {

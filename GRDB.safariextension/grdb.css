@@ -234,11 +234,6 @@ ul li:first-child {
 	float:		left;
 }
 
-#visitors li {
-	width:		20em;
-	padding:	0 0 0 4em;
-}
-
 .triple li {
 	width:		13em;
 	padding:	0 0 0 3em;
@@ -292,21 +287,16 @@ ul li:first-child {
 
 ul div.action {
 	float:		left;
-	margin:		0 0 0 -2em;
-	width:		2em;
+	margin:		0 0 0 -3em;
+	width:		3em;
 	text-align:	center;
 	color:		#888;
 	font-weight: bold;
 }
 
-#contacts div.action, #threads div.action, #mails li.sent div.action {
-	margin:		0 0 0 -3em;
-	width:		3em;
-}
-
-#visitors div.action {
-	margin:		0 0 0 -4em;
-	width:		4em;
+#mails li.recv div.action  {
+	margin:		0 0 0 -2em;
+	width:		2em;
 }
 
 div.action a {
