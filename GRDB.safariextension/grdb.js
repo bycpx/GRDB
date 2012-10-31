@@ -790,7 +790,8 @@ function findContacts(html, isFav)
 	contactHandler["found"]++;
 	setFetchTime();
 	if(html) {
-		html = html.replace(/<br \/>\r\n/, "\n");
+		html = html.replace(/<wbr>/g, "");
+		html = html.replace(/<br \/>[\r\n]+/g, "\n");
 	}
 	var regex = /(?:\/usr\/([^\.]*)\.[^>]*><\/a><\/td>)?<td class="profileMemoColumn"[^?]*\?set=(\d+)[^>]*>([^<]*)<\/a><br \/>([^<]*)<\/td>.*?<\/td><td class="onlineStatus"><[^"]*"([^"]*)">([^<]*)<\/span>/gi;
 
@@ -872,7 +873,7 @@ function findVisits(html, isGiven)
 	visitHandler["found"]++;
 	setFetchTime();
 	if(html) {
-		html = html.replace(/<wbr>/, "");
+		html = html.replace(/<wbr>/g, "");
 	}
 	var regex = /(?:\/usr\/([^\.]*)\.[^\n]*\n\s*)?<td class="resHeadline"[^?]*\?set=(\d+)[^>]*>([^<]*)<\/a>[^\n]*\n\s*<td[^>]*>\s*((?:(?:<[^>]*>[^<]*<\/[^>]*>)|[\s0-9.a-z'"&;])*);([^<]*)<\/td>(?:[^<]+|<(?!tr))*<tr[^>]*>\s*<td[^>]*>\s*<span(?:\s+style="color:#([^;]*);)?[^>]*>([\s\S]*?)<br \/>\s*<br \/><br \/>/gi;
 	var tapex = /footprints\/(\d+)_\d+\.png[^:]*:\s+([^"]*)"/gi;
