@@ -85,11 +85,8 @@ safari.application.addEventListener("message", function(message) {
 			updateCount("visitor", 0);
 			validateToolbarItems();
 		break;
-		case "openBase":
-			activateTabWithURL(base+"/");
-		break;
-		case "findUser":
-			performUserSearch(message.message);
+		case "openTab":
+			activateTabWithURL(message.message);
 		break;
 		case "userSeen":
 			panel.lenientMessage("userOnline", message.message);
@@ -145,18 +142,6 @@ function hidePopover(name)
 			popovers[i].hide();
 		}
 	}
-}
-
-function performUserSearch(user)
-{
-	var id = parseInt(user);
-	var url;
-	if(id) {
-		url = base+"/auswertung/setcard/index.php?set="+id;
-	} else {
-		url = base+"/search/index.php?action=execute&searchType=direct&directMode=userName&directValue="+user;
-	}
-	activateTabWithURL(url);
 }
 
 function validateToolbarItems()

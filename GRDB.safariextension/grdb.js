@@ -5,9 +5,11 @@ var mailbutton=[];
 var contactbutton=[];
 var visitorbutton=[];
 var lastView, lastButton, lastRow;
-var base, pbase, today;
-var mailHandler, contactHandler, visitHandler;
-var userOnlineMap, userPicMap;
+var base, cbase, pbase, today;
+var mailHandler = {};
+var contactHandler;
+var visitHandler;
+var userOnlineMap = {}, userPicMap = {};
 
 var visitIcons = {
 	10:"like", 11:"like", 13:"like", 14:"like", 15:"like", 16:"like", 17:"like", 19:"like", 31:"like", 42:"like", 47:"like", 50:"like", 51:"like", 52:"like", 53:"like",
@@ -22,33 +24,6 @@ var visitIcons = {
 
 var VISITS = "grdb_visits";
 
-if(window.safari) {
-safari.self.addEventListener("message", function(message) {
-	switch(message.name) {
-		case "fetchMails":
-			if(message.message) {
-				base = message.message;
-			}
-			fetchMails();
-		break;
-		case "fetchContacts":
-			if(message.message) {
-				base = message.message;
-			}
-			fetchContacts();
-		break;
-		case "fetchVisitors":
-			if(message.message) {
-				base = message.message;
-			}
-			fetchVisitors();
-		break;
-		case "userOnline":
-			userOnlineMap[message.message[0]] = message.message[1];
-		break;
-	}
-}, false);
-}
 
 function fetchURL_didFetch_error(url, didFetchFunc, errorFunc)
 {
@@ -100,12 +75,21 @@ function clearNodeElements(node)
 }
 
 function absAttr(node, attr)
-	{
+{
 	for(var val=0; node; node = node.offsetParent) {
 		val += node[attr];
-		}
-	return val;
 	}
+	return val;
+}
+
+function openWindow(url)
+{
+	if(window.safari) {
+		safari.self.tab.dispatchMessage("openTab", url);
+	} else {
+		window.open(url);
+	}
+}
 
 // -
 
@@ -422,6 +406,9 @@ function appendThreadRow(id, name)
 
 function setBadge(node, cont)
 {
+	if(!node) {
+		return;
+	}
 	clearNodeElements(node);
 	if(cont) {
 		node.appendChild(create("span",cont,"badge"));
@@ -1226,7 +1213,15 @@ function showThreads(event)
 function findUsers(event)
 {
 	event.preventDefault();
-	safari.self.tab.dispatchMessage("findUser", event.target[0].value);
+	var query = event.target[0].value;
+	var url;
+
+	if(id = parseInt(query)) {
+		url = base+"/auswertung/setcard/index.php?set="+id;
+	} else {
+		url = base+"/search/index.php?action=execute&searchType=direct&directMode=userName&directValue="+query;
+	}
+	openWindow(url);
 }
 
 function applyFilter(event, list, filter, button, func)
@@ -1260,10 +1255,24 @@ function filterVisitors(event, filter)
 
 function home()
 {
-	if(window.safari) {
-		safari.self.tab.dispatchMessage("openBase");
-	} else {
-		window.open(base);
+	openWindow(base+"/");
+}
+
+function initViews()
+{
+	lastView = maillist;
+	threadlist.style.display = "none";
+	contactlist.style.display = "none";
+	visitorlist.style.display = "none";
+	lastButton = mailbutton[0];
+	if(mailbutton[1]) {
+		lastRow = mailbutton[1];
+	}
+	if(contactbutton[1]) {
+		contactbutton[1].parentElement.style.display = "none";
+	}
+	if(visitorbutton[1]) {
+		visitorbutton[1].parentElement.style.display = "none";
 	}
 }
 
@@ -1293,18 +1302,36 @@ function init()
 
 	info = document.getElementById("info");
 
-	mailHandler = {};
-	userOnlineMap = {};
-	userPicMap = {};
 	pbase = "http://s.gayromeo.com/img/usr/";
 	userPic = document.getElementById("userpic");
 
-	lastView = maillist;
-	contactlist.style.display = "none";
-	visitorlist.style.display = "none";
-	threadlist.style.display = "none";
-	lastButton = mailbutton[0];
-	lastRow = mailbutton[1];
-	contactbutton[1].parentElement.style.display = "none";
-	visitorbutton[1].parentElement.style.display = "none";
+	initViews();
+}
+
+if(window.safari) {
+safari.self.addEventListener("message", function(message) {
+	switch(message.name) {
+		case "fetchMails":
+			if(message.message) {
+				base = message.message;
+			}
+			fetchMails();
+		break;
+		case "fetchContacts":
+			if(message.message) {
+				base = message.message;
+			}
+			fetchContacts();
+		break;
+		case "fetchVisitors":
+			if(message.message) {
+				base = message.message;
+			}
+			fetchVisitors();
+		break;
+		case "userOnline":
+			userOnlineMap[message.message[0]] = message.message[1];
+		break;
+	}
+}, false);
 }

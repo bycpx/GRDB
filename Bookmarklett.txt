@@ -1,0 +1,1 @@
+var b="http://example.com/";window.open("").document.write("<!DOCTYPE html><script>cbase=\""+b+"\";</script><script src=\""+b+"boot.js\" charset=\"UTF-8\"></script>")
