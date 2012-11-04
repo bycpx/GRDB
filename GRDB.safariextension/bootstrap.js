@@ -3,7 +3,7 @@
 
 base = window.location.href;
 
-document.write('<link rel="stylesheet" type="text/css" href="'+cbase+'grdb.css" media="screen" /><meta name="viewport" content="width=device-width" /><base href="'+cbase+'" />');
+document.write('<link rel="stylesheet" type="text/css" href="'+cbase+'grdb.css" media="screen" /><meta name="viewport" content="width=700" /><base href="'+cbase+'" />');
 document.write("<body></body>");
 
 var b = document.body;
@@ -29,7 +29,9 @@ visitorlist.setAttribute("id","visitors");
 userPic = b.appendChild(create("img"));
 userPic.setAttribute("id","userpic");
 info = b.appendChild(create("footer","GRDB to go."));
+info.setAttribute("style","margin-left:0");
 
 pbase = "http://s.gayromeo.com/img/usr/";
 
 initViews();
+fetchMails();
