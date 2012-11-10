@@ -18,7 +18,9 @@ header {
 	margin:		0 0 1em 0;
 	min-height:		48px;
 	color:		#555;
-	background:	#bbb -webkit-gradient(linear, 0% 0%, 0% 100%, from(#ccc), to(#aaa));
+	background:	#bbb;
+	background-image: -webkit-linear-gradient(top, #ccc, #aaa);
+	background-image: -moz-linear-gradient(top, #ccc, #aaa);
 	text-shadow: #fff 0 1px 0;
 	border-top:	thin solid #eee;
 	border-bottom: thin solid #666;
@@ -76,7 +78,9 @@ header h2 {
 	text-align:	center;
 	border-radius: 24px;
 	
-	background:	#aaa -webkit-gradient(linear, 0% 0%, 0% 100%, from(#def), to(#89a));
+	background:	#aaa;
+	background-image: -webkit-linear-gradient(top, #def, #89a);
+	background-image: -moz-linear-gradient(top, #def, #89a);
 	border:		1px solid #666;
 	box-shadow:	#fff 0 1px 0;
 }
@@ -108,14 +112,17 @@ header nav a:hover {
 
 header nav a.act {
 	color:		#333;
-	background:	-webkit-gradient(linear, 0% 0%, 0% 100%, from(rgba(255,255,255,0.75)), to(rgba(255,255,255,0)));
+	background:	-webkit-linear-gradient(top, rgba(255,255,255, 0.75), rgba(255,255,255, 0));
+	background:	-moz-linear-gradient(top, rgba(255,255,255, 0.75), rgba(255,255,255, 0));
 }
 
 header nav a span.badge {
 	display:	inline-block;
 	margin:		0 0 0 0.5em;
 	padding:	0 0.4em;
-	background:	#aaa -webkit-gradient(linear, 0% 0%, 0% 100%, from(#888), to(#aaa));
+	background:	#aaa;
+	background-image: -webkit-linear-gradient(top, #888, #aaa);
+	background-image: -moz-linear-gradient(top, #888, #aaa);
 	color:		#fff;
 	text-align:	center;
 	font-weight: bold;
@@ -127,7 +134,9 @@ header nav a span.badge {
 }
 
 header nav a.act span.badge {
-	background:	#1af -webkit-gradient(linear, 0% 0%, 0% 100%, from(#26a), to(#1af));
+	background:	#1af;
+	background-image: -webkit-linear-gradient(top, #26a, #1af);
+	background-image: -moz-linear-gradient(top, #26a, #1af);
 }
 
 aside {
@@ -146,7 +155,8 @@ aside:after {
 	bottom:		0;
 	left:		0;
 	content:	"";
-	background:	-webkit-gradient(linear, 0% 0%, 0% 100%, from(rgba(255,255,255,0)), to(#fff));
+	background:	-webkit-linear-gradient(top, rgba(255,255,255, 0), #fff);
+	background:	-moz-linear-gradient(top, rgba(255,255,255, 0), #fff);
 	height:		50px;
 	width:		141px;
 }
@@ -340,7 +350,7 @@ div.action a {
 }
 
 div.action a:hover {
-	background-position-y: -16px;
+	background-position: center -16px;
 }
 
 ul h2 {
@@ -390,7 +400,7 @@ h2 a[data-online="-2"] {
 }
 
 h2 a[data-online]:hover {
-	background-position-y: -16px;
+	background-position: 100% -16px;
 }
 
 #mails li.sent h3 {
