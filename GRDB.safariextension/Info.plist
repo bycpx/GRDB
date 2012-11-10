@@ -30,7 +30,7 @@
 				<key>Identifier</key>
 				<string>GRDBPopover</string>
 				<key>Width</key>
-				<real>140</real>
+				<real>150</real>
 			</dict>
 		</array>
 		<key>Toolbar Items</key>

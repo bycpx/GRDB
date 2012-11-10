@@ -66,7 +66,7 @@ safari.application.addEventListener("message", function(message) {
 		break;
 		case "contactCountDidChange":
 			hasSession = true;
-			postNewNotification(message.message, "Favourite", "Favourites", "contact", showContacts);
+			postNewNotification(message.message, "Favourite", "Favourites", "contact", showContacts, true);
 		break;
 		case "updateContactCount":
 			updateCount("contact", message.message);
@@ -196,7 +196,7 @@ function updateCount(tag, newCount)
 	closeNotification(tag);
 }
 
-function postNewNotification(newCount, type, types, tag, func)
+function postNewNotification(newCount, type, types, tag, func, dodiff)
 {
 	var diff = newCount - count[tag];
 	count[tag] = newCount;
@@ -204,7 +204,7 @@ function postNewNotification(newCount, type, types, tag, func)
 	if(diff > 0) {
 		var neu = count[tag] - seenCount[tag];
 		postNotification(neu + " New " + (neu==1?type:types), "Overall " + count[tag] + " " + (count[tag]==1?type:types) + ".", tag, func);
-	} else if(diff == 0) {
+	} else if(dodiff || diff == 0) {
 		// Noop
 	} else {
 		updateCount(tag, newCount);

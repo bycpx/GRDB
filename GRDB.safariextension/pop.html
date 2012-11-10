@@ -6,7 +6,7 @@
 body {
 	margin:		4px 8px;
 	font:		14px/20px 'Lucida Grande', sans-serif;
-	width:		124px;
+	width:		134px;
 }
 
 h1 {
@@ -39,6 +39,7 @@ ul {
 
 li {
 	text-shadow: #fff 0 1px 0;
+	overflow:	hidden;
 }
 
 li[onclick], h1[onclick] {
@@ -53,7 +54,7 @@ li span {
 	float:		right;
 }
 
-li span[data-new]:before {
+li span[data-add]:before, li span[data-sub]:before {
 	display:	inline-block;
 	min-width:	0.8em;
 	margin:		2px 1px 0 0;
@@ -61,11 +62,19 @@ li span[data-new]:before {
 	font:		bold 12px/14px Helvetica, sans-serif;
 	text-align:	center;
 	color:		#fff;
-	background:	#8ae;
 	text-shadow: rgba(0,0,0, 0.25) 0 1px 0;
-	content:	attr(data-new);
 	border-radius: 1em 0 0 1em;
 	box-shadow:	rgba(0,0,0, 0.25) 0 1px 0 inset, #fff 0 1px 0;
+}
+
+li span[data-add]:before {
+	background:	#8ae;
+	content:	"+" attr(data-add);
+}
+
+li span[data-sub]:before {
+	background:	#ea8;
+	content:	"−" attr(data-sub);
 }
 
 li span[data-count]:after {
@@ -83,14 +92,18 @@ li span[data-count]:after {
 	box-shadow:	rgba(0,0,0, 0.25) 0 1px 0 inset, #fff 0 1px 0;
 }
 
-li span[data-new][data-count]:after {
+li span[data-add][data-count]:after, li span[data-sub][data-count]:after {
 	min-width:	0.8em;
 	padding:	0.1em 0.5em 0.1em 0.35em;
 	border-radius: 0 1em 1em 0;
 }
 
-li:hover span:before {
+li:hover span[data-add]:before {
 	background:	#68d;
+}
+
+li:hover span[data-sub]:before {
+	background:	#d86;
 }
 
 li:hover span:after {
@@ -116,10 +129,15 @@ function nn(val)
 function setBadges(node, count, diff)
 {
 	node.setAttribute("data-count", nn(count));
-	if(diff) {
-		node.setAttribute("data-new", diff);
+	if(diff>0) {
+		node.setAttribute("data-add", diff);
+		node.removeAttribute("data-sub");
+	} else if(diff<0) {
+		node.removeAttribute("data-add");
+		node.setAttribute("data-sub", -diff);
 	} else {
-		node.removeAttribute("data-new");
+		node.removeAttribute("data-add");
+		node.removeAttribute("data-sub");
 	}
 }
 
@@ -158,7 +176,7 @@ function showVisitors()
 <h1 id="home" data-stat="0" onclick="openHome()">GRDB</h1>
 <ul class="on">
 <li onclick="showMails()">Messages<span id="messages" data-count="--"></span></li>
-<li onclick="showContacts()">Contacts<span id="contacts" data-new="2" data-count="--"></span></li>
+<li onclick="showContacts()">Contacts<span id="contacts" data-count="--"></span></li>
 <li onclick="showVisitors()">Visitors<span id="visitors" data-count="--"></span></li>
 </ul>
 </body>
