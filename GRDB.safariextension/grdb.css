@@ -261,7 +261,7 @@ ul li {
 	border-top: thin solid #fff;
 }
 
-ul li:first-child {
+#mails li:first-child {
 	border-top: none;
 }
 
@@ -292,27 +292,34 @@ ul li:first-child {
 
 #mails li.sent {
 	padding:	0 0 0 3em;
+}
+
+#mails li.sent,
+li.sent.drop {
 	background:	#d8d0dd;
+}
+
+#mails li.sent:nth-child(2n),
+.double li.sent.drop:nth-child(4n+2), .double li.sent.drop:nth-child(4n+3) {
+	background:	#e9e1ee;
 }
 
 #mails li.recv + li.sent,
 #mails li.recv + li.sent.mini + li.sent,
-#mails li.recv + li.sent.mini + li.sent + li.sent {
-	border-top:	none;
+#mails li.recv + li.sent.mini + li.sent + li.sent,
+.double li.sent.drop:nth-child(1), .double li.sent.drop:nth-child(2),
+.double li.recv + li + li.sent.drop {
 	box-shadow: rgba(0,0,0, 0.25) 0 1px 2px inset;
 }
 
-#mails li.sent + li.recv {
+#mails li.sent + li.recv,
+.double li.sent.drop + li + li.recv {
 	box-shadow: rgba(0,0,0, 0.25) 0 0 2px;
 }
 
 #mails li.mini.sent {
 	border-top:	thin solid #fff;
 	width:		12.9em;
-}
-
-#mails li.sent:nth-child(2n) {
-	background:	#e9e1ee;
 }
 
 #mails li[data-msg]:hover {
@@ -480,7 +487,7 @@ li.drop {
 	color:		#999;
 }
 
-#mails li.sent.drop {
+li.sent.drop {
 	color:		#878;
 }
 
