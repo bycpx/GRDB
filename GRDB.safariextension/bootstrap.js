@@ -12,6 +12,8 @@ el = el.appendChild(create("nav"));
 mailbutton[0] = el.appendChild(create("a", "Messages"));
 mailbutton[0].onclick = fetchMails;
 mailbutton[0].setAttribute("class","act");
+mailbutton[4] = el.appendChild(create("a", "Threads"));
+mailbutton[4].onclick = showThreads;
 contactbutton[0] = el.appendChild(create("a", "Contacts"));
 contactbutton[0].onclick = fetchContacts;
 visitorbutton[0] = el.appendChild(create("a", "Visitors"));

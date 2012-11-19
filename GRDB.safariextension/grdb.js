@@ -1196,7 +1196,11 @@ function fetchNextVisitPage(html, regex, isGiven)
 
 function showThreads(event)
 {
-	switchView(threadlist, mailbutton[0], mailbutton[4]);
+	if(mailbutton[1]) {
+		switchView(threadlist, mailbutton[0], mailbutton[4]);
+	} else {
+		switchView(threadlist, mailbutton[4]);
+	}
 	clearNode(threadlist);
 
 	var t = mailHandler["threads"];
