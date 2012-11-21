@@ -95,7 +95,7 @@ ul li img {
 
 <img id="logo" src="Icon-64.png" alt="GRDB" />
 <h3><a name="what"></a>GRDB <small>
-Version 2.3.2
+Version 2.4
 </small></h3>
 <p>A Useless Safari extension.</p>
 
@@ -104,13 +104,12 @@ List messages, contacts, and visitors in a more concise and clear way.
 </p>
 
 <h3><a name="new"></a>New in this Version</h3>
+<p>Expand actions for list items.</p>
 
-<p>Prepare standalone usage as bookmarklett</p>
-<p>Contacts with multiline notes are displayed as expected.</p>
-
-<h4>Since Version 2.3</h4>
+<h4>Included in Version 2.3</h4>
 <p>This about page.</p>
 <p>Count of new items in popover.</p>
+<p>Posibility for standalone usage as bookmarklett.</p>
 
 <h3><a name="button"></a>Toolbar Button</h3>
 <img src="grdb.png" class="aside" />
@@ -140,18 +139,18 @@ This dummy list explains the meaning of the different elements of the message li
 </p>
 
 <ul id="mails">
-<li class="recv" data-msg="1"><div class="action"><a style="background-image: url(i/hist.png);" title="History" target="_blank">⇄</a></div><h2><a>Sender of the message</a></h2><h3 data-age="new">Time of reception</h3><p>Preview of the received message</p></li>
+<li class="recv" data-msg="1"><div class="action"><a style="background-image:url(i/hist.png);" title="History">⇄</a><a style="background-image:url(i/more.png);" title="More">»</a></div><h2><a>Sender of the message</a></h2><h3 data-age="new">Time of reception</h3><p>Preview of the received message</p></li>
 <li class="recv" data-msg="1"><h3>Some time earlier</h3><p>Follow-Up from the same sender as the message above</p></li>
-<li class="recv" data-msg="1"><div class="action"><a style="background-image: url(i/hist.png);" title="History" target="_blank">⇄</a></div><h2><a>Sender</a></h2><h3 data-att="-" data-age="new">Time of reception</h3><p>Received message with attachments</p></li>
-<li class="recv drop" data-msg="1"><div class="action"><a style="background-image: url(i/hist.png);" title="History" target="_blank">⇄</a></div><h2><a>Sender</a></h2><h3>Time of reception</h3><p>A message you read but didn’t answer</p></li>
-<li class="sent"><div class="action"><a style="background-image: url(i/hist.png);" title="History" target="_blank">⇄</a><a style="background-image: url(i/reply.png); " title="Message" target="_blank">R</a></div><h2><a>Recipient of the message</a></h2><h3 data-age="new">Time of delivery</h3><p>Preview of the message you sent</p></li>
-<li class="sent"><div class="action"><a style="background-image: url(i/hist.png);" title="History" target="_blank">⇄</a><a style="background-image: url(i/reply.png); " title="Message" target="_blank">R</a></div><h2><a>Recipient</a></h2><h3 data-att="-">Time of delivery</h3><p>Sent message with attachments</p></li>
-<li class="sent drop"><div class="action"><a style="background-image: url(i/hist.png);" title="History" target="_blank">⇄</a><a style="background-image: url(i/reply.png); " title="Message" target="_blank">R</a></div><h2><a>Recipient</a></h2><h3>Time of delivery</h3><p>A message the recipient read but didn’t answer</p></li>
-<li class="recv" data-msg="1"><div class="action"><a style="background-image: url(i/hist.png);" title="History" target="_blank">⇄</a></div><h2><a>Sender</a></h2><h3 data-age="due">Time of reception</h3><p>When received more than 10 days ago, the date turns red</p></li>
-<li class="sent"><div class="action"><a style="background-image: url(i/hist.png);" title="History" target="_blank">⇄</a><a style="background-image: url(i/reply.png); " title="Message" target="_blank">R</a></div><h2><a>Recipient</a></h2><h3 data-age="due">Time of delivery</h3><p>When sent more than 3 days ago, the date turns red</p></li>
-<li class="sent drop mini"><div class="action"><a style="background-image: url(i/hist.png);" title="History" target="_blank">⇄</a><a style="background-image: url(i/reply.png); " title="Message" target="_blank">R</a></div><h2><a>Other Recepients</a></h2><p>…</p></li>
-<li class="sent drop mini"><div class="action"><a style="background-image: url(i/hist.png);" title="History" target="_blank">⇄</a><a style="background-image: url(i/reply.png); " title="Message" target="_blank">R</a></div><h2><a>who didn’t</a></h2><p>…</p></li>
-<li class="sent drop mini"><div class="action"><a style="background-image: url(i/hist.png);" title="History" target="_blank">⇄</a><a style="background-image: url(i/reply.png); " title="Message" target="_blank">R</a></div><h2><a>answer messages</a></h2><p>…</p></li>
+<li class="recv" data-msg="1"><div class="action"><a style="background-image:url(i/hist.png);" title="History">⇄</a><a style="background-image:url(i/more.png);" title="More">»</a></div><h2><a>Sender</a></h2><h3 data-att="-" data-age="new">Time of reception</h3><p>Received message with attachments</p></li>
+<li class="recv drop" data-msg="1"><div class="action"><a style="background-image:url(i/hist.png);" title="History">⇄</a><a style="background-image:url(i/more.png);" title="More">»</a></div><h2><a>Sender</a></h2><h3>Time of reception</h3><p>A message you read but didn’t answer</p></li>
+<li class="sent"><div class="action"><a style="background-image:url(i/hist.png);" title="History">⇄</a><a style="background-image:url(i/more.png);" title="More">»</a><a style="background-image: url(i/reply.png); " title="Message">R</a></div><h2><a>Recipient of the message</a></h2><h3 data-age="new">Time of delivery</h3><p>Preview of the message you sent</p></li>
+<li class="sent"><div class="action"><a style="background-image:url(i/hist.png);" title="History">⇄</a><a style="background-image:url(i/more.png);" title="More">»</a><a style="background-image: url(i/reply.png);" title="Message">R</a></div><h2><a>Recipient</a></h2><h3 data-att="-">Time of delivery</h3><p>Sent message with attachments</p></li>
+<li class="sent drop"><div class="action"><a style="background-image:url(i/hist.png);" title="History">⇄</a><a style="background-image:url(i/more.png);" title="More">»</a><a style="background-image: url(i/reply.png);" title="Message">R</a></div><h2><a>Recipient</a></h2><h3>Time of delivery</h3><p>A message the recipient read but didn’t answer</p></li>
+<li class="recv" data-msg="1"><div class="action"><a style="background-image:url(i/hist.png);" title="History">⇄</a><a style="background-image:url(i/more.png);" title="More">»</a></div><h2><a>Sender</a></h2><h3 data-age="due">Time of reception</h3><p>When received more than 10 days ago, the date turns red</p></li>
+<li class="sent"><div class="action"><a style="background-image:url(i/hist.png);" title="History">⇄</a><a style="background-image:url(i/more.png);" title="More">»</a><a style="background-image: url(i/reply.png);" title="Message">R</a></div><h2><a>Recipient</a></h2><h3 data-age="due">Time of delivery</h3><p>When sent more than 3 days ago, the date turns red</p></li>
+<li class="sent drop mini"><div class="action"><a style="background-image:url(i/hist.png);" title="History">⇄</a><a style="background-image:url(i/more.png);" title="More">»</a><a style="background-image: url(i/reply.png);" title="Message">R</a></div><h2><a>Other Recepients</a></h2><p>…</p></li>
+<li class="sent drop mini"><div class="action"><a style="background-image:url(i/hist.png);" title="History">⇄</a><a style="background-image:url(i/more.png);" title="More">»</a><a style="background-image: url(i/reply.png);" title="Message">R</a></div><h2><a>who didn’t</a></h2><p>…</p></li>
+<li class="sent drop mini"><div class="action"><a style="background-image:url(i/hist.png);" title="History">⇄</a><a style="background-image:url(i/more.png);" title="More">»</a><a style="background-image: url(i/reply.png);" title="Message">R</a></div><h2><a>answer messages</a></h2><p>…</p></li>
 </ul>
 
 <p>
@@ -162,14 +161,26 @@ Offline contacts appear grey, while online contacts and favourites appear black 
 
 <p>
 In the visitor list, black entries are profiles you visited and who visited you.
-Visitors you haven’t visited back appear blue.
-Profiles you visited but who didn’t visit you appear grey.
+New visitors you haven’t visited back appear blue.
+</p>
+
+<ul id="visitors" class="double">
+<li class="recv new"><div class="action"><a style="background-image:url(i/pin.png);" title="Pin">P</a><a style="background-image:url(i/more.png);" title="More">»</a></div><h3 data-age="new" title="Footprint">Date of visit</h3><h2><a>New Visitor</a></h2></li>
+<li class="recv"><div class="action"><a style="background-image:url(i/pin.png);" title="Pin">P</a><a style="background-image:url(i/more.png);" title="More">»</a></div><h3 data-recv="2">Date of visit</h3><h2><a>Visitor you visited back</a></h2></li>
+<li class="sent drop"><div class="action"><a style="background-image:url(i/pin.png);" title="Pin">P</a><a style="background-image:url(i/more.png);" title="More">»</a></div><h3 data-give="2">Date of your visit</h3><h2><a>You visited</a></h2></li>
+<li class="sent drop"><div class="action"><a style="background-image:url(i/pin.png);" title="Pin">P</a><a style="background-image:url(i/more.png);" title="More">»</a></div><h3 data-age="due">Date of your visit</h3><h2><a>Didn’t visit you</a></h2></li>
+<li class="recv new"><div class="action"><a style="background-image:url(i/pin.png);" title="Pin">P</a><a style="background-image:url(i/more.png);" title="More">»</a></div><h3 data-age="due">Date of visit</h3><h2><a>User you didn’t visit back</a></h2></li>
+<li class="sent drop"><div class="action"><a style="background-image:url(i/pin_hi.png);" title="Pin">P</a><a style="background-image:url(i/more.png);" title="More">»</a></div><h3>??.??. ??:??</h3><h2><a>Pinned user</a></h2></li>
+</ul>
+
+<p>
+You can pin visitors to your list.
+So they keep being displayed in this list even after they disappear from the website visitor list.
 </p>
 
 <p>
-You can hover over some elements to display further information.
-
-Profile picture, Visitor stats, footprint title, message age, contact note.
+Hover over some elements to display further information.
+Such as profile picture, user stats, footprint title, message age, or contact note.
 </p>
 
 <h3><a name="icons"></a>Icons</h3>
@@ -192,6 +203,10 @@ Click them to perform the described action.
 <li><img src="i/reply.png" alt="Reply" />Compose follow-up on sent message</li>
 <li><img src="i/msg.png" alt="Message" />Compose new message</li>
 <li><img src="i/msg_hi.png" alt="Message" />Read latest message from user</li>
+<li><img src="i/more.png" alt="More" />Show more actions</li>
+<li><img src="i/profile.png" alt="Edit Contact" />Save or edit contact</li>
+<li><img src="i/album.png" alt="Show Album" style="margin-top:0.3em;" />Show picturea album</li>
+<li><img src="i/footprint.png" alt="Footprint" />Leave a footprint</li>
 <li><img src="i/pin.png" alt="Pin" />Keep visitor in list</li>
 <li><img src="i/pin_hi.png" alt="Pin" />No longer keep visitor in list</li>
 </ul>
