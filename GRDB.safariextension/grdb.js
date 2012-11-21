@@ -117,12 +117,31 @@ function createUserLink(id, name, info)
 	return link;
 }
 
+function createMoreLink()
+{
+	var link = create("a", "»");
+	link.addEventListener("click",moreAction,false);
+	link.style.backgroundImage = "url(i/more.png)";
+	link.setAttribute("title","More");
+	return link;
+}
+
 function createHistoryLink(id, conv)
 {
 	var link = create("a", "⇄");
 	link.setAttribute("href",base+"/msg/history.php?uid="+id+"#lastmessage");
 	link.style.backgroundImage = conv ? "url(i/hist_hi.png)" : "url(i/hist.png)";
 	link.setAttribute("title","History");
+	link.setAttribute("target","_blank");
+	return link;
+}
+
+function createMailThreadLink(id)
+{
+	var link = create("a","→");
+	link.setAttribute("href",base+"/msg/history_email.php?uid="+id);
+	link.style.backgroundImage = "url(i/ffwd.png)";
+	link.setAttribute("title","Forward via E-Mail");
 	link.setAttribute("target","_blank");
 	return link;
 }
@@ -137,10 +156,40 @@ function createMsgLink(id, msgID, sent)
 		link.style.backgroundImage = "url(i/msg_hi.png)";
 		link.setAttribute("title","Read Message");
 	} else {
+		link.addEventListener("click", handlePanelClick, false);
 		link.style.backgroundImage = sent?"url(i/reply.png)":"url(i/msg.png)";
 		link.setAttribute("title","Message");
 	}
+	return link;
+}
+
+function createAlbumLink(id)
+{
+	var link = create("a", "A");
+	link.setAttribute("href",base+"/auswertung/album/?set="+id);
+	link.style.backgroundImage = "url(i/album.png)";
+	link.setAttribute("title","Show Picture Album");
 	link.setAttribute("target","_blank");
+	return link;
+}
+
+function createEditContactLink(id)
+{
+	var link = create("a", "E");
+	link.setAttribute("href",base+"/gemeinsam/php/myuser/?partnerId="+id);
+	link.addEventListener("click", handlePanelClick, false);
+	link.style.backgroundImage = "url(i/profile.png)";
+	link.setAttribute("title","Edit Contact");
+	return link;
+}
+
+function createFootprintLink(id)
+{
+	var link = create("a", "F");
+	link.setAttribute("href",base+"/auswertung/setcard/romeo/footprint.php?receiverId="+id+"&cameFrom=profile");
+	link.addEventListener("click", handlePanelClick, false);
+	link.style.backgroundImage = "url(i/footprint.png)";
+	link.setAttribute("title","Footprint");
 	return link;
 }
 
@@ -256,11 +305,24 @@ function appendMailRow(senderID, sender, msgID, subject, datetime, timestamp, ha
 		link = createHistoryLink(senderID);
 		link.addEventListener("click", onlyThis, false);
 		cell.appendChild(link);
+		cell.appendChild(createMoreLink());
 		if(sent) {
 			link = createMsgLink(senderID, null, true);
 			link.addEventListener("click", onlyThis, false);
 			cell.appendChild(link);
 		}
+		link = createAlbumLink(senderID);
+		link.addEventListener("click", onlyThis, false);
+		cell.appendChild(link);
+		link = createFootprintLink(senderID, null, sent);
+		link.addEventListener("click", onlyThis, false);
+		cell.appendChild(link);
+		link = createEditContactLink(senderID);
+		link.addEventListener("click", onlyThis, false);
+		cell.appendChild(link);
+		link = createMailThreadLink(senderID);
+		link.addEventListener("click", onlyThis, false);
+		cell.appendChild(link);
 		row.appendChild(cell);
 
 		cell = create("h2");
@@ -305,7 +367,11 @@ function appendContactRow(id, name, info, timestamp, age, state, online, msgID, 
 	cell = create("div");
 	cell.setAttribute("class","action");
 	cell.appendChild(createMsgLink(id, msgID));
+	cell.appendChild(createMoreLink());
 	cell.appendChild(createHistoryLink(id, msgID));
+	cell.appendChild(createAlbumLink(id));
+	cell.appendChild(createFootprintLink(id));
+	cell.appendChild(createEditContactLink(id));
 	row.appendChild(cell);
 	cell = create("h3",state);
 	klasse = isFav?"fav":"";
@@ -347,7 +413,11 @@ function appendVisitorRow(id, name, datetime, timestamp, receivedID, received, g
 	cell = create("div");
 	cell.setAttribute("class","action");
 	cell.appendChild(createPin(id, name, givenID, given, sticky));
+	cell.appendChild(createMoreLink());
 	cell.appendChild(createHistoryLink(id, msgID));
+	cell.appendChild(createAlbumLink(id));
+	cell.appendChild(createFootprintLink(id));
+	cell.appendChild(createEditContactLink(id));
 	row.appendChild(cell);
 	if(timestamp) {
 		cell = create("h3", datetime.replace(/-/," "));
@@ -393,14 +463,14 @@ function appendThreadRow(id, name)
 	var row = create("li");
 	cell = create("div");
 	cell.setAttribute("class","action");
-	link = create("a","→");
-	link.setAttribute("href",base+"/msg/history_email.php?uid="+id);
-	link.style.backgroundImage = "url(i/ffwd.png)";
-	link.setAttribute("title","Forward via E-Mail");
-	link.setAttribute("target","_blank");
+	link = createMailThreadLink(id);
 	link.addEventListener("click", markLow, false);
 	cell.appendChild(link);
+	cell.appendChild(createMoreLink());
 	cell.appendChild(createHistoryLink(id));
+	cell.appendChild(createAlbumLink(id));
+	cell.appendChild(createFootprintLink(id));
+	cell.appendChild(createEditContactLink(id));
 	row.appendChild(cell);
 	cell = create("h2");
 	cell.appendChild(createUserLink(id, name));
@@ -476,6 +546,12 @@ function handleMailClick(event)
 	event.preventDefault();
 }
 
+function handlePanelClick(event)
+{
+	window.open(this.getAttribute("href"), null, "width=336,height=450,scrollbars=yes");
+	event.preventDefault();
+}
+
 function handleProfileClick(event)
 {
 	window.open(this.getAttribute("href"), null, "width=470,height=590,scrollbars=yes");
@@ -527,6 +603,13 @@ function hideUserPic(event)
 {
 	userPic.showTimer = userPic.showTimer && clearTimeout(userPic.showTimer);
 	userPic.hideTimer = setTimeout(function() { userPic.style.display = "none"; }, 500);
+}
+
+function moreAction(event)
+{
+	event.stopPropagation();
+	this.setAttribute("style","display:none;");
+	this.parentElement.setAttribute("class","action more");
 }
 
 function markLow(event)

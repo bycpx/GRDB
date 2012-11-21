@@ -257,7 +257,7 @@ ul a:hover {
 ul li {
 	overflow:	hidden;
 	line-height: 1.75em;
-	padding:	0 0 0 2em;
+	padding:	0 0 0 3em;
 	border-top: thin solid #fff;
 }
 
@@ -267,13 +267,11 @@ ul li {
 
 .double li {
 	width:		21em;
-	padding:	0 0 0 3em;
 	float:		left;
 }
 
 .triple li {
 	width:		13em;
-	padding:	0 0 0 3em;
 	float:		left;
 }
 
@@ -286,12 +284,12 @@ ul li {
 
 #mails li.mini {
 	float:		left;
-	width:		14em;
+	width:		12.9em;
 	border-left: thin solid #fff;
 }
 
 #mails li.sent {
-	padding:	0 0 0 3em;
+	padding:	0 0 0 4em;
 }
 
 #mails li.sent,
@@ -319,7 +317,11 @@ li.sent.drop {
 
 #mails li.mini.sent {
 	border-top:	thin solid #fff;
-	width:		12.9em;
+	width:		11.95em;
+}
+
+#mails li.sent + li.mini.recv {
+	box-shadow:	none;
 }
 
 #mails li[data-msg]:hover {
@@ -335,14 +337,21 @@ ul div.action {
 	float:		left;
 	margin:		0 0 0 -3em;
 	width:		3em;
+	height:		1.75em;
 	text-align:	center;
-	color:		#888;
-	font-weight: bold;
 }
 
-#mails li.recv div.action  {
-	margin:		0 0 0 -2em;
-	width:		2em;
+#mails li.sent div.action  {
+	margin:		0 0 0 -4em;
+	width:		4em;
+}
+
+div.action.more {
+	width:		6.6em;
+}
+
+#mails li.sent div.action.more {
+	width:		7.8em;
 }
 
 div.action a {
@@ -350,9 +359,10 @@ div.action a {
 	padding:	0;
 	width:		16px;
 	line-height: 16px;
-	text-indent: -10em;
+	text-indent: -5em;
 	background-position: center 0px;
 	background-repeat: no-repeat;
+	overflow:	hidden;
 	cursor:		pointer;
 }
 
