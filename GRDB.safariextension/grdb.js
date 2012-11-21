@@ -9,7 +9,7 @@ var base, cbase, pbase, today;
 var mailHandler = {};
 var contactHandler;
 var visitHandler;
-var userOnlineMap = {}, userPicMap = {};
+var userStatMap = {}, userOnlineMap = {}, userPicMap = {};
 
 var visitIcons = {
 	10:"like", 11:"like", 13:"like", 14:"like", 15:"like", 16:"like", 17:"like", 19:"like", 31:"like", 42:"like", 47:"like", 50:"like", 51:"like", 52:"like", 53:"like",
@@ -93,13 +93,17 @@ function openWindow(url)
 
 // -
 
-function createUserLink(id, name, stats)
+function createUserLink(id, name, info)
 {
 	var link = create("a", name);
 	link.setAttribute("href", base+"/auswertung/setcard/?set="+id);
-	link.setAttribute("target","_blank");
 	link.addEventListener("click", handleProfileClick, false);
-	if(stats) {
+	stats = userStatMap[id];
+	if(info && stats) {
+		link.setAttribute("title",info+"\n--\n"+stats);
+	} else if(info) {
+		link.setAttribute("title",info);
+	} else if(stats) {
 		link.setAttribute("title",stats);
 	}
 	if(pic = userPicMap[id]) {
@@ -202,7 +206,7 @@ function stripStats(stats)
 	var regex = /[0-9][0-9a-z'"]*/g;
 	var res = "";
 	for(var i=0; stat = regex.exec(cleanstats); i++) {
-		res = res + (i?" · ":'') + stat;
+		res = res + (i?" · ":"") + stat;
 	}
 	return res;
 }
@@ -324,7 +328,7 @@ function appendContactRow(id, name, info, timestamp, age, state, online, msgID, 
 	contactlist.appendChild(row);
 }
 
-function appendVisitorRow(id, name, stats, datetime, timestamp, receivedID, received, givenID, given, msgID, sticky)
+function appendVisitorRow(id, name, datetime, timestamp, receivedID, received, givenID, given, msgID, sticky)
 {
 	var cell, klasse;
 	var row = create("li");
@@ -378,7 +382,7 @@ function appendVisitorRow(id, name, stats, datetime, timestamp, receivedID, rece
 	}
 	row.appendChild(cell);
 	cell = create("h2");
-	cell.appendChild(createUserLink(id, name, stats));
+	cell.appendChild(createUserLink(id, name));
 	row.appendChild(cell);
 	visitorlist.appendChild(row);
 }
@@ -635,6 +639,7 @@ function prepareVisitor(item, tapex)
 	item[7] = null;
 	userPicMap[item[2]] = item[1];
 	userOnlineMap[item[2]] = item[6]=="0f0" ? 2 : item[6]=="ff0"?1:-1;
+	userStatMap[item[2]] = stripStats(item[4]);
 }
 
 function prepareContact(item, isFav)
@@ -926,7 +931,7 @@ function findVisits(html, isGiven)
 			while(i<rl && !(j<gl && r[i].timestamp<g[j].timestamp)) {
 				id = r[i][2];
 				item = index[id];
-				appendVisitorRow(id, r[i][3], stripStats(r[i][4]), r[i][5], r[i].timestamp, r[i][8], r[i][9], item ? item[8] : -1, item ? item[9] : null, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), item ? item[10] : 0);
+				appendVisitorRow(id, r[i][3], r[i][5], r[i].timestamp, r[i][8], r[i][9], item ? item[8] : -1, item ? item[9] : null, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), item ? item[10] : 0);
 				if(!item) {
 					neu++;
 				}
@@ -934,7 +939,7 @@ function findVisits(html, isGiven)
 			}
 			while(j<gl && !(i<rl && g[j].timestamp<r[i].timestamp)) {
 				if(id = g[j][2]) {
-					appendVisitorRow(id, g[j][3], stripStats(g[j][4]), g[j][5], g[j].timestamp, -1, null, g[j][8], g[j][9], newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), g[j][10]);
+					appendVisitorRow(id, g[j][3], g[j][5], g[j].timestamp, -1, null, g[j][8], g[j][9], newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), g[j][10]);
 					if(g[j].timestamp) {
 						ign++;
 					}
