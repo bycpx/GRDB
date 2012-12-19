@@ -261,10 +261,6 @@ ul li {
 	border-top: thin solid #fff;
 }
 
-#mails li:first-child {
-	border-top: none;
-}
-
 .double li {
 	width:		21em;
 	float:		left;
@@ -302,6 +298,7 @@ li.sent.drop {
 	background:	#e9e1ee;
 }
 
+#mails li.sent:first-child,
 #mails li.recv + li.sent,
 #mails li.recv + li.sent.mini + li.sent,
 #mails li.recv + li.sent.mini + li.sent + li.sent,

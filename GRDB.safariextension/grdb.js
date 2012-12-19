@@ -1118,7 +1118,7 @@ function fetchMails(event)
 			return;
 		}
 
-		regex = /set=(\d+)[^>]*>([^<]+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
+		regex = /set=(\d+)[^>]*>([^<]+)[^&]*&id=\d+[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
 		findMails(html, regex, 3);
 	}, function(status) {
 		noLogin(mailHandler);
@@ -1140,7 +1140,7 @@ function fetchMails(event)
 			setBadge(mailbutton[3], parseInt(item[1]));
 		}
 
-		regex = /set=(\d+)[^>]*>([^<]+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
+		regex = /set=(\d+)[^>]*>([^<]+)[^&]*&id=\d+[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
 		findMails(html, regex, 2);
 	}, function(status) {
 		noLogin(mailHandler);
