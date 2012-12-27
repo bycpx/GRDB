@@ -116,7 +116,7 @@ header nav a.act {
 	background:	-moz-linear-gradient(top, rgba(255,255,255, 0.75), rgba(255,255,255, 0));
 }
 
-header nav a span.badge {
+header span.badge {
 	display:	inline-block;
 	margin:		0 0 0 0.5em;
 	padding:	0 0.4em;
@@ -133,10 +133,46 @@ header nav a span.badge {
 	box-shadow:	rgba(0,0,0, 0.5) 0 1px 2px inset, #fff 0 1px 0;
 }
 
-header nav a.act span.badge {
+header span.diff {
+	margin:		0 1px 0 0.5em;
+	padding:	0 0.2em 0 0.4em;
+	border-radius: 1em 0 0 1em;
+}
+
+header span.add {
+	background:	#8ad;
+}
+
+header .add:before {
+	content:	"+";
+}
+
+header span.sub {
+	background:	#d9a;
+}
+
+header .sub:before {
+	content:	"−";
+}
+
+header span.diff + span.badge {
+	margin:		0;
+	padding:	0 0.4em 0 0.2em;
+	border-radius: 0 1em 1em 0;
+}
+
+header a.act span.badge {
 	background:	#1af;
 	background-image: -webkit-linear-gradient(top, #26a, #1af);
 	background-image: -moz-linear-gradient(top, #26a, #1af);
+}
+
+header a.act span.add {
+	background:	#1af;
+}
+
+header a.act span.sub {
+	background:	#d44;
 }
 
 aside {
@@ -181,7 +217,7 @@ aside nav a.act {
 	padding:	0 15px 0 12px;
 }
 
-aside nav a span.badge {
+aside span.badge {
 	float:		right;
 	margin:		5px 0 0 0;
 	padding:	0 0.3em;

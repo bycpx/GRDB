@@ -198,13 +198,15 @@ function updateCount(tag, newCount)
 
 function postNewNotification(newCount, type, types, tag, func, dodiff)
 {
-	var diff = newCount - count[tag];
+	var neu = newCount - count[tag];
 	count[tag] = newCount;
+	var diff = count[tag] - seenCount[tag];
 
-	if(diff > 0) {
-		var neu = count[tag] - seenCount[tag];
-		postNotification(neu + " New " + (neu==1?type:types), "Overall " + count[tag] + " " + (count[tag]==1?type:types) + ".", tag, func);
-	} else if(dodiff || diff == 0) {
+	panel.lenientMessage(tag+"CountChanged", [newCount, (dodiff || diff>0)?diff:0]);
+
+	if(neu > 0) {
+		postNotification(diff + " New " + (diff==1?type:types), "Overall " + count[tag] + " " + (count[tag]==1?type:types) + ".", tag, func);
+	} else if(dodiff || neu == 0) {
 		// Noop
 	} else {
 		updateCount(tag, newCount);

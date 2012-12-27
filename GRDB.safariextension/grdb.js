@@ -91,6 +91,14 @@ function openWindow(url)
 	}
 }
 
+function nn(val)
+{
+	if(val) {
+		return val;
+	}
+	return "–";
+}
+
 // -
 
 function createUserLink(id, name, info)
@@ -478,12 +486,19 @@ function appendThreadRow(id, name)
 	threadlist.appendChild(row);
 }
 
-function setBadge(node, cont)
+function setBadge(node, cont, diff)
 {
 	if(!node) {
 		return;
 	}
 	clearNodeElements(node);
+	if(diff) {
+		if(diff<0) {
+			node.appendChild(create("span",-diff,"badge diff sub"));
+		} else {
+			node.appendChild(create("span",diff,"badge diff add"));
+		}
+	}
 	if(cont) {
 		node.appendChild(create("span",cont,"badge"));
 		return cont;
@@ -1423,6 +1438,15 @@ safari.self.addEventListener("message", function(message) {
 		break;
 		case "userOnline":
 			userOnlineMap[message.message[0]] = message.message[1];
+		break;
+		case "messageCountChanged":
+			setBadge(mailbutton[0], nn(message.message[0]), message.message[1]);
+		break;
+		case "contactCountChanged":
+			setBadge(contactbutton[0], nn(message.message[0]), message.message[1]);
+		break;
+		case "visitorCountChanged":
+			setBadge(visitorbutton[0], nn(message.message[0]), message.message[1]);
 		break;
 	}
 }, false);
