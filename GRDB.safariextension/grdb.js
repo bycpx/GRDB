@@ -1,9 +1,11 @@
 /* GRDB Helper Script */
 
-var maillist, contactlist, visitorlist, threadlist, info, userPic;
+var maillist, contactlist, visitorlist, threadlist, searchlist;
+var info, userPic;
 var mailbutton=[];
 var contactbutton=[];
 var visitorbutton=[];
+var searchbutton=[];
 var lastView, lastButton, lastRow;
 var base, cbase, pbase, today;
 var mailHandler = {};
@@ -1320,8 +1322,16 @@ function showThreads(event)
 function findUsers(event)
 {
 	event.preventDefault();
+	today = null;
+
 	var query = event.target[0].value;
 	var url;
+
+	switchView(searchlist, searchbutton[0], searchbutton[1]);
+	showListMessage(searchlist, "Searching “"+query+"” …");
+
+	setFetchTime();
+	return;
 
 	if(id = parseInt(query)) {
 		url = base+"/auswertung/setcard/index.php?set="+id;
@@ -1381,6 +1391,12 @@ function initViews()
 	if(visitorbutton[1]) {
 		visitorbutton[1].parentElement.style.display = "none";
 	}
+	if(searchbutton[1]) {
+		searchbutton[1].parentElement.style.display = "none";
+	}
+	if(searchlist) {
+		searchlist.style.display = "none";
+	}
 }
 
 function init()
@@ -1406,6 +1422,10 @@ function init()
 	visitorbutton[3] = document.getElementById("given");
 	visitorbutton[4] = document.getElementById("new");
 	visitorbutton[5] = document.getElementById("ignored");
+
+	searchlist = document.getElementById("results");
+	searchbutton[0] = document.getElementById("search");
+	searchbutton[1] = document.getElementById("allsearch");
 
 	info = document.getElementById("info");
 

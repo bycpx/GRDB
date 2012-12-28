@@ -77,10 +77,9 @@ header h2 {
 	font-weight: bold;
 	text-align:	center;
 	border-radius: 24px;
-	
-	background:	#aaa;
-	background-image: -webkit-linear-gradient(top, #def, #89a);
-	background-image: -moz-linear-gradient(top, #def, #89a);
+	background:	#88a;
+	background-image: -webkit-linear-gradient(top, #ddf, #88a);
+	background-image: -moz-linear-gradient(top, #ddf, #88a);
 	border:		1px solid #666;
 	box-shadow:	#fff 0 1px 0;
 }
@@ -91,15 +90,17 @@ header nav {
 
 header form {
 	float:		right;
-	margin:		0 1em;
+	margin:		0 0 0 0.5em;
+	padding:	0 1.5em;
 	line-height: 48px;
+	border-left: thin dotted #666;
 }
 
 header nav a {
 	display:	block;
 	float:		left;
 	height:		100%;
-	padding:	0 2em;
+	padding:	0 1.5em;
 	line-height: 48px;
 	font-weight: bold;
 	border-right: thin dotted #666;
@@ -110,7 +111,7 @@ header nav a:hover {
 	color:		#333;
 }
 
-header nav a.act {
+header nav a.act, header form.act {
 	color:		#333;
 	background:	-webkit-linear-gradient(top, rgba(255,255,255, 0.75), rgba(255,255,255, 0));
 	background:	-moz-linear-gradient(top, rgba(255,255,255, 0.75), rgba(255,255,255, 0));
