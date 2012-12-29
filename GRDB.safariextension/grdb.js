@@ -9,8 +9,6 @@ var searchbutton=[];
 var lastView, lastButton, lastRow;
 var base, cbase, pbase, today;
 var mailHandler = {};
-var contactHandler;
-var visitHandler;
 var userStatMap = {}, userOnlineMap = {}, userPicMap = {};
 
 var visitIcons = {
@@ -735,6 +733,18 @@ function clusterItems(html, regex, more, index, isSent)
 	return first;
 }
 
+function handlerInProcess(handler)
+{
+	if(handler["found"] >= handler["total"]) {
+		clearNode(handler["list"]);
+		return false;
+	}
+
+	showListMessage(handler["list"], "Loading", Math.round(100*handler["found"]/handler["total"])+"%");
+
+	return true;
+}
+
 function prepareVisitor(item, tapex)
 {
 	item.timestamp = timestamp(item[5].replace(/-/,today.getFullYear()+" "));
@@ -779,114 +789,112 @@ function prepareContact(item, isFav)
 	item.online = online;
 }
 
-function combineMails(html, regex, type)
+function combineMails(handler, html, regex, type)
 {
-	mailHandler["found"]++;
+	handler["found"]++;
 	setFetchTime();
 	var more = /<option value=\"(\d+)\">([^<]*)<\/option>/gi;
 
-	var i_n = mailHandler["new"]; // userID => new item
-	var index = mailHandler["index"]; // userID => item
+	var i_n = handler["new"]; // userID => new item
+	var index = handler["index"]; // userID => item
 
 	switch(type) {
 		case 0: // new
-			mailHandler["newmail"] = clusterItems(html, regex, more, i_n, false);
+			handler["newmail"] = clusterItems(html, regex, more, i_n, false);
 			for(attr in i_n) {
 				index[attr] = i_n[attr];
 			}
 		break;
 		case 1: // received
-			mailHandler["received"] = clusterItems(html, regex, null, {}, false);
+			handler["received"] = clusterItems(html, regex, null, {}, false);
 		break;
 		case 2: // undelivered
 			var i_u = {}
-			mailHandler["undelivered"] = clusterItems(html, regex, more, i_u, true);
+			handler["undelivered"] = clusterItems(html, regex, more, i_u, true);
 			for(attr in i_u) {
 				index[attr] = i_u[attr];
 			}
 		break;
 		case 3: // sent
-			mailHandler["sent"] = clusterItems(html, regex, more, {}, true);
+			handler["sent"] = clusterItems(html, regex, more, {}, true);
 		break;
 	}
 
-	if(mailHandler["found"] >= 4) {
-		clearNode(maillist);
+	if(handlerInProcess(handler)) {
+		return;
+	}
 
-		var n = mailHandler["newmail"];
-		var r = mailHandler["received"];
-		var u = mailHandler["undelivered"];
-		var s = mailHandler["sent"];
-		var d = [];
-		var i = 0;
+	var n = handler["newmail"];
+	var r = handler["received"];
+	var u = handler["undelivered"];
+	var s = handler["sent"];
+	var d = [];
+	var i = 0;
 
-		while(s || r) {
-			while(s && !(r && !index[s[1]] && s.timestamp<r.timestamp)) {
-				if(!index[s[1]]) {
-					s.sent = true;
-					d[i] = s;
-					index[s[1]] = s;
-					i++;
-				}
-				s = s.next;
-			}
-			while(r && !(s && !index[r[1]] && r.timestamp<s.timestamp)) {
-				if(!index[r[1]]) {
-					r.sent = false;
-					d[i] = r;
-					index[r[1]] = r;
-					i++;
-				}
-				r = r.next;
-			}
-		}
-
-		var dl = i;
-		i = 0;
-		var k = 0;
-		var curID, prvID;
-		while(n || u || i<dl) {
-			while(n && !(u && n.timestamp<u.timestamp) && !(i<dl && n.timestamp<d[i].timestamp)) {
-				curID = n[1];
-				prvID = 0;
-				while(n && curID == n[1]) {
-					appendMailRow(n[1], n[2], n[3], n[4], n[5], n.timestamp, n[6]=="i", prvID==curID, false);
-					prvID = curID;
-					n = n.next;
-					k++;
-				}
-			}
-			while(u && !(n && u.timestamp<n.timestamp) && !(i<dl && u.timestamp<d[i].timestamp)) {
-				curID = u[1];
-				prvID = 0;
-				while(u && curID == u[1]) {
-					appendMailRow(u[1], u[2], null, u[3], u[4], u.timestamp, u[5]=="i", prvID==curID, true);
-					prvID = curID;
-					u = u.next;
-					k++;
-				}
-			}
-			while(i<dl && !(n && d[i].timestamp<n.timestamp) && !(u && d[i].timestamp<u.timestamp)) {
-				if(d[i].sent) {
-					appendMailRow(d[i][1], d[i][2], null, d[i][3], d[i][4], d[i].timestamp, d[i][5]=="i", false, true, true);
-				} else {
-					appendMailRow(d[i][1], d[i][2], d[i][3], d[i][4], d[i][5], d[i].timestamp, d[i][6]=="i", false, false, true);
-				}
+	while(s || r) {
+		while(s && !(r && !index[s[1]] && s.timestamp<r.timestamp)) {
+			if(!index[s[1]]) {
+				s.sent = true;
+				d[i] = s;
+				index[s[1]] = s;
 				i++;
+			}
+			s = s.next;
+		}
+		while(r && !(s && !index[r[1]] && r.timestamp<s.timestamp)) {
+			if(!index[r[1]]) {
+				r.sent = false;
+				d[i] = r;
+				index[r[1]] = r;
+				i++;
+			}
+			r = r.next;
+		}
+	}
+
+	var dl = i;
+	i = 0;
+	var k = 0;
+	var curID, prvID;
+	while(n || u || i<dl) {
+		while(n && !(u && n.timestamp<u.timestamp) && !(i<dl && n.timestamp<d[i].timestamp)) {
+			curID = n[1];
+			prvID = 0;
+			while(n && curID == n[1]) {
+				appendMailRow(n[1], n[2], n[3], n[4], n[5], n.timestamp, n[6]=="i", prvID==curID, false);
+				prvID = curID;
+				n = n.next;
 				k++;
 			}
 		}
-		if(k==0) {
-			showListMessage(maillist,"No Messages");
+		while(u && !(n && u.timestamp<n.timestamp) && !(i<dl && u.timestamp<d[i].timestamp)) {
+			curID = u[1];
+			prvID = 0;
+			while(u && curID == u[1]) {
+				appendMailRow(u[1], u[2], null, u[3], u[4], u.timestamp, u[5]=="i", prvID==curID, true);
+				prvID = curID;
+				u = u.next;
+				k++;
+			}
 		}
-	} else {
-		showListMessage(maillist, "Loading", Math.round(100*mailHandler["found"]/4)+"%");
+		while(i<dl && !(n && d[i].timestamp<n.timestamp) && !(u && d[i].timestamp<u.timestamp)) {
+			if(d[i].sent) {
+				appendMailRow(d[i][1], d[i][2], null, d[i][3], d[i][4], d[i].timestamp, d[i][5]=="i", false, true, true);
+			} else {
+				appendMailRow(d[i][1], d[i][2], d[i][3], d[i][4], d[i][5], d[i].timestamp, d[i][6]=="i", false, false, true);
+			}
+			i++;
+			k++;
+		}
+	}
+	if(k==0) {
+		showListMessage(maillist,"No Messages");
 	}
 }
 
-function combineContacts(html, isFav)
+function combineContacts(handler, html, isFav)
 {
-	contactHandler["found"]++;
+	handler["found"]++;
 	setFetchTime();
 	if(html) {
 		html = html.replace(/<wbr>/g, "");
@@ -896,9 +904,9 @@ function combineContacts(html, isFav)
 
 	var item, i;
 
-	var f = contactHandler["favs"];
-	var o = contactHandler["online"];
-	var index = contactHandler["index"];
+	var f = handler["favs"];
+	var o = handler["online"];
+	var index = handler["index"];
 
 	if(isFav) {
 		for(i = f.length; item = regex.exec(html); i++) {
@@ -915,61 +923,59 @@ function combineContacts(html, isFav)
 		}
 	}
 
-	if(contactHandler["found"]>=contactHandler["total"]) {
-		clearNode(contactlist);
+	if(handlerInProcess(handler)) {
+		return;
+	}
 
-		var fl = f.length;
-		var ol = o.length;
-		var j;
+	var fl = f.length;
+	var ol = o.length;
+	var j;
 
- 		for(j = 0; j < ol; j++) {
- 			if(index[o[j][2]]) {
- 				o[j][2] = 0;
- 			}
- 		}
-
-		var id;
-		var mail = mailHandler["index"] || {};
-		var newmail = mailHandler["new"] || {};
-		var fav = 0;
-		i = 0;
-		j = 0;
-
-		while(i<fl || j<ol) {
-			while(j<ol && o[j][2]==0) {
-				j++;
-			}
-			while(i<fl && !(j<ol && f[i].days>o[j].days)) {
-				item = f[i];
-				id = item[2];
-				appendContactRow(id, item[3], item[4], item.timestamp, item.days, item[6], item.online, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), true);
-				if(item.online>0) {
-					fav++;
-				}
-				i++;
-			}
-			while(j<ol && !(i<fl && o[j].days>f[i].days)) {
-				if(id = o[j][2]) {
-					item = o[j];
-					appendContactRow(id, item[3], item[4], item.timestamp, item.days, item[6], item.online, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0));
-				}
-				j++;
-			}
+	for(j = 0; j < ol; j++) {
+		if(index[o[j][2]]) {
+			o[j][2] = 0;
 		}
+	}
 
-		setContactCount(fav);
-		setBadge(contactbutton[3], ol);
-		if(i==0 && ol==0) {
-			showListMessage(contactlist, "No Contacts");
+	var id;
+	var mail = mailHandler["index"] || {};
+	var newmail = mailHandler["new"] || {};
+	var fav = 0;
+	i = 0;
+	j = 0;
+
+	while(i<fl || j<ol) {
+		while(j<ol && o[j][2]==0) {
+			j++;
 		}
-	} else {
-		showListMessage(contactlist, "Loading", Math.round(100*contactHandler["found"]/contactHandler["total"])+"%");
+		while(i<fl && !(j<ol && f[i].days>o[j].days)) {
+			item = f[i];
+			id = item[2];
+			appendContactRow(id, item[3], item[4], item.timestamp, item.days, item[6], item.online, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), true);
+			if(item.online>0) {
+				fav++;
+			}
+			i++;
+		}
+		while(j<ol && !(i<fl && o[j].days>f[i].days)) {
+			if(id = o[j][2]) {
+				item = o[j];
+				appendContactRow(id, item[3], item[4], item.timestamp, item.days, item[6], item.online, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0));
+			}
+			j++;
+		}
+	}
+
+	setContactCount(fav);
+	setBadge(contactbutton[3], ol);
+	if(i==0 && ol==0) {
+		showListMessage(contactlist, "No Contacts");
 	}
 }
 
-function combineVisits(html, isGiven)
+function combineVisits(handler, html, isGiven)
 {
-	visitHandler["found"]++;
+	handler["found"]++;
 	setFetchTime();
 	if(html) {
 		html = html.replace(/<wbr>/g, "");
@@ -979,9 +985,9 @@ function combineVisits(html, isGiven)
 
 	var item, i;
 
-	var r = visitHandler["received"];
-	var g = visitHandler["given"];
-	var index = visitHandler["index"];
+	var r = handler["received"];
+	var g = handler["given"];
+	var index = handler["index"];
 
 	if(isGiven) {
 		for(i = g.length; item = regex.exec(html); i++) {
@@ -996,83 +1002,82 @@ function combineVisits(html, isGiven)
 		}
 	}
 
-	if(visitHandler["found"]>=visitHandler["total"]) {
-		clearNode(visitorlist);
-		setVisitorCount(r.length);
-		setBadge(visitorbutton[3], g.length);
+	if(handlerInProcess(handler)) {
+		return;
+	}
 
-		var s = JSON.parse(localStorage.getItem(VISITS)) || [];
-		for(i=0; i<s.length; i++) {
-			if(item = index[s[i][0]]) {
-				s[i][1] = item[3];
-				s[i][2] = item[8];
-				s[i][3] = item[9];
+	setVisitorCount(r.length);
+	setBadge(visitorbutton[3], g.length);
 
-				item[10] = 2;
-			} else {
-				item = [0,0,s[i][0],s[i][1],null,"??.??. ??:??","",0,s[i][2],s[i][3],1];
-				item.timestamp = null;
-				g[g.length] = item;
-				index[s[i][0]] = item;
-			}
+	var s = JSON.parse(localStorage.getItem(VISITS)) || [];
+	for(i=0; i<s.length; i++) {
+		if(item = index[s[i][0]]) {
+			s[i][1] = item[3];
+			s[i][2] = item[8];
+			s[i][3] = item[9];
+
+			item[10] = 2;
+		} else {
+			item = [0,0,s[i][0],s[i][1],null,"??.??. ??:??","",0,s[i][2],s[i][3],1];
+			item.timestamp = null;
+			g[g.length] = item;
+			index[s[i][0]] = item;
 		}
-		localStorage.setItem(VISITS, JSON.stringify(s));
+	}
+	localStorage.setItem(VISITS, JSON.stringify(s));
 
-		var rl = r.length;
-		var gl = g.length;
-		for(i = 0; i < rl; i++) {
-			if(item = index[r[i][2]]) {
-				item[2] = 0;
-			}
+	var rl = r.length;
+	var gl = g.length;
+	for(i = 0; i < rl; i++) {
+		if(item = index[r[i][2]]) {
+			item[2] = 0;
 		}
+	}
 
-		i = 0; var j = 0; var k = 0; var neu = 0; var ign = 0;
-		var mail = mailHandler["index"] || {};
-		var newmail = mailHandler["new"] || {};
-		var id;
-		while(i<rl || j<gl) {
-			while(j<gl && g[j][2]==0) {
-				j++;
+	i = 0; var j = 0; var k = 0; var neu = 0; var ign = 0;
+	var mail = mailHandler["index"] || {};
+	var newmail = mailHandler["new"] || {};
+	var id;
+	while(i<rl || j<gl) {
+		while(j<gl && g[j][2]==0) {
+			j++;
+			k++;
+		}
+		while(i<rl && !(j<gl && r[i].timestamp<g[j].timestamp)) {
+			id = r[i][2];
+			item = index[id];
+			appendVisitorRow(id, r[i][3], r[i][5], r[i].timestamp, r[i][8], r[i][9], item ? item[8] : -1, item ? item[9] : null, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), item ? item[10] : 0);
+			if(!item) {
+				neu++;
+			}
+			i++;
+		}
+		while(j<gl && !(i<rl && g[j].timestamp<r[i].timestamp)) {
+			if(id = g[j][2]) {
+				appendVisitorRow(id, g[j][3], g[j][5], g[j].timestamp, -1, null, g[j][8], g[j][9], newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), g[j][10]);
+				if(g[j].timestamp) {
+					ign++;
+				}
+			}
+			if(g[j].timestamp) {
 				k++;
 			}
-			while(i<rl && !(j<gl && r[i].timestamp<g[j].timestamp)) {
-				id = r[i][2];
-				item = index[id];
-				appendVisitorRow(id, r[i][3], r[i][5], r[i].timestamp, r[i][8], r[i][9], item ? item[8] : -1, item ? item[9] : null, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), item ? item[10] : 0);
-				if(!item) {
-					neu++;
-				}
-				i++;
-			}
-			while(j<gl && !(i<rl && g[j].timestamp<r[i].timestamp)) {
-				if(id = g[j][2]) {
-					appendVisitorRow(id, g[j][3], g[j][5], g[j].timestamp, -1, null, g[j][8], g[j][9], newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), g[j][10]);
-					if(g[j].timestamp) {
-						ign++;
-					}
-				}
-				if(g[j].timestamp) {
-					k++;
-				}
-				j++;
-			}
+			j++;
 		}
+	}
 
-		setBadge(visitorbutton[4], neu);
-		setBadge(visitorbutton[5], ign);
+	setBadge(visitorbutton[4], neu);
+	setBadge(visitorbutton[5], ign);
 
-		if(i==0 && k==0) {
-			showListMessage(visitorlist,"No Visitors");
-		}
-	} else {
-		showListMessage(visitorlist, "Loading", Math.round(100*visitHandler["found"]/visitHandler["total"])+"%");
+	if(i==0 && k==0) {
+		showListMessage(visitorlist,"No Visitors");
 	}
 }
 
 function fetchMails(event)
 {
 	today = null;
-	mailHandler = {"newmail":false, "new":{}, "received":false, "undelivered":false, "sent":false, "threads":[], "index":{}, "found":0, "fail":false};
+	mailHandler = {"newmail":false, "new":{}, "received":false, "undelivered":false, "sent":false, "threads":[], "index":{}, "found":0, "total":4, "list":maillist, "fail":false};
 	if(event===false) {
 		switchView(maillist, mailbutton[0]);
 	} else {
@@ -1099,7 +1104,7 @@ function fetchMails(event)
 		}
 
 		regex = /set=(\d+)[^>]*>([^<]+)[^?]*\?id=(\d+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
-		combineMails(html, regex, 0);
+		combineMails(mailHandler, html, regex, 0);
 	}, function(status) {
 		noLogin(mailHandler);
 		showListMessage(maillist, "Cannot access new messages.", "The server responded with error "+status+".", true);
@@ -1127,7 +1132,7 @@ function fetchMails(event)
 		setBadge(mailbutton[4], i);
 
 		regex = /set=(\d+)[^>]*>([^<]+)[^?]*\?id=(\d+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
-		combineMails(html, regex, 1);
+		combineMails(mailHandler, html, regex, 1);
 	}, function(status) {
 		noLogin(mailHandler);
 		showListMessage(maillist, "Cannot access all received messages.", "The server responded with error "+status+".", true);
@@ -1143,7 +1148,7 @@ function fetchMails(event)
 		}
 
 		regex = /set=(\d+)[^>]*>([^<]+)[^&]*&id=\d+[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
-		combineMails(html, regex, 3);
+		combineMails(mailHandler, html, regex, 3);
 	}, function(status) {
 		noLogin(mailHandler);
 		showListMessage(maillist, "Cannot access all sent messages.", "The server responded with error "+status+".", true);
@@ -1165,7 +1170,7 @@ function fetchMails(event)
 		}
 
 		regex = /set=(\d+)[^>]*>([^<]+)[^&]*&id=\d+[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
-		combineMails(html, regex, 2);
+		combineMails(mailHandler, html, regex, 2);
 	}, function(status) {
 		noLogin(mailHandler);
 		showListMessage(maillist, "Cannot access sent messages.", "The server responded with error "+status+".", true);
@@ -1175,7 +1180,7 @@ function fetchMails(event)
 function fetchContacts(event)
 {
 	today = null;
-	contactHandler = {"favs":[], "online":[], "index":{}, "found":0, "total":2, "fail":false};
+	var handler = {"favs":[], "online":[], "index":{}, "found":0, "total":2, "list":contactlist, "fail":false};
 	if(event===false) {
 		switchView(contactlist, contactbutton[0]);
 	} else {
@@ -1190,28 +1195,28 @@ function fetchContacts(event)
 	showListMessage(contactlist, "Loading …");
 	fetchURL_didFetch_error(base+"/myuser/?page=romeo&filterSpecial=favourites&sort=2&sortDirection=-1", function(html) {
 		regex.lastIndex = 0;
-		if(contactHandler["fail"] || !regex.test(html)) {
-			noLogin(contactHandler);
+		if(handler["fail"] || !regex.test(html)) {
+			noLogin(handler);
 			showListMessage(contactlist, "Cannot retrieve favourites.", "Ensure you are logged in.", true);
 			return;
 		}
 
-		fetchNextPage(contactHandler, baseurl, html, regex, nextRegex, true, combineContacts);
+		fetchNextPage(handler, baseurl, html, regex, nextRegex, true, combineContacts);
 	}, function(status) {
-		noLogin(contactHandler);
+		noLogin(handler);
 		showListMessage(contactlist, "Cannot access favourites.", "The server responded with error "+status+".", true);
 	});
 	fetchURL_didFetch_error(base+"/myuser/?page=romeo&filterSpecial=online&sort=2&sortDirection=-1", function(html) {
 		regex.lastIndex = 0;
-		if(contactHandler["fail"] || !regex.test(html)) {
-			noLogin(contactHandler);
+		if(handler["fail"] || !regex.test(html)) {
+			noLogin(handler);
 			showListMessage(contactlist, "Cannot retrieve favourites.", "Ensure you are logged in.", true);
 			return;
 		}
 
-		fetchNextPage(contactHandler, baseurl, html, regex, nextRegex, false, combineContacts);
+		fetchNextPage(handler, baseurl, html, regex, nextRegex, false, combineContacts);
 	}, function(status) {
-		noLogin(contactHandler);
+		noLogin(handler);
 		showListMessage(contactlist, "Cannot access favourites.", "The server responded with error "+status+".", true);
 	});
 }
@@ -1219,7 +1224,7 @@ function fetchContacts(event)
 function fetchVisitors(event)
 {
 	today = null;
-	visitHandler = {"received":[], "given":[], "index":{}, "found":0, "total":2, "fail":false};
+	var handler = {"received":[], "given":[], "index":{}, "found":0, "total":2, "list":visitorlist, "fail":false};
 	if(event===false) {
 		switchView(visitorlist, visitorbutton[0]);
 	} else {
@@ -1234,28 +1239,28 @@ function fetchVisitors(event)
 	showListMessage(visitorlist, "Loading …");
 	fetchURL_didFetch_error(base+"/search/index.php?action=execute&searchType=myVisitors", function(html) {
 		regex.lastIndex = 0;
-		if(visitHandler["fail"] || !regex.test(html)) {
-			noLogin(visitHandler);
+		if(handler["fail"] || !regex.test(html)) {
+			noLogin(handler);
 			showListMessage(visitorlist, "Cannot retrieve visitors.", "Ensure you are logged in.", true);
 			return;
 		}
 
-		fetchNextPage(visitHandler, baseurl, html, regex, nextRegex, false, combineVisits);
+		fetchNextPage(handler, baseurl, html, regex, nextRegex, false, combineVisits);
 	}, function(status) {
-		noLogin(visitHandler);
+		noLogin(handler);
 		showListMessage(visitorlist, "Cannot access visitors.", "The server responded with error "+status+".", true);
 	});
 	fetchURL_didFetch_error(base+"/search/?action=execute&searchType=myVisits", function(html) {
 		regex.lastIndex = 0;
-		if(visitHandler["fail"] || !regex.test(html)) {
-			noLogin(visitHandler);
+		if(handler["fail"] || !regex.test(html)) {
+			noLogin(handler);
 			showListMessage(visitorlist, "Cannot retrieve your visits.", "Ensure you are logged in.", true);
 			return;
 		}
 
-		fetchNextPage(visitHandler, baseurl, html, regex, nextRegex, true, combineVisits);
+		fetchNextPage(handler, baseurl, html, regex, nextRegex, true, combineVisits);
 	}, function(status) {
-		noLogin(visitHandler);
+		noLogin(handler);
 		showListMessage(visitorlist, "Cannot access your visits.", "The server responded with error "+status+".", true);
 	});
 }
@@ -1267,7 +1272,7 @@ function fetchNextPage(handler, baseurl, html, regex, nextRegex, flag, combineFu
 	if(url && url[1]) {
 		handler["total"]++;
 	}
-	combineFunc(html, flag);
+	combineFunc(handler, html, flag);
 
 	if(!url) {
 		return;
@@ -1276,13 +1281,13 @@ function fetchNextPage(handler, baseurl, html, regex, nextRegex, flag, combineFu
 	fetchURL_didFetch_error(baseurl+url[1], function(html) {
 		regex.lastIndex = 0;
 		if(!regex.test(html)) {
-			combineFunc(null, flag);
+			combineFunc(handler, null, flag);
 			return;
 		}
 
 		fetchNextPage(handler, baseurl, html, regex, nextRegex, flag, combineFunc);
 	}, function(status) {
-		combineFunc(null, flag);
+		combineFunc(handler, null, flag);
 	});
 }
 
