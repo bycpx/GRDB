@@ -772,7 +772,7 @@ function prepareContact(item, isFav)
 	item.online = online;
 }
 
-function findMails(html, regex, type)
+function combineMails(html, regex, type)
 {
 	mailHandler["found"]++;
 	setFetchTime();
@@ -877,7 +877,7 @@ function findMails(html, regex, type)
 	}
 }
 
-function findContacts(html, isFav)
+function combineContacts(html, isFav)
 {
 	contactHandler["found"]++;
 	setFetchTime();
@@ -960,7 +960,7 @@ function findContacts(html, isFav)
 	}
 }
 
-function findVisits(html, isGiven)
+function combineVisits(html, isGiven)
 {
 	visitHandler["found"]++;
 	setFetchTime();
@@ -1092,7 +1092,7 @@ function fetchMails(event)
 		}
 
 		regex = /set=(\d+)[^>]*>([^<]+)[^?]*\?id=(\d+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
-		findMails(html, regex, 0);
+		combineMails(html, regex, 0);
 	}, function(status) {
 		noLogin(mailHandler);
 		showListMessage(maillist, "Cannot access new messages.", "The server responded with error "+status+".", true);
@@ -1120,7 +1120,7 @@ function fetchMails(event)
 		setBadge(mailbutton[4], i);
 
 		regex = /set=(\d+)[^>]*>([^<]+)[^?]*\?id=(\d+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
-		findMails(html, regex, 1);
+		combineMails(html, regex, 1);
 	}, function(status) {
 		noLogin(mailHandler);
 		showListMessage(maillist, "Cannot access all received messages.", "The server responded with error "+status+".", true);
@@ -1136,7 +1136,7 @@ function fetchMails(event)
 		}
 
 		regex = /set=(\d+)[^>]*>([^<]+)[^&]*&id=\d+[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
-		findMails(html, regex, 3);
+		combineMails(html, regex, 3);
 	}, function(status) {
 		noLogin(mailHandler);
 		showListMessage(maillist, "Cannot access all sent messages.", "The server responded with error "+status+".", true);
@@ -1158,7 +1158,7 @@ function fetchMails(event)
 		}
 
 		regex = /set=(\d+)[^>]*>([^<]+)[^&]*&id=\d+[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
-		findMails(html, regex, 2);
+		combineMails(html, regex, 2);
 	}, function(status) {
 		noLogin(mailHandler);
 		showListMessage(maillist, "Cannot access sent messages.", "The server responded with error "+status+".", true);
@@ -1176,29 +1176,33 @@ function fetchContacts(event)
 		contactlist.setAttribute("class","double");
 	}
 
+	var regex = /class="user-table"/gi;
+	var nextRegex = /<a href="([^"]+)"><b>&raquo;&raquo;&raquo;/gi;
+	var baseurl = base+"/myuser/";
+
 	showListMessage(contactlist, "Loading …");
 	fetchURL_didFetch_error(base+"/myuser/?page=romeo&filterSpecial=favourites&sort=2&sortDirection=-1", function(html) {
-		var regex = /class="user-table"/gi;
+		regex.lastIndex = 0;
 		if(contactHandler["fail"] || !regex.test(html)) {
 			noLogin(contactHandler);
 			showListMessage(contactlist, "Cannot retrieve favourites.", "Ensure you are logged in.", true);
 			return;
 		}
 
-		fetchNextContactsPage(html, regex, true);
+		fetchNextPage(contactHandler, baseurl, html, regex, nextRegex, true, combineContacts);
 	}, function(status) {
 		noLogin(contactHandler);
 		showListMessage(contactlist, "Cannot access favourites.", "The server responded with error "+status+".", true);
 	});
 	fetchURL_didFetch_error(base+"/myuser/?page=romeo&filterSpecial=online&sort=2&sortDirection=-1", function(html) {
-		var regex = /class="user-table"/gi;
+		regex.lastIndex = 0;
 		if(contactHandler["fail"] || !regex.test(html)) {
 			noLogin(contactHandler);
 			showListMessage(contactlist, "Cannot retrieve favourites.", "Ensure you are logged in.", true);
 			return;
 		}
 
-		fetchNextContactsPage(html, regex, false);
+		fetchNextPage(contactHandler, baseurl, html, regex, nextRegex, false, combineContacts);
 	}, function(status) {
 		noLogin(contactHandler);
 		showListMessage(contactlist, "Cannot access favourites.", "The server responded with error "+status+".", true);
@@ -1216,86 +1220,62 @@ function fetchVisitors(event)
 		visitorlist.setAttribute("class","double");
 	}
 
+	var regex = /page=search/gi;
+	var nextRegex = /\d<\/a>&nbsp;\|&nbsp;<a href="([^"]*)">/gi;
+	var baseurl = base+"/search/";
+
 	showListMessage(visitorlist, "Loading …");
 	fetchURL_didFetch_error(base+"/search/index.php?action=execute&searchType=myVisitors", function(html) {
-		var regex = /page=search/gi;
+		regex.lastIndex = 0;
 		if(visitHandler["fail"] || !regex.test(html)) {
 			noLogin(visitHandler);
 			showListMessage(visitorlist, "Cannot retrieve visitors.", "Ensure you are logged in.", true);
 			return;
 		}
 
-		fetchNextVisitPage(html, regex, false);
+		fetchNextPage(visitHandler, baseurl, html, regex, nextRegex, false, combineVisits);
 	}, function(status) {
 		noLogin(visitHandler);
 		showListMessage(visitorlist, "Cannot access visitors.", "The server responded with error "+status+".", true);
 	});
 	fetchURL_didFetch_error(base+"/search/?action=execute&searchType=myVisits", function(html) {
-		var regex = /page=search/gi;
+		regex.lastIndex = 0;
 		if(visitHandler["fail"] || !regex.test(html)) {
 			noLogin(visitHandler);
 			showListMessage(visitorlist, "Cannot retrieve your visits.", "Ensure you are logged in.", true);
 			return;
 		}
 
-		fetchNextVisitPage(html, regex, true);
+		fetchNextPage(visitHandler, baseurl, html, regex, nextRegex, true, combineVisits);
 	}, function(status) {
 		noLogin(visitHandler);
 		showListMessage(visitorlist, "Cannot access your visits.", "The server responded with error "+status+".", true);
 	});
 }
 
-function fetchNextContactsPage(html, regex, isFav)
+function fetchNextPage(handler, baseurl, html, regex, nextRegex, flag, combineFunc)
 {
-	regex.lastIndex = 0;
-	nextregex = /<a href="([^"]+)"><b>&raquo;&raquo;&raquo;/;
-	var url = nextregex.exec(html);
+	var url = nextRegex.exec(html);
 
-	if(url && url[1]) { // there is more to do
-		contactHandler["total"]++;
+	if(url && url[1]) {
+		handler["total"]++;
 	}
-	findContacts(html, isFav);
+	combineFunc(html, flag);
 
 	if(!url) {
 		return;
 	}
 
-	fetchURL_didFetch_error(base+"/myuser/"+url[1], function(html) {
+	fetchURL_didFetch_error(baseurl+url[1], function(html) {
+		regex.lastIndex = 0;
 		if(!regex.test(html)) {
-			findContacts(null, isFav);
+			combineFunc(null, flag);
 			return;
 		}
 
-		fetchNextContactsPage(html, regex, isFav);
+		fetchNextPage(handler, baseurl, html, regex, nextRegex, flag, combineFunc);
 	}, function(status) {
-		findContacts(null, isFav);
-	});
-}
-
-function fetchNextVisitPage(html, regex, isGiven)
-{
-	regex.lastIndex = 0;
-	nextregex = /\d<\/a>&nbsp;\|&nbsp;<a href="([^"]*)">/gi;
-	var url = nextregex.exec(html);
-
-	if(url && url[1]) { // there is more to do
-		visitHandler["total"]++;
-	}
-	findVisits(html, isGiven);
-
-	if(!url) {
-		return;
-	}
-
-	fetchURL_didFetch_error(base+"/search/"+url[1], function(html) {
-		if(!regex.test(html)) {
-			findVisits(null, isGiven);
-			return;
-		}
-
-		fetchNextVisitPage(html, regex, isGiven);
-	}, function(status) {
-		findVisits(null, isGiven);
+		combineFunc(null, flag);
 	});
 }
 
