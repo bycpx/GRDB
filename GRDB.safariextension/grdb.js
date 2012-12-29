@@ -84,6 +84,16 @@ function absAttr(node, attr)
 	return val;
 }
 
+function openMessageWindow(url)
+{
+	return window.open(url, null, "width=336,height=450,scrollbars=yes");
+}
+
+function openProfileWindow(url)
+{
+	return window.open(url, null, "width=470,height=590,scrollbars=yes");
+}
+
 function openWindow(url)
 {
 	if(window.safari) {
@@ -554,7 +564,7 @@ function showListMessage(node, text, des, error)
 
 function handleMailClick(event)
 {
-	var popup = window.open(base+"/msg/?id="+this.getAttribute("data-msg"), null, "width=336,height=450,scrollbars=yes");
+	var popup = openMessageWindow(base+"/msg/?id="+this.getAttribute("data-msg"));
 	popup.opener = null;
 	this.setAttribute("class",this.getAttribute("class")+" low");
 	event.preventDefault();
@@ -562,13 +572,13 @@ function handleMailClick(event)
 
 function handlePanelClick(event)
 {
-	window.open(this.getAttribute("href"), null, "width=336,height=450,scrollbars=yes");
+	openMessageWindow(this.getAttribute("href"));
 	event.preventDefault();
 }
 
 function handleProfileClick(event)
 {
-	window.open(this.getAttribute("href"), null, "width=470,height=590,scrollbars=yes");
+	openProfileWindow(this.getAttribute("href"));
 	event.preventDefault();
 }
 
