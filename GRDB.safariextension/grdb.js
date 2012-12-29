@@ -508,31 +508,28 @@ function setBadge(node, cont, diff)
 	return 0;
 }
 
+function setCount(button, count, message)
+{
+	count = setBadge(button[0], count);
+	setBadge(button[2], count);
+	if(window.safari) {
+		safari.self.tab.dispatchMessage(message, count);
+	}
+}
+
 function setMailCount(count)
 {
-	count = setBadge(mailbutton[0], count);
-	setBadge(mailbutton[2], count);
-	if(window.safari) {
-		safari.self.tab.dispatchMessage("updateMessageCount", count);
-	}
+	setCount(mailbutton, count, "updateMessageCount");
 }
 
 function setContactCount(count)
 {
-	count = setBadge(contactbutton[0], count);
-	setBadge(contactbutton[2], count);
-	if(window.safari) {
-		safari.self.tab.dispatchMessage("updateContactCount", count);
-	}
+	setCount(contactbutton, count, "updateContactCount");
 }
 
 function setVisitorCount(count)
 {
-	count = setBadge(visitorbutton[0], count);
-	setBadge(visitorbutton[2], count);
-	if(window.safari) {
-		safari.self.tab.dispatchMessage("updateVisitorCount", count);
-	}
+	setCount(visitorbutton, count, "updateVisitorCount");
 }
 
 function setFetchTime()
