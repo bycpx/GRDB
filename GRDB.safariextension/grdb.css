@@ -369,13 +369,13 @@ li.sent.drop {
 
 #visitors li, #results li {
 	height:		3em;
-	line-height: 1.5em;
 }
 
 #visitors p, #results p {
 	color:		#999;
-	line-height: 1.25em;
-	margin:		0 0 0 0.5em;
+	line-height: 1em;
+	margin:		0 0 0 0.75em;
+	font-size:	0.85em;
 	text-decoration: none;
 }
 
@@ -448,7 +448,7 @@ ul h2 {
 	text-overflow: ellipsis;
 }
 
-#mails h2, ul li.msg h2 {
+#mails h2, #contacts li.msg h2 {
 	margin-right: 0.25em;
 	float:		left;
 }
