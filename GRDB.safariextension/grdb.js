@@ -1333,7 +1333,8 @@ function findUsers(event)
 
 function applyFilter(event, list, filter, button, func)
 {
-	if(event.target==lastRow) {
+	target = event.eventPhase==2 ? event.target : event.target.parentElement;
+	if(target==lastRow) {
 		func(false);
 		return;
 	}
@@ -1342,7 +1343,7 @@ function applyFilter(event, list, filter, button, func)
 	} else {
 		list.removeAttribute("class");
 	}
-	switchView(list, button, event.target);
+	switchView(list, button, target);
 }
 
 function filterMails(event, filter)
