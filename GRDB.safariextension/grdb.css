@@ -367,6 +367,42 @@ li.sent.drop {
 	background:	#fff;
 }
 
+#visitors li, #results li {
+	height:		3em;
+	line-height: 1.5em;
+}
+
+#visitors p, #results p {
+	color:		#999;
+	line-height: 1.25em;
+	margin:		0 0 0 0.5em;
+	text-decoration: none;
+}
+
+#visitors li.drop p {
+	color:		inherit;
+}
+
+#visitors div.action, #results div.action {
+	margin:		0;
+	height:		1.5em;
+	overflow:	hidden;
+}
+
+a.pic {
+	float:		left;
+	margin:		0.2em 0 0 -2.8em;
+	padding:	0.1em;
+	background:	#888;
+}
+
+a.pic img {
+	display:	block;
+	width:		2.5em;
+	height:		2.5em;
+	border-radius: 0.25em;
+}
+
 ul div.action {
 	float:		left;
 	margin:		0 0 0 -3em;
@@ -488,21 +524,6 @@ ul li.low {
 #visitors h3[data-give][data-recv] {
 	padding:	0 0 0 20px;
 	background:	url(f/def_b.png) left center no-repeat;
-}
-
-#visitors h2 a:after {
-	content:	"?";
-	font-size:	0.5em;
-	color:		#888;
-	vertical-align: top;
-}
-
-#visitors h2 a:hover:after {
-	color:		inherit;
-}
-
-#visitors h2 a[data-pic]:after {
-	content:	none;
 }
 
 ul h3[data-age] {

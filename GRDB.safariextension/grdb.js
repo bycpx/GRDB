@@ -111,25 +111,44 @@ function nn(val)
 
 // -
 
-function createUserLink(id, name, info)
+function userURL(id)
+{
+	return base+"/auswertung/setcard/?set="+id;
+}
+
+function createPicLink(id, pic)
+{
+	var link = create("a");
+	link.setAttribute("href", userURL(id));
+	link.setAttribute("class", "pic");
+	link.addEventListener("click", handleProfileClick, false);
+	img = create("img");
+	img.setAttribute("src", pbase+pic+".jpg");
+	link.appendChild(img);
+	return link;
+}
+
+function createUserLink(id, name, info, pic, online, plain)
 {
 	var link = create("a", name);
-	link.setAttribute("href", base+"/auswertung/setcard/?set="+id);
+	link.setAttribute("href", userURL(id));
 	link.addEventListener("click", handleProfileClick, false);
-	stats = userStatMap[id];
-	if(info && stats) {
-		link.setAttribute("title",info+"\n--\n"+stats);
-	} else if(info) {
-		link.setAttribute("title",info);
-	} else if(stats) {
-		link.setAttribute("title",stats);
+	if(!plain) {
+		stats = userStatMap[id];
+		if(info && stats) {
+			link.setAttribute("title",info+"\n--\n"+stats);
+		} else if(info) {
+			link.setAttribute("title",info);
+		} else if(stats) {
+			link.setAttribute("title",stats);
+		}
+		if(pic = userPicMap[id]) {
+			link.setAttribute("data-pic",pic);
+			link.addEventListener("mouseover", showUserPic, false);
+			link.addEventListener("mouseout", hideUserPic, false);
+		}
 	}
-	if(pic = userPicMap[id]) {
-		link.setAttribute("data-pic",pic);
-		link.addEventListener("mouseover", showUserPic, false);
-		link.addEventListener("mouseout", hideUserPic, false);
-	}
-	if(online = userOnlineMap[id]) {
+	if(online = online || userOnlineMap[id]) {
 		link.setAttribute("data-online",online);
 	}
 	return link;
@@ -378,10 +397,13 @@ function appendMailRow(senderID, sender, msgID, subject, datetime, timestamp, ha
 	maillist.appendChild(row);
 }
 
-function appendContactRow(id, name, info, timestamp, age, state, online, msgID, isFav)
+function appendUserRow(list, id, name, info, timestamp, age, state, online, msgID, isFav, pic)
 {
 	var cell, klasse;
 	var row = create("li");
+	if(pic) {
+		row.appendChild(createPicLink(id, pic));
+	}
 	cell = create("div");
 	cell.setAttribute("class","action");
 	cell.appendChild(createMsgLink(id, msgID));
@@ -407,12 +429,15 @@ function appendContactRow(id, name, info, timestamp, age, state, online, msgID, 
 	row.setAttribute("class",klasse);
 	row.appendChild(cell);
 	cell = create("h2");
-	cell.appendChild(createUserLink(id, name, info));
+	cell.appendChild(createUserLink(id, name, info, pic, online, list==searchlist));
 	row.appendChild(cell);
-	contactlist.appendChild(row);
+	if(list != contactlist) {
+		row.appendChild(create("p",info));
+	}
+	list.appendChild(row);
 }
 
-function appendVisitorRow(id, name, datetime, timestamp, receivedID, received, givenID, given, msgID, sticky)
+function appendVisitorRow(id, name, info, datetime, timestamp, receivedID, received, givenID, given, msgID, pic, sticky)
 {
 	var cell, klasse;
 	var row = create("li");
@@ -428,6 +453,9 @@ function appendVisitorRow(id, name, datetime, timestamp, receivedID, received, g
 	}
 	row.setAttribute("class",klasse);
 
+	if(pic) {
+		row.appendChild(createPicLink(id, pic));
+	}
 	cell = create("div");
 	cell.setAttribute("class","action");
 	cell.appendChild(createPin(id, name, givenID, given, sticky));
@@ -470,8 +498,9 @@ function appendVisitorRow(id, name, datetime, timestamp, receivedID, received, g
 	}
 	row.appendChild(cell);
 	cell = create("h2");
-	cell.appendChild(createUserLink(id, name));
+	cell.appendChild(createUserLink(id, name, null,null,null, true));
 	row.appendChild(cell);
+	row.appendChild(create("p", info));
 	visitorlist.appendChild(row);
 }
 
@@ -748,15 +777,19 @@ function handlerInProcess(handler)
 function prepareVisitor(item, tapex)
 {
 	item.timestamp = timestamp(item[5].replace(/-/,today.getFullYear()+" "));
+	userPicMap[item[2]] = item[1];
+	userOnlineMap[item[2]] = item[6]=="0f0" ? 2 : item[6]=="ff0"?1:-1;
+	item.stats = stripStats(item[4]);
+	userStatMap[item[2]] = item.stats;
+	if(!tapex) {
+		return;
+	}
 	tapex.lastIndex = 0;
 	if(tap = tapex.exec(item[7])) {
 		item[8] = tap[1];
 		item[9] = tap[2];
 	}
 	item[7] = null;
-	userPicMap[item[2]] = item[1];
-	userOnlineMap[item[2]] = item[6]=="0f0" ? 2 : item[6]=="ff0"?1:-1;
-	userStatMap[item[2]] = stripStats(item[4]);
 }
 
 function prepareContact(item, isFav)
@@ -938,6 +971,7 @@ function combineContacts(handler, html, isFav)
 	}
 
 	var id;
+	var list = handler["list"];
 	var mail = mailHandler["index"] || {};
 	var newmail = mailHandler["new"] || {};
 	var fav = 0;
@@ -951,7 +985,7 @@ function combineContacts(handler, html, isFav)
 		while(i<fl && !(j<ol && f[i].days>o[j].days)) {
 			item = f[i];
 			id = item[2];
-			appendContactRow(id, item[3], item[4], item.timestamp, item.days, item[6], item.online, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), true);
+			appendUserRow(list, id, item[3], item[4], item.timestamp, item.days, item[6], item.online, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), true);
 			if(item.online>0) {
 				fav++;
 			}
@@ -960,7 +994,7 @@ function combineContacts(handler, html, isFav)
 		while(j<ol && !(i<fl && o[j].days>f[i].days)) {
 			if(id = o[j][2]) {
 				item = o[j];
-				appendContactRow(id, item[3], item[4], item.timestamp, item.days, item[6], item.online, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0));
+				appendUserRow(list, id, item[3], item[4], item.timestamp, item.days, item[6], item.online, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0));
 			}
 			j++;
 		}
@@ -1046,7 +1080,7 @@ function combineVisits(handler, html, isGiven)
 		while(i<rl && !(j<gl && r[i].timestamp<g[j].timestamp)) {
 			id = r[i][2];
 			item = index[id];
-			appendVisitorRow(id, r[i][3], r[i][5], r[i].timestamp, r[i][8], r[i][9], item ? item[8] : -1, item ? item[9] : null, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), item ? item[10] : 0);
+			appendVisitorRow(id, r[i][3], r[i].stats, r[i][5], r[i].timestamp, r[i][8], r[i][9], item ? item[8] : -1, item ? item[9] : null, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), r[i][1], item ? item[10] : 0);
 			if(!item) {
 				neu++;
 			}
@@ -1054,7 +1088,7 @@ function combineVisits(handler, html, isGiven)
 		}
 		while(j<gl && !(i<rl && g[j].timestamp<r[i].timestamp)) {
 			if(id = g[j][2]) {
-				appendVisitorRow(id, g[j][3], g[j][5], g[j].timestamp, -1, null, g[j][8], g[j][9], newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), g[j][10]);
+				appendVisitorRow(id, g[j][3], g[j].stats, g[j][5], g[j].timestamp, -1, null, g[j][8], g[j][9], newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), g[j][1], g[j][10]);
 				if(g[j].timestamp) {
 					ign++;
 				}
@@ -1071,6 +1105,56 @@ function combineVisits(handler, html, isGiven)
 
 	if(i==0 && k==0) {
 		showListMessage(visitorlist,"No Visitors");
+	}
+}
+
+function combineSearch(handler, html, flag)
+{
+	handler["found"]++;
+	setFetchTime();
+	if(html) {
+		html = html.replace(/<wbr>/g, "");
+	}
+	var regex = /(?:\/usr\/([^\.]*)\.[^\n]*\n\s*)?<td class="resHeadline"[^?]*\?set=(\d+)[^>]*>([^<]*)<\/a>[^\n]*\n\s*<td[^>]*>\s*((?:(?:<[^>]*>[^<]*<\/[^>]*>)|[\s0-9.a-z'"&;])*)<\/td>(?:[^<]+|<(?!tr))*<tr[^>]*>\s*<td[^>]*>\s*<span(?:\s+style="color:#([^;]*);)?[^>]*>([^<]*)<\/span>/gi;
+
+	var item, i;
+
+	var r = handler["results"];
+	for(i = r.length; item = regex.exec(html); i++) {
+		item[6] = item[6].replace(/^[^:]*:\s*/, "");
+		if(parseInt(item[6])) {
+			var date = item[6]+" "+today.getFullYear();
+			var months = {"Mrz":"Mar","Dez":"Dec"};
+			for(var mon in months) {
+				date = date.replace(mon, months[mon]);
+			}
+			item.timestamp = timestamp(date, true);
+		}
+		if(isNaN(item.timestamp)) {
+			item.days = 0;
+		} else {
+			item.days = dayDiff(item.timestamp, today);
+		}
+		item.online = item[5]=="0f0" ? 2 : item[5]=="ff0"?1:-1;
+		item[4] = stripStats(item[4]);
+		r[i] = item;
+	}
+
+	if(handlerInProcess(handler)) {
+		return;
+	}
+
+	var list = handler["list"];
+	var rl = r.length;
+	setBadge(searchbutton[1], rl);
+
+	for(i=0; i<rl; i++) {
+		item = r[i];
+		appendUserRow(list, item[2], item[3], item[4], item.timestamp, item.days, item[6], item.online, null, false, item[1]);
+	}
+
+	if(i==0) {
+		showListMessage(list, "No results");
 	}
 }
 
@@ -1237,7 +1321,7 @@ function fetchVisitors(event)
 	var baseurl = base+"/search/";
 
 	showListMessage(visitorlist, "Loading …");
-	fetchURL_didFetch_error(base+"/search/index.php?action=execute&searchType=myVisitors", function(html) {
+	fetchURL_didFetch_error(baseurl+"index.php?action=execute&searchType=myVisitors", function(html) {
 		regex.lastIndex = 0;
 		if(handler["fail"] || !regex.test(html)) {
 			noLogin(handler);
@@ -1314,23 +1398,34 @@ function showThreads(event)
 function findUsers(event)
 {
 	event.preventDefault();
-	today = null;
 
 	var query = event.target[0].value;
-	var url;
-
-	switchView(searchlist, searchbutton[0], searchbutton[1]);
-	showListMessage(searchlist, "Searching “"+query+"” …");
-
-	setFetchTime();
-	return;
 
 	if(id = parseInt(query)) {
-		url = base+"/auswertung/setcard/index.php?set="+id;
-	} else {
-		url = base+"/search/index.php?action=execute&searchType=direct&directMode=userName&directValue="+query;
+		openProfileWindow(base+"/auswertung/setcard/index.php?set="+id);
+		return;
 	}
-	openWindow(url);
+
+	today = null;
+	var handler = {"results":[], "found":0, "total":1, "list":searchlist, "fail":false};
+	switchView(searchlist, searchbutton[0], searchbutton[1]);
+
+	var regex = /page=search/gi;
+	var nextRegex = /\d<\/a>&nbsp;\|&nbsp;<a href="([^"]*)">/gi;
+	var baseurl = base+"/search/";
+
+	showListMessage(searchlist, "Loading …");
+	fetchURL_didFetch_error(baseurl+"index.php?action=execute&searchType=direct&directMode=userName&directValue="+query, function(html) {
+		if(handler["fail"] || !regex.test(html)) {
+			noLogin(handler);
+			showListMessage(searchlist, "Cannot retrieve search results.", "Ensure you are logged in.", true);
+		}
+
+		fetchNextPage(handler, baseurl, html, regex, nextRegex, null, combineSearch);
+	}, function(status) {
+		noLogin(handler);
+		showListMessage(searchlist, "Cannot access search.", "The server responded with error "+status+".", true)
+	});
 }
 
 function applyFilter(event, list, filter, button, func)
