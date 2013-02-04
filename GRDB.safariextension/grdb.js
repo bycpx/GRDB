@@ -726,6 +726,7 @@ function clusterItems(html, regex, more, index, isSent)
 {
 	var first, dup, last, item = null;
 
+	regex.lastIndex = 0;
 	for(item = null; item = regex.exec(html); index[item[1]] = item) {
 		if(isSent) {
 			item.timestamp = timestamp(item[4]);
@@ -746,7 +747,11 @@ function clusterItems(html, regex, more, index, isSent)
 		}
 	}
 
-	while(more && (item = more.exec(html))) {
+	if(!more) {
+		return first;
+	}
+	more.lastIndex = 0;
+	while(item = more.exec(html)) {
 		if(item[1]!="0" && !index[item[1]]) {
 			item.timestamp = null;
 			if(last) {
@@ -1351,6 +1356,7 @@ function fetchVisitors(event)
 
 function fetchNextPage(handler, baseurl, html, regex, nextRegex, flag, combineFunc)
 {
+	nextRegex.lastIndex = 0;
 	var url = nextRegex.exec(html);
 
 	if(url && url[1]) {
