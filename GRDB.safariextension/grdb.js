@@ -289,7 +289,7 @@ function stripStats(stats)
 		return null;
 	}
 	var cleanstats = stats.replace(/<[^>]*>/g, "");
-	var regex = /[0-9][0-9a-z'"]*/g;
+	var regex = /[0-9][0-9a-z'"\s]*/g;
 	var res = "";
 	for(var i=0; stat = regex.exec(cleanstats); i++) {
 		res = res + (i?" · ":"") + stat;
@@ -1019,7 +1019,7 @@ function combineVisits(handler, html, isGiven)
 	if(html) {
 		html = html.replace(/<wbr>/g, "");
 	}
-	var regex = /(?:\/usr\/([^\.]*)\.[^\n]*\n\s*)?<td class="resHeadline"[^?]*\?set=(\d+)[^>]*>([^<]*)<\/a>[^\n]*\n\s*<td[^>]*>\s*((?:(?:<[^>]*>[^<]*<\/[^>]*>)|[\s0-9.a-z'"&;])*);([^<]*)<\/td>(?:[^<]+|<(?!tr))*<tr[^>]*>\s*<td[^>]*>\s*<span(?:\s+style="color:#([^;]*);)?[^>]*>([\s\S]*?)<br \/>\s*<br \/><br \/>/gi;
+	var regex = /(?:\/usr\/([^\.]*)\.[^\n]*\n\s*)?<td class="resHeadline"[^?]*\?set=(\d+)[^>]*>([^<]*)<\/a>[^\n]*\n\s*<td[^>]*>\s*((?:(?:<[^>]*>[^<]*<\/[^>]*>)|[\s0-9.,a-z'"&;])*);([^<]*)<\/td>(?:[^<]+|<(?!tr))*<tr[^>]*>\s*<td[^>]*>\s*<span(?:\s+style="color:#([^;]*);)?[^>]*>([\s\S]*?)<br \/>\s*<br \/><br \/>/gi;
 	var tapex = /footprints\/(\d+)_\d+\.png[^:]*:\s+([^"]*)"/gi;
 
 	var item, i;
@@ -1108,7 +1108,7 @@ function combineVisits(handler, html, isGiven)
 	setBadge(visitorbutton[4], neu);
 	setBadge(visitorbutton[5], ign);
 
-	if(i==0 && k==0) {
+	if(rl==0 && gl==0) {
 		showListMessage(visitorlist,"No Visitors");
 	}
 }
@@ -1120,7 +1120,7 @@ function combineSearch(handler, html, flag)
 	if(html) {
 		html = html.replace(/<wbr>/g, "");
 	}
-	var regex = /(?:\/usr\/([^\.]*)\.[^\n]*\n\s*)?<td class="resHeadline"[^?]*\?set=(\d+)[^>]*>([^<]*)<\/a>[^\n]*\n\s*<td[^>]*>\s*((?:(?:<[^>]*>[^<]*<\/[^>]*>)|[\s0-9.a-z'"&;])*)<\/td>(?:[^<]+|<(?!tr))*<tr[^>]*>\s*<td[^>]*>\s*<span(?:\s+style="color:#([^;]*);)?[^>]*>([^<]*)<\/span>/gi;
+	var regex = /(?:\/usr\/([^\.]*)\.[^\n]*\n\s*)?<td class="resHeadline"[^?]*\?set=(\d+)[^>]*>([^<]*)<\/a>[^\n]*\n\s*<td[^>]*>\s*((?:(?:<[^>]*>[^<]*<\/[^>]*>)|[\s0-9.,a-z'"&;])*)<\/td>(?:[^<]+|<(?!tr))*<tr[^>]*>\s*<td[^>]*>\s*<span(?:\s+style="color:#([^;]*);)?[^>]*>([^<]*)<\/span>/gi;
 
 	var item, i;
 
@@ -1129,7 +1129,7 @@ function combineSearch(handler, html, flag)
 		item[6] = item[6].replace(/^[^:]*:\s*/, "");
 		if(parseInt(item[6])) {
 			var date = item[6]+" "+today.getFullYear();
-			var months = {"Mrz":"Mar","Dez":"Dec"};
+			var months = {"Mär":"Mar","Mai":"May","Okt":"Oct","Dez":"Dec"};
 			for(var mon in months) {
 				date = date.replace(mon, months[mon]);
 			}
