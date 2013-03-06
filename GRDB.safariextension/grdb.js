@@ -31,7 +31,7 @@ function fetchURL_didFetch_error(url, didFetchFunc, errorFunc)
 
 	xhr.onreadystatechange = function() {
 		if(xhr.readyState==4) {
-			if(xhr.status==200 || xhr.status==0) {
+			if(xhr.status==200) {
 				didFetchFunc(xhr.responseText);
 			} else {
 				errorFunc(xhr.status);
@@ -699,25 +699,31 @@ function switchView(view, button, row)
 
 // -
 
-function noLogin(handler)
+function noLogin(handler, message, details)
 {
-	setBadge(mailbutton[0]);
 	setBadge(mailbutton[1]);
 	setBadge(mailbutton[2]);
 	setBadge(mailbutton[3]);
 	setBadge(mailbutton[4]);
-	setBadge(contactbutton[0]);
 	setBadge(contactbutton[1]);
-	setBadge(visitorbutton[0]);
+	setBadge(contactbutton[2]);
+	setBadge(contactbutton[3]);
 	setBadge(visitorbutton[1]);
 	setBadge(visitorbutton[2]);
 	setBadge(visitorbutton[3]);
 	setBadge(visitorbutton[4]);
 	setBadge(visitorbutton[5]);
-	if(window.safari) {
-		safari.self.tab.dispatchMessage("sessionDidEnd");
-	}
+	setBadge(searchbutton[1]);
 	if(handler) {
+		if(!handler["fail"]) {
+			if(!isNaN(parseInt(details))) {
+				details = "The server responded with error "+details+".";
+			}
+			if(!details) {
+				details = "Ensure you are logged in.";
+			}
+			showListMessage(handler["list"], message, details, true);
+		}
 		handler["fail"] = true;
 	}
 }
@@ -1179,8 +1185,7 @@ function fetchMails(event)
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=new", function(html) {
 		var regex = /name="messagelist"/gi;
 		if(mailHandler["fail"] || !regex.test(html)) {
-			noLogin(mailHandler);
-			showListMessage(maillist, "Cannot retrieve new messages.", "Ensure you are logged in.", true);
+			noLogin(mailHandler, "Cannot retrieve new messages.");
 			return;
 		}
 
@@ -1195,16 +1200,14 @@ function fetchMails(event)
 		regex = /set=(\d+)[^>]*>([^<]+)[^?]*\?id=(\d+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
 		combineMails(mailHandler, html, regex, 0);
 	}, function(status) {
-		noLogin(mailHandler);
-		showListMessage(maillist, "Cannot access new messages.", "The server responded with error "+status+".", true);
+		noLogin(mailHandler, "Cannot access new messages.", status);
 	});
 
 	// RECEIVED
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=all", function(html) {
 		var regex = /name="messagelist"/gi;
 		if(mailHandler["fail"] || !regex.test(html)) {
-			noLogin(mailHandler);
-			showListMessage(maillist, "Cannot retrieve all received messages.", "Ensure you are logged in.", true);
+			noLogin(mailHandler, "Cannot retrieve all received messages.");
 			return;
 		}
 
@@ -1223,32 +1226,28 @@ function fetchMails(event)
 		regex = /set=(\d+)[^>]*>([^<]+)[^?]*\?id=(\d+)[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
 		combineMails(mailHandler, html, regex, 1);
 	}, function(status) {
-		noLogin(mailHandler);
-		showListMessage(maillist, "Cannot access all received messages.", "The server responded with error "+status+".", true);
+		noLogin(mailHandler, "Cannot access all received messages.", status);
 	});
 
 	// SENT
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=sent", function(html) {
 		var regex = /name="messagelist"/gi;
 		if(mailHandler["fail"] || !regex.test(html)) {
-			noLogin(mailHandler);
-			showListMessage(maillist, "Cannot retrieve all sent messages.", "Ensure you are logged in.", true);
+			noLogin(mailHandler, "Cannot retrieve all sent messages.");
 			return;
 		}
 
 		regex = /set=(\d+)[^>]*>([^<]+)[^&]*&id=\d+[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
 		combineMails(mailHandler, html, regex, 3);
 	}, function(status) {
-		noLogin(mailHandler);
-		showListMessage(maillist, "Cannot access all sent messages.", "The server responded with error "+status+".", true);
+		noLogin(mailHandler, "Cannot access all sent messages.", status);
 	});
 
 	// UNDELIVERD
 	fetchURL_didFetch_error(base+"/mitglieder/messages/uebersicht.php?view=sentUnread", function(html) {
 		var regex = /name="messagelist"/gi;
 		if(mailHandler["fail"] || !regex.test(html)) {
-			noLogin(mailHandler);
-			showListMessage(maillist, "Cannot retrieve sent messages.", "Ensure you are logged in.", true);
+			noLogin(mailHandler, "Cannot retrieve sent messages.");
 			return;
 		}
 
@@ -1261,8 +1260,7 @@ function fetchMails(event)
 		regex = /set=(\d+)[^>]*>([^<]+)[^&]*&id=\d+[^;]*;">([^<]*)<\/a><\/td>\s*<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>[^<]*<(.)/gi;
 		combineMails(mailHandler, html, regex, 2);
 	}, function(status) {
-		noLogin(mailHandler);
-		showListMessage(maillist, "Cannot access sent messages.", "The server responded with error "+status+".", true);
+		noLogin(mailHandler, "Cannot access sent messages.", status);
 	});
 }
 
@@ -1285,28 +1283,24 @@ function fetchContacts(event)
 	fetchURL_didFetch_error(base+"/myuser/?page=romeo&filterSpecial=favourites&sort=2&sortDirection=-1", function(html) {
 		regex.lastIndex = 0;
 		if(handler["fail"] || !regex.test(html)) {
-			noLogin(handler);
-			showListMessage(contactlist, "Cannot retrieve favourites.", "Ensure you are logged in.", true);
+			noLogin(handler, "Cannot retrieve favourites.");
 			return;
 		}
 
 		fetchNextPage(handler, baseurl, html, regex, nextRegex, true, combineContacts);
 	}, function(status) {
-		noLogin(handler);
-		showListMessage(contactlist, "Cannot access favourites.", "The server responded with error "+status+".", true);
+		noLogin(handler, "Cannot access favourites.", status);
 	});
 	fetchURL_didFetch_error(base+"/myuser/?page=romeo&filterSpecial=online&sort=2&sortDirection=-1", function(html) {
 		regex.lastIndex = 0;
 		if(handler["fail"] || !regex.test(html)) {
-			noLogin(handler);
-			showListMessage(contactlist, "Cannot retrieve favourites.", "Ensure you are logged in.", true);
+			noLogin(handler, "Cannot retrieve favourites.");
 			return;
 		}
 
 		fetchNextPage(handler, baseurl, html, regex, nextRegex, false, combineContacts);
 	}, function(status) {
-		noLogin(handler);
-		showListMessage(contactlist, "Cannot access favourites.", "The server responded with error "+status+".", true);
+		noLogin(handler, "Cannot access favourites.", status);
 	});
 }
 
@@ -1329,28 +1323,24 @@ function fetchVisitors(event)
 	fetchURL_didFetch_error(baseurl+"index.php?action=execute&searchType=myVisitors", function(html) {
 		regex.lastIndex = 0;
 		if(handler["fail"] || !regex.test(html)) {
-			noLogin(handler);
-			showListMessage(visitorlist, "Cannot retrieve visitors.", "Ensure you are logged in.", true);
+			noLogin(handler, "Cannot retrieve visitors.");
 			return;
 		}
 
 		fetchNextPage(handler, baseurl, html, regex, nextRegex, false, combineVisits);
 	}, function(status) {
-		noLogin(handler);
-		showListMessage(visitorlist, "Cannot access visitors.", "The server responded with error "+status+".", true);
+		noLogin(handler, "Cannot access visitors.", status);
 	});
 	fetchURL_didFetch_error(base+"/search/?action=execute&searchType=myVisits", function(html) {
 		regex.lastIndex = 0;
 		if(handler["fail"] || !regex.test(html)) {
-			noLogin(handler);
-			showListMessage(visitorlist, "Cannot retrieve your visits.", "Ensure you are logged in.", true);
+			noLogin(handler, "Cannot retrieve your visits.");
 			return;
 		}
 
 		fetchNextPage(handler, baseurl, html, regex, nextRegex, true, combineVisits);
 	}, function(status) {
-		noLogin(handler);
-		showListMessage(visitorlist, "Cannot access your visits.", "The server responded with error "+status+".", true);
+		noLogin(handler, "Cannot access your visits.", status);
 	});
 }
 
@@ -1423,14 +1413,12 @@ function findUsers(event)
 	showListMessage(searchlist, "Loading …");
 	fetchURL_didFetch_error(baseurl+"index.php?action=execute&searchType=direct&directMode=userName&directValue="+query, function(html) {
 		if(handler["fail"] || !regex.test(html)) {
-			noLogin(handler);
-			showListMessage(searchlist, "Cannot retrieve search results.", "Ensure you are logged in.", true);
+			noLogin(handler, "Cannot retrieve search results.");
 		}
 
 		fetchNextPage(handler, baseurl, html, regex, nextRegex, null, combineSearch);
 	}, function(status) {
-		noLogin(handler);
-		showListMessage(searchlist, "Cannot access search.", "The server responded with error "+status+".", true)
+		noLogin(handler, "Cannot access search.", status);
 	});
 }
 
