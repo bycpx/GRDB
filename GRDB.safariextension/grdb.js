@@ -8,7 +8,7 @@ var visitorbutton=[];
 var searchbutton=[];
 var lastView, lastButton, lastRow;
 var base, cbase, pbase, today;
-var mailHandler = {};
+var mailHandler = {}, mailMap = {};
 var userStatMap = {}, userOnlineMap = {}, userPicMap = {};
 
 var visitIcons = {
@@ -318,7 +318,7 @@ function visitIcon(received, given)
 	return null;
 }
 
-function appendMailRow(senderID, sender, msgID, subject, datetime, timestamp, hasAttachment, dup, sent, drop)
+function appendMailRow(senderID, sender, msgID, subject, datetime, timestamp, att, fresh, dup, sent, drop)
 {
 	var cell, link, klasse;
 	var row = create("li");
@@ -339,26 +339,21 @@ function appendMailRow(senderID, sender, msgID, subject, datetime, timestamp, ha
 	if(!dup) {
 		cell = create("div");
 		cell.setAttribute("class","action");
-		link = createHistoryLink(senderID);
-		link.addEventListener("click", onlyThis, false);
+		cell.addEventListener("click", onlyThis, false);
+		link = createHistoryLink(senderID, fresh);
 		cell.appendChild(link);
 		cell.appendChild(createMoreLink());
 		if(sent) {
 			link = createMsgLink(senderID, null, true);
-			link.addEventListener("click", onlyThis, false);
 			cell.appendChild(link);
 		}
 		link = createAlbumLink(senderID);
-		link.addEventListener("click", onlyThis, false);
 		cell.appendChild(link);
 		link = createFootprintLink(senderID, null, sent);
-		link.addEventListener("click", onlyThis, false);
 		cell.appendChild(link);
 		link = createEditContactLink(senderID);
-		link.addEventListener("click", onlyThis, false);
 		cell.appendChild(link);
 		link = createMailThreadLink(senderID);
-		link.addEventListener("click", onlyThis, false);
 		cell.appendChild(link);
 		row.appendChild(cell);
 
@@ -380,7 +375,7 @@ function appendMailRow(senderID, sender, msgID, subject, datetime, timestamp, ha
 		if(age > (sent?3:10)) {
 			cell.setAttribute("data-age","due");
 		}
-		if(hasAttachment) {
+		if(att) {
 			cell.setAttribute("data-att","true");
 		}
 		row.appendChild(cell);
@@ -591,10 +586,24 @@ function showListMessage(node, text, des, error)
 
 function handleMailClick(event)
 {
-	var popup = openMessageWindow(base+"/msg/?id="+this.getAttribute("data-msg"));
-	popup.opener = null;
-	this.setAttribute("class",this.getAttribute("class")+" low");
+	var msg = this.getAttribute("data-msg");
+	var newmail = mailHandler["new"];
+	var uid = mailMap[msg];
+	var uindex = newmail[uid] || [];
+	var i;
+	for(i=0; i < uindex.length; i++) {
+		if(uindex[i][3]==msg) {
+			uindex.splice(i,1);
+			i--;
+		}
+	}
+	if(i==0) {
+		delete newmail[uid];
+	}
 	event.preventDefault();
+	this.setAttribute("class",this.getAttribute("class")+" low");
+	var popup = openMessageWindow(base+"/msg/?id="+msg);
+	popup.opener = null;
 }
 
 function handlePanelClick(event)
@@ -612,7 +621,7 @@ function handleProfileClick(event)
 function storeVisit(id, name, tapID, tap)
 {
 	list = JSON.parse(localStorage.getItem(VISITS)) || [];
-	list[list.length] = [id, name, tapID, tap];
+	list.push([id, name, tapID, tap]);
 	localStorage.setItem(VISITS, JSON.stringify(list));
 }
 
@@ -733,15 +742,15 @@ function clusterItems(html, regex, more, index, isSent)
 	var first, dup, last, item = null;
 
 	regex.lastIndex = 0;
-	for(item = null; item = regex.exec(html); index[item[1]] = item) {
+	for(item = null; item = regex.exec(html); index[item[1]] ? index[item[1]].unshift(item) : index[item[1]] = [item]) {
 		if(isSent) {
 			item.timestamp = timestamp(item[4]);
 		} else {
 			item.timestamp = timestamp(item[5]);
 		}
-		if((dup = index[item[1]]) && (dup!=last)) {
-			var old = dup.next;
-			dup.next = item;
+		if((dup = index[item[1]]) && (dup[0]!=last)) {
+			var old = dup[0].next;
+			dup[0].next = item;
 			item.next = old;
 		} else {
 			if(last) {
@@ -765,7 +774,7 @@ function clusterItems(html, regex, more, index, isSent)
 			} else {
 				first = item;
 			}
-			index[item[1]] = item;
+			index[item[1]] = [item];
 			last = item;
 		}
 	}
@@ -839,14 +848,18 @@ function combineMails(handler, html, regex, type)
 	setFetchTime();
 	var more = /<option value=\"(\d+)\">([^<]*)<\/option>/gi;
 
-	var i_n = handler["new"]; // userID => new item
-	var index = handler["index"]; // userID => item
+	var i_n = handler["new"]; // userID => [new items]
+	var index = handler["index"]; // userID => [items]
+	var map = handler["map"]; // msgID => userID
 
 	switch(type) {
 		case 0: // new
 			handler["newmail"] = clusterItems(html, regex, more, i_n, false);
-			for(attr in i_n) {
-				index[attr] = i_n[attr];
+			for(uid in i_n) {
+				index[uid] = i_n[uid];
+				for(var i=0; i < i_n[uid].length; i++) {
+					map[i_n[uid][i][3]] = uid;
+				}
 			}
 		break;
 		case 1: // received
@@ -855,8 +868,8 @@ function combineMails(handler, html, regex, type)
 		case 2: // undelivered
 			var i_u = {}
 			handler["undelivered"] = clusterItems(html, regex, more, i_u, true);
-			for(attr in i_u) {
-				index[attr] = i_u[attr];
+			for(uid in i_u) {
+				index[uid] = i_u[uid];
 			}
 		break;
 		case 3: // sent
@@ -905,7 +918,7 @@ function combineMails(handler, html, regex, type)
 			curID = n[1];
 			prvID = 0;
 			while(n && curID == n[1]) {
-				appendMailRow(n[1], n[2], n[3], n[4], n[5], n.timestamp, n[6]=="i", prvID==curID, false);
+				appendMailRow(n[1], n[2], n[3], n[4], n[5], n.timestamp, n[6]=="i", mailMap[n[3]] ? false : true, prvID==curID, false);
 				prvID = curID;
 				n = n.next;
 				k++;
@@ -915,7 +928,7 @@ function combineMails(handler, html, regex, type)
 			curID = u[1];
 			prvID = 0;
 			while(u && curID == u[1]) {
-				appendMailRow(u[1], u[2], null, u[3], u[4], u.timestamp, u[5]=="i", prvID==curID, true);
+				appendMailRow(u[1], u[2], null, u[3], u[4], u.timestamp, u[5]=="i", false, prvID==curID, true);
 				prvID = curID;
 				u = u.next;
 				k++;
@@ -923,9 +936,9 @@ function combineMails(handler, html, regex, type)
 		}
 		while(i<dl && !(n && d[i].timestamp<n.timestamp) && !(u && d[i].timestamp<u.timestamp)) {
 			if(d[i].sent) {
-				appendMailRow(d[i][1], d[i][2], null, d[i][3], d[i][4], d[i].timestamp, d[i][5]=="i", false, true, true);
+				appendMailRow(d[i][1], d[i][2], null, d[i][3], d[i][4], d[i].timestamp, d[i][5]=="i", false, false, true, true);
 			} else {
-				appendMailRow(d[i][1], d[i][2], d[i][3], d[i][4], d[i][5], d[i].timestamp, d[i][6]=="i", false, false, true);
+				appendMailRow(d[i][1], d[i][2], d[i][3], d[i][4], d[i][5], d[i].timestamp, d[i][6]=="i", false, false, false, true);
 			}
 			i++;
 			k++;
@@ -934,6 +947,7 @@ function combineMails(handler, html, regex, type)
 	if(k==0) {
 		showListMessage(maillist,"No Messages");
 	}
+	mailMap = map;
 }
 
 function combineContacts(handler, html, isFav)
@@ -996,7 +1010,7 @@ function combineContacts(handler, html, isFav)
 		while(i<fl && !(j<ol && f[i].days>o[j].days)) {
 			item = f[i];
 			id = item[2];
-			appendUserRow(list, id, item[3], item[4], item.timestamp, item.days, item[6], item.online, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), true);
+			appendUserRow(list, id, item[3], item[4], item.timestamp, item.days, item[6], item.online, newmail[id] ? newmail[id][0][3] : (mail[id] ? -1 : 0), true);
 			if(item.online>0) {
 				fav++;
 			}
@@ -1005,7 +1019,7 @@ function combineContacts(handler, html, isFav)
 		while(j<ol && !(i<fl && o[j].days>f[i].days)) {
 			if(id = o[j][2]) {
 				item = o[j];
-				appendUserRow(list, id, item[3], item[4], item.timestamp, item.days, item[6], item.online, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0));
+				appendUserRow(list, id, item[3], item[4], item.timestamp, item.days, item[6], item.online, newmail[id] ? newmail[id][0][3] : (mail[id] ? -1 : 0));
 			}
 			j++;
 		}
@@ -1065,7 +1079,7 @@ function combineVisits(handler, html, isGiven)
 		} else {
 			item = [0,0,s[i][0],s[i][1],null,"??.??. ??:??","",0,s[i][2],s[i][3],1];
 			item.timestamp = null;
-			g[g.length] = item;
+			g.push(item);
 			index[s[i][0]] = item;
 		}
 	}
@@ -1091,7 +1105,7 @@ function combineVisits(handler, html, isGiven)
 		while(i<rl && !(j<gl && r[i].timestamp<g[j].timestamp)) {
 			id = r[i][2];
 			item = index[id];
-			appendVisitorRow(id, r[i][3], r[i].stats, r[i][5], r[i].timestamp, r[i][8], r[i][9], item ? item[8] : -1, item ? item[9] : null, newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), r[i][1], item ? item[10] : 0);
+			appendVisitorRow(id, r[i][3], r[i].stats, r[i][5], r[i].timestamp, r[i][8], r[i][9], item ? item[8] : -1, item ? item[9] : null, newmail[id] ? newmail[id][0][3] : (mail[id] ? -1 : 0), r[i][1], item ? item[10] : 0);
 			if(!item) {
 				neu++;
 			}
@@ -1099,7 +1113,7 @@ function combineVisits(handler, html, isGiven)
 		}
 		while(j<gl && !(i<rl && g[j].timestamp<r[i].timestamp)) {
 			if(id = g[j][2]) {
-				appendVisitorRow(id, g[j][3], g[j].stats, g[j][5], g[j].timestamp, -1, null, g[j][8], g[j][9], newmail[id] ? newmail[id][3] : (mail[id] ? -1 : 0), g[j][1], g[j][10]);
+				appendVisitorRow(id, g[j][3], g[j].stats, g[j][5], g[j].timestamp, -1, null, g[j][8], g[j][9], newmail[id] ? newmail[id][0][3] : (mail[id] ? -1 : 0), g[j][1], g[j][10]);
 				if(g[j].timestamp) {
 					ign++;
 				}
@@ -1155,13 +1169,17 @@ function combineSearch(handler, html, flag)
 		return;
 	}
 
+	var id;
 	var list = handler["list"];
+	var mail = mailHandler["index"] || {};
+	var newmail = mailHandler["new"] || {};
 	var rl = r.length;
 	setBadge(searchbutton[1], rl);
 
 	for(i=0; i<rl; i++) {
 		item = r[i];
-		appendUserRow(list, item[2], item[3], item[4], item.timestamp, item.days, item[6], item.online, null, false, item[1]);
+		id = item[2];
+		appendUserRow(list, id, item[3], item[4], item.timestamp, item.days, item[6], item.online, newmail[id] ? newmail[id][0][3] : (mail[id] ? -1 : 0), false, item[1]);
 	}
 
 	if(i==0) {
@@ -1172,7 +1190,7 @@ function combineSearch(handler, html, flag)
 function fetchMails(event)
 {
 	today = null;
-	mailHandler = {"newmail":false, "new":{}, "received":false, "undelivered":false, "sent":false, "threads":[], "index":{}, "found":0, "total":4, "list":maillist, "fail":false};
+	mailHandler = {"newmail":false, "new":{}, "received":false, "undelivered":false, "sent":false, "threads":[], "index":{}, "map":{}, "found":0, "total":4, "list":maillist, "fail":false};
 	if(event===false) {
 		switchView(maillist, mailbutton[0]);
 	} else {
