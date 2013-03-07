@@ -77,10 +77,9 @@ header h2 {
 	font-weight: bold;
 	text-align:	center;
 	border-radius: 24px;
-	
-	background:	#aaa;
-	background-image: -webkit-linear-gradient(top, #def, #89a);
-	background-image: -moz-linear-gradient(top, #def, #89a);
+	background:	#88a;
+	background-image: -webkit-linear-gradient(top, #ddf, #88a);
+	background-image: -moz-linear-gradient(top, #ddf, #88a);
 	border:		1px solid #666;
 	box-shadow:	#fff 0 1px 0;
 }
@@ -91,15 +90,17 @@ header nav {
 
 header form {
 	float:		right;
-	margin:		0 1em;
+	margin:		0 0 0 0.5em;
+	padding:	0 1.5em;
 	line-height: 48px;
+	border-left: thin dotted #666;
 }
 
 header nav a {
 	display:	block;
 	float:		left;
 	height:		100%;
-	padding:	0 2em;
+	padding:	0 1.5em;
 	line-height: 48px;
 	font-weight: bold;
 	border-right: thin dotted #666;
@@ -110,7 +111,7 @@ header nav a:hover {
 	color:		#333;
 }
 
-header nav a.act {
+header nav a.act, header form.act {
 	color:		#333;
 	background:	-webkit-linear-gradient(top, rgba(255,255,255, 0.75), rgba(255,255,255, 0));
 	background:	-moz-linear-gradient(top, rgba(255,255,255, 0.75), rgba(255,255,255, 0));
@@ -366,6 +367,42 @@ li.sent.drop {
 	background:	#fff;
 }
 
+#visitors li, #results li {
+	height:		3em;
+}
+
+#visitors p, #results p {
+	color:		#999;
+	line-height: 1em;
+	margin:		0 0 0 0.75em;
+	font-size:	0.85em;
+	text-decoration: none;
+}
+
+#visitors li.drop p {
+	color:		inherit;
+}
+
+#visitors div.action, #results div.action {
+	margin:		0;
+	height:		1.5em;
+	overflow:	hidden;
+}
+
+a.pic {
+	float:		left;
+	margin:		0.2em 0 0 -2.8em;
+	padding:	0.1em;
+	background:	#888;
+}
+
+a.pic img {
+	display:	block;
+	width:		2.5em;
+	height:		2.5em;
+	border-radius: 0.25em;
+}
+
 ul div.action {
 	float:		left;
 	margin:		0 0 0 -3em;
@@ -411,7 +448,7 @@ ul h2 {
 	text-overflow: ellipsis;
 }
 
-#mails h2, ul li.msg h2 {
+#mails h2, #contacts li.msg h2 {
 	margin-right: 0.25em;
 	float:		left;
 }
@@ -487,21 +524,6 @@ ul li.low {
 #visitors h3[data-give][data-recv] {
 	padding:	0 0 0 20px;
 	background:	url(f/def_b.png) left center no-repeat;
-}
-
-#visitors h2 a:after {
-	content:	"?";
-	font-size:	0.5em;
-	color:		#888;
-	vertical-align: top;
-}
-
-#visitors h2 a:hover:after {
-	color:		inherit;
-}
-
-#visitors h2 a[data-pic]:after {
-	content:	none;
 }
 
 ul h3[data-age] {
