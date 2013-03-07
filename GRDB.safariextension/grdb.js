@@ -42,6 +42,11 @@ function fetchURL_didFetch_error(url, didFetchFunc, errorFunc)
 	xhr.send("");
 }
 
+function $(id)
+{
+	return document.getElementById(id);
+}
+
 function create(tag, content, klasse)
 {
 	var node = document.createElement(tag);
@@ -1501,36 +1506,23 @@ function initViews()
 
 function init()
 {
-	maillist = document.getElementById("mails");
-	threadlist = document.getElementById("threads");
-	mailbutton[0] = document.getElementById("mail");
-	mailbutton[1] = document.getElementById("allmail");
-	mailbutton[2] = document.getElementById("inbox");
-	mailbutton[3] = document.getElementById("sent");
-	mailbutton[4] = document.getElementById("thread");
+	maillist = $("mails");
+	threadlist = $("threads");
+	mailbutton = [ $("mail"), $("allmail"), $("inbox"), $("sent"), $("thread") ];
 
-	contactlist = document.getElementById("contacts");
-	contactbutton[0] = document.getElementById("contact");
-	contactbutton[1] = document.getElementById("allcontact");
-	contactbutton[2] = document.getElementById("favs");
-	contactbutton[3] = document.getElementById("online");
+	contactlist = $("contacts");
+	contactbutton = [ $("contact"), $("allcontact"), $("favs"), $("online") ];
 
-	visitorlist = document.getElementById("visitors");
-	visitorbutton[0] = document.getElementById("visitor");
-	visitorbutton[1] = document.getElementById("allvisitor");
-	visitorbutton[2] = document.getElementById("received");
-	visitorbutton[3] = document.getElementById("given");
-	visitorbutton[4] = document.getElementById("new");
-	visitorbutton[5] = document.getElementById("ignored");
+	visitorlist = $("visitors");
+	visitorbutton = [ $("visitor"), $("allvisitor"), $("received"), $("given"), $("new"), $("ignored") ];
 
-	searchlist = document.getElementById("results");
-	searchbutton[0] = document.getElementById("search");
-	searchbutton[1] = document.getElementById("allsearch");
+	searchlist = $("results");
+	searchbutton = [ $("search"), $("allsearch") ];
 
-	info = document.getElementById("info");
+	info = $("info");
 
 	pbase = "http://s.gayromeo.com/img/usr/";
-	userPic = document.getElementById("userpic");
+	userPic = $("userpic");
 
 	initViews();
 }
