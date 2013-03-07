@@ -60,7 +60,7 @@ ul li {
 	height:	1.75em;
 }
 
-ul li img {
+ul.ex li img {
 	float:	left;
 	margin:	0.25em 0 0 -2em;
 }
@@ -95,7 +95,7 @@ ul li img {
 
 <img id="logo" src="Icon-64.png" alt="GRDB" />
 <h3><a name="what"></a>GRDB <small>
-Version 2.5
+Version 2.6
 </small></h3>
 <p>A Useless Safari extension.</p>
 
@@ -104,14 +104,14 @@ List messages, contacts, and visitors in a more concise and clear way.
 </p>
 
 <h3><a name="new"></a>New in this Version</h3>
-<p>Display counts of new items in header.</p>
 
-<h4>Included in Version 2.4</h4>
+<p>The new and improved search option makes it even easier to find exactly what you are looking for.</p>
+<p>By popular demand, user icons will now be shown in the visitor section for your convenience.</p>
+
+<h4>Included in Version 2.5</h4>
+<p>Display counts of new items in header and popover.</p>
 <p>Adapt to site change that caused sent messages to disappear from the list.</p>
 <p>Expand actions for list items.</p>
-<p>This about page.</p>
-<p>Count of new items in popover.</p>
-<p>Possibility for standalone usage as bookmarklett.</p>
 
 <h3><a name="button"></a>Toolbar Button</h3>
 <img src="grdb.png" class="aside" />
@@ -141,7 +141,7 @@ This dummy list explains the meaning of the different elements of the message li
 </p>
 
 <ul id="mails">
-<li class="recv" data-msg="1"><div class="action"><a style="background-image:url(i/hist.png);" title="History">⇄</a><a style="background-image:url(i/more.png);" title="More">»</a></div><h2><a>Sender of the message</a></h2><h3 data-age="new">Time of reception</h3><p>Preview of the received message</p></li>
+<li class="recv" data-msg="1"><div class="action"><a style="background-image:url(i/hist_hi.png);" title="History">⇄</a><a style="background-image:url(i/more.png);" title="More">»</a></div><h2><a>Sender of the message</a></h2><h3 data-age="new">Time of reception</h3><p>Preview of the received message</p></li>
 <li class="recv" data-msg="1"><h3>Some time earlier</h3><p>Follow-Up from the same sender as the message above</p></li>
 <li class="recv" data-msg="1"><div class="action"><a style="background-image:url(i/hist.png);" title="History">⇄</a><a style="background-image:url(i/more.png);" title="More">»</a></div><h2><a>Sender</a></h2><h3 data-att="-" data-age="new">Time of reception</h3><p>Received message with attachments</p></li>
 <li class="recv drop" data-msg="1"><div class="action"><a style="background-image:url(i/hist.png);" title="History">⇄</a><a style="background-image:url(i/more.png);" title="More">»</a></div><h2><a>Sender</a></h2><h3>Time of reception</h3><p>A message you read but didn’t answer</p></li>
@@ -156,7 +156,7 @@ This dummy list explains the meaning of the different elements of the message li
 </ul>
 
 <p>
-In the contact and visitor lists entries are colour coded.
+In the contact, visitor, and search result lists entries are colour coded.
 
 Offline contacts appear grey, while online contacts and favourites appear black and blue, respectively.
 </p>
@@ -167,11 +167,11 @@ New visitors you haven’t visited back appear blue.
 </p>
 
 <ul id="visitors" class="double">
-<li class="recv new"><div class="action"><a style="background-image:url(i/pin.png);" title="Pin">P</a><a style="background-image:url(i/more.png);" title="More">»</a></div><h3 data-age="new" title="Footprint">Date of visit</h3><h2><a>New Visitor</a></h2></li>
-<li class="recv"><div class="action"><a style="background-image:url(i/pin.png);" title="Pin">P</a><a style="background-image:url(i/more.png);" title="More">»</a></div><h3 data-recv="2">Date of visit</h3><h2><a>Visitor you visited back</a></h2></li>
-<li class="sent drop"><div class="action"><a style="background-image:url(i/pin.png);" title="Pin">P</a><a style="background-image:url(i/more.png);" title="More">»</a></div><h3 data-give="2">Date of your visit</h3><h2><a>You visited</a></h2></li>
-<li class="sent drop"><div class="action"><a style="background-image:url(i/pin.png);" title="Pin">P</a><a style="background-image:url(i/more.png);" title="More">»</a></div><h3 data-age="due">Date of your visit</h3><h2><a>Didn’t visit you</a></h2></li>
-<li class="recv new"><div class="action"><a style="background-image:url(i/pin.png);" title="Pin">P</a><a style="background-image:url(i/more.png);" title="More">»</a></div><h3 data-age="due">Date of visit</h3><h2><a>User you didn’t visit back</a></h2></li>
+<li class="recv new"><a class="pic"><img src="Icon-32.png" style="height:32px;width:32px;"></a><div class="action"><a style="background-image:url(i/pin.png);" title="Pin">P</a><a style="background-image:url(i/more.png);" title="More">»</a></div><h3 data-age="new" title="Footprint">Date of visit</h3><h2><a>New Visitor</a></h2><p>User stats</p></li>
+<li class="recv"><div class="action"><a style="background-image:url(i/pin.png);" title="Pin">P</a><a style="background-image:url(i/more.png);" title="More">»</a></div><h3 data-recv="2">Date of visit</h3><h2><a>Visitor you visited back</a></h2><p>User stats</p></li>
+<li class="sent drop"><a class="pic"><img src="Icon-32.png" style="height:32px;width:32px;"></a><div class="action"><a style="background-image:url(i/pin.png);" title="Pin">P</a><a style="background-image:url(i/more.png);" title="More">»</a></div><h3 data-give="2">Date of your visit</h3><h2><a>You visited</a></h2><p>User stats</p></li>
+<li class="sent drop"><div class="action"><a style="background-image:url(i/pin.png);" title="Pin">P</a><a style="background-image:url(i/more.png);" title="More">»</a></div><h3 data-age="due">Date of your visit</h3><h2><a>Didn’t visit you</a></h2><p>User stats</p></li>
+<li class="recv new"><div class="action"><a style="background-image:url(i/pin.png);" title="Pin">P</a><a style="background-image:url(i/more.png);" title="More">»</a></div><h3 data-age="due">Date of visit</h3><h2><a>User you didn’t visit back</a></h2><p>User stats</p></li>
 <li class="sent drop"><div class="action"><a style="background-image:url(i/pin_hi.png);" title="Pin">P</a><a style="background-image:url(i/more.png);" title="More">»</a></div><h3>??.??. ??:??</h3><h2><a>Pinned user</a></h2></li>
 </ul>
 
@@ -198,7 +198,7 @@ These icons are placed to the left of list items.
 Click them to perform the described action.
 </p>
 
-<ul class="double">
+<ul class="double ex">
 <li><img src="i/hist.png" alt="History" />Show history</li>
 <li><img src="i/hist_hi.png" alt="History" />Show history (with messages)</li>
 <li><img src="i/ffwd.png" alt="Forward" />Forward history via e-mail</li>
@@ -219,7 +219,7 @@ Click them to perform the described action.
 These icons appear after profile names when there online status is known.
 </p>
 
-<ul class="double">
+<ul class="double ex">
 <li><img src="i/st_on.png" alt="" />Online</li>
 <li><img src="i/st_away.png" alt="" />Away</li>
 <li><img src="i/st_off.png" alt="" />Offline</li>
@@ -232,7 +232,7 @@ These icons appear after profile names when there online status is known.
 In the visitor list, footprints are displayed with different shapes and icons.
 </p>
 
-<ul class="double">
+<ul class="double ex">
 <li><img src="f/def_g.png" alt="" />You left a footprint on another profile</li>
 <li><img src="f/def_r.png" alt="" />You received a footprint from a visitor</li>
 <li><img src="f/def_b.png" alt="" />You and a visitor left each other footprints</li>
@@ -244,7 +244,7 @@ In the visitor list, footprints are displayed with different shapes and icons.
 The icon within the footprint shape hints at the kind of footprint you left or received.
 </p>
 
-<ul class="triple">
+<ul class="triple ex">
 <li><img src="f/def_r.png" alt="" />General</li>
 <li><img src="f/date_r.png" alt="" />Date</li>
 <li><img src="f/ex_r.png" alt="" />Explicit</li>
