@@ -147,7 +147,7 @@ function createUserLink(id, name, info, pic, online, plain)
 		} else if(stats) {
 			link.setAttribute("title",stats);
 		}
-		if(pic = userPicMap[id]) {
+		if(pic = pic || userPicMap[id]) {
 			link.setAttribute("data-pic",pic);
 			link.addEventListener("mouseover", showUserPic, false);
 			link.addEventListener("mouseout", hideUserPic, false);
@@ -1018,7 +1018,7 @@ function combineContacts(handler, html, isFav)
 		while(i<fl && !(j<ol && f[i].days>o[j].days)) {
 			item = f[i];
 			id = item[2];
-			appendUserRow(list, id, item[3], item[4], item.timestamp, item.days, item[6], item.online, newmail[id] ? newmail[id][0][3] : (mail[id] ? -1 : 0), true);
+			appendUserRow(list, id, item[3], item[4], item.timestamp, item.days, item[6], item.online, newmail[id] ? newmail[id][0][3] : (mail[id] ? -1 : 0), true, item[1]);
 			if(item.online>0) {
 				fav++;
 			}
