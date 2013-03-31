@@ -804,17 +804,20 @@ function prepareVisitor(item, tapex)
 	item.timestamp = timestamp(item[5].replace(/-/,today.getFullYear()+" "));
 	userPicMap[item[2]] = item[1];
 	userOnlineMap[item[2]] = item[6]=="0f0" ? 2 : item[6]=="ff0"?1:-1;
-	item.stats = stripStats(item[4]);
-	userStatMap[item[2]] = item.stats;
+	item[4] = stripStats(item[4]);
+	if(item[7]) {
+		item[4] = item[4] + " — " + item[7];
+	}
+	userStatMap[item[2]] = item[4];
 	if(!tapex) {
 		return;
 	}
 	tapex.lastIndex = 0;
-	if(tap = tapex.exec(item[7])) {
-		item[8] = tap[1];
-		item[9] = tap[2];
+	if(tap = tapex.exec(item[8])) {
+		item[9] = tap[1];
+		item[10] = tap[2];
 	}
-	item[7] = null;
+	item[8] = null;
 }
 
 function prepareContact(item, isFav)
@@ -1044,7 +1047,7 @@ function combineVisits(handler, html, isGiven)
 	if(html) {
 		html = html.replace(/<wbr>/g, "");
 	}
-	var regex = /(?:\/usr\/([^\.]*)\.[^\n]*\n\s*)?<td class="resHeadline"[^?]*\?set=(\d+)[^>]*>([^<]*)<\/a>[^\n]*\n\s*<td[^>]*>\s*((?:(?:<[^>]*>[^<]*<\/[^>]*>)|[\s0-9.,a-z'"&;])*);([^<]*)<\/td>(?:[^<]+|<(?!tr))*<tr[^>]*>\s*<td[^>]*>\s*<span(?:\s+style="color:#([^;]*);)?[^>]*>([\s\S]*?)<br \/>\s*<br \/><br \/>/gi;
+	var regex = /(?:\/usr\/([^\.]*)\.[^\n]*\n\s*)?<td class="resHeadline"[^?]*\?set=(\d+)[^>]*>([^<]*)<\/a>[^\n]*\n\s*<td[^>]*>\s*((?:(?:<[^>]*>[^<]*<\/[^>]*>)|[\s0-9.,a-z'"&;])*);([^<]*)<\/td>(?:[^<]+|<(?!tr))*<tr[^>]*>\s*<td[^>]*>\s*<span(?:\s+style="color:#([^;]*);)?[^>]*>(?:[^<]+|<(?!td))*<td[^>]*>(?:<span class="distance">([^<]*))?<\/[^>]+>([\s\S]*?)<br \/>\s*<br \/><br \/>/gi;
 	var tapex = /footprints\/([^_.]+)_\d+\.png[^:]*:\s+([^"]*)"/gi;
 
 	var item, i;
@@ -1077,12 +1080,12 @@ function combineVisits(handler, html, isGiven)
 	for(i=0; i<s.length; i++) {
 		if(item = index[s[i][0]]) {
 			s[i][1] = item[3];
-			s[i][2] = item[8];
-			s[i][3] = item[9];
+			s[i][2] = item[9];
+			s[i][3] = item[10];
 
-			item[10] = 2;
+			item[11] = 2;
 		} else {
-			item = [0,0,s[i][0],s[i][1],null,"??.??. ??:??","",0,s[i][2],s[i][3],1];
+			item = [0,0,s[i][0],s[i][1],"","??.??. ??:??","","",0,s[i][2],s[i][3],1];
 			item.timestamp = null;
 			g.push(item);
 			index[s[i][0]] = item;
@@ -1110,7 +1113,7 @@ function combineVisits(handler, html, isGiven)
 		while(i<rl && !(j<gl && r[i].timestamp<g[j].timestamp)) {
 			id = r[i][2];
 			item = index[id];
-			appendVisitorRow(id, r[i][3], r[i].stats, r[i][5], r[i].timestamp, r[i][8], r[i][9], item ? item[8] : -1, item ? item[9] : null, newmail[id] ? newmail[id][0][3] : (mail[id] ? -1 : 0), r[i][1], item ? item[10] : 0);
+			appendVisitorRow(id, r[i][3], r[i][4], r[i][5], r[i].timestamp, r[i][9], r[i][10], item ? item[9] : -1, item ? item[10] : null, newmail[id] ? newmail[id][0][3] : (mail[id] ? -1 : 0), r[i][1], item ? item[11] : 0);
 			if(!item) {
 				neu++;
 			}
@@ -1118,7 +1121,7 @@ function combineVisits(handler, html, isGiven)
 		}
 		while(j<gl && !(i<rl && g[j].timestamp<r[i].timestamp)) {
 			if(id = g[j][2]) {
-				appendVisitorRow(id, g[j][3], g[j].stats, g[j][5], g[j].timestamp, -1, null, g[j][8], g[j][9], newmail[id] ? newmail[id][0][3] : (mail[id] ? -1 : 0), g[j][1], g[j][10]);
+				appendVisitorRow(id, g[j][3], g[j][4], g[j][5], g[j].timestamp, -1, null, g[j][9], g[j][10], newmail[id] ? newmail[id][0][3] : (mail[id] ? -1 : 0), g[j][1], g[j][11]);
 				if(g[j].timestamp) {
 					ign++;
 				}
@@ -1145,7 +1148,7 @@ function combineSearch(handler, html, flag)
 	if(html) {
 		html = html.replace(/<wbr>/g, "");
 	}
-	var regex = /(?:\/usr\/([^\.]*)\.[^\n]*\n\s*)?<td class="resHeadline"[^?]*\?set=(\d+)[^>]*>([^<]*)<\/a>[^\n]*\n\s*<td[^>]*>\s*((?:(?:<[^>]*>[^<]*<\/[^>]*>)|[\s0-9.,a-z'"&;])*)<\/td>(?:[^<]+|<(?!tr))*<tr[^>]*>\s*<td[^>]*>\s*<span(?:\s+style="color:#([^;]*);)?[^>]*>([^<]*)<\/span>/gi;
+	var regex = /(?:\/usr\/([^\.]*)\.[^\n]*\n\s*)?<td class="resHeadline"[^?]*\?set=(\d+)[^>]*>([^<]*)<\/a>[^\n]*\n\s*<td[^>]*>\s*((?:(?:<[^>]*>[^<]*<\/[^>]*>)|[\s0-9.,a-z'"&;])*)<\/td>(?:[^<]+|<(?!tr))*<tr[^>]*>\s*<td[^>]*>\s*<span(?:\s+style="color:#([^;]*);)?[^>]*>([^<]*)<\/span>(?:[^<]+|<(?!td))*<td[^>]*>(?:<span class="distance">([^<]*))?<\/[^>]+>/gi;
 
 	var item, i;
 
@@ -1167,6 +1170,9 @@ function combineSearch(handler, html, flag)
 		}
 		item.online = item[5]=="0f0" ? 2 : item[5]=="ff0"?1:-1;
 		item[4] = stripStats(item[4]);
+		if(item[7]) {
+			item[4] = item[4] + " — " + item[7];
+		}
 		r[i] = item;
 	}
 
