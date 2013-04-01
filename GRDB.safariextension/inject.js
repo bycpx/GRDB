@@ -42,6 +42,11 @@ if(window.top===window) {
 	if(window.location.href && window.location.href.indexOf("/msg/")!=-1 && (el=document.getElementById("userName"))) {
 		userSeen(el);
 	}
+	if(window.location.href && window.location.href.indexOf("/pix/")!=-1) {
+		document.onmousedown = null;
+		document.oncontextmenu = null;
+		document.ondragstart = null;
+	}
 
 } else {
 	if(document.getElementById("msgDisplay_c")) {
@@ -53,4 +58,10 @@ if(window.top===window) {
 	if(document.getElementById("visDisplay_c")) {
 		document.getElementById("visDisplay_c").addEventListener("DOMCharacterDataModified", visitorDisplayChanged, false);
 	}
+	if(window.location.href && window.location.href.indexOf("/album/")!=-1) {
+		document.onmousedown = null;
+		document.oncontextmenu = null;
+		document.ondragstart = null;
+	}
+
 }
