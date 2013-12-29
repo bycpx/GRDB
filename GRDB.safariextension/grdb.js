@@ -1048,7 +1048,7 @@ function combineVisits(handler, html, isGiven)
 		html = html.replace(/<wbr>/g, "");
 	}
 	var regex = /(?:\/usr\/([^\.]*)\.[^\n]*\n\s*)?<td class="resHeadline"[^?]*\?set=(\d+)[^>]*>([^<]*)<\/a>[^\n]*\n\s*<td[^>]*>\s*((?:(?:<[^>]*>[^<]*<\/[^>]*>)|[\s0-9.,a-z'"&;])*);([^<]*)<\/td>(?:[^<]+|<(?!tr))*<tr[^>]*>\s*<td[^>]*>\s*<span(?:\s+style="color:#([^;]*);)?[^>]*>(?:[^<]+|<(?!td))*<td[^>]*>(?:<span class="distance">([^<]*))?<\/[^>]+>([\s\S]*?)<br \/>\s*<br \/><br \/>/gi;
-	var tapex = /footprints\/([^_.]+)_\d+\.png[^:]*:\s+([^"]*)"/gi;
+	var tapex = /footprints\/([^.]+)_\d+\.png[^:]*:\s+([^"]*)"/gi;
 
 	var item, i;
 
