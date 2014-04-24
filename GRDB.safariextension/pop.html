@@ -14,7 +14,7 @@ h1 {
 	padding:	0 0 0.25em 0;
 	margin:		0 0 0.25em 0;
 	text-shadow: #fff 0 1px 0;
-	border-bottom: thin dotted #666;
+	border-bottom: thin dotted #aaa;
 }
 
 h1[data-stat]:after {
@@ -38,7 +38,6 @@ ul {
 }
 
 li {
-	text-shadow: #fff 0 1px 0;
 	overflow:	hidden;
 }
 
@@ -62,9 +61,7 @@ li span[data-add]:before, li span[data-sub]:before {
 	font:		bold 12px/14px Helvetica, sans-serif;
 	text-align:	center;
 	color:		#fff;
-	text-shadow: rgba(0,0,0, 0.25) 0 1px 0;
 	border-radius: 1em 0 0 1em;
-	box-shadow:	rgba(0,0,0, 0.25) 0 1px 0 inset, #fff 0 1px 0;
 }
 
 li span[data-add]:before {
@@ -86,10 +83,8 @@ li span[data-count]:after {
 	text-align:	center;
 	color:		#fff;
 	background:	#9ab;
-	text-shadow: none;
 	content:	attr(data-count);
 	border-radius: 1em;
-	box-shadow:	rgba(0,0,0, 0.25) 0 1px 0 inset, #fff 0 1px 0;
 }
 
 li span[data-add][data-count]:after, li span[data-sub][data-count]:after {
