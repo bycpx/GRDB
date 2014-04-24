@@ -17,45 +17,29 @@ a {
 header {
 	margin:		0 0 1em 0;
 	min-height:		48px;
-	color:		#555;
-	background:	#bbb;
-	background-image: -webkit-linear-gradient(top, #ccc, #aaa);
-	background-image: -moz-linear-gradient(top, #ccc, #aaa);
-	text-shadow: #fff 0 1px 0;
-	border-top:	thin solid #eee;
-	border-bottom: thin solid #666;
+	color:		#666;
+	background:	#ddd;
+	border-bottom: thin solid #aaa;
 }
 
 header h1 {
 	float:		left;
 	position:	relative;
 	font-size:	1.5em;
+	font-weight: normal;
 	margin:		0 0 0 10px;
 	padding:	0 0 0 50px;
 	width:		80px;
 	height:		100%;
 	line-height: 48px;
 	background:	url(Icon-32.png) no-repeat left center;
-	border-right: thin solid #666;
+	border-right: thin solid #aaa;
 	cursor:		default;
-	color:		#fff;
-	text-shadow: rgba(0,0,0, 0.4) 0 1px 3px;
+	color:		#28d;
 }
 
 header h1:hover {
-	text-shadow: #26a 0 1px 5px;
-}
-
-header h1 .hi {
-	position:	relative;
-}
-
-header h1 .lo {
-	position:	absolute;
-	top:		1px;
-	left:		50px;
-	text-shadow: none;
-	color:		rgba(0,0,0, 0.12);
+	color:		#1af;
 }
 
 header h2 {
@@ -77,11 +61,8 @@ header h2 {
 	font-weight: bold;
 	text-align:	center;
 	border-radius: 24px;
-	background:	#88a;
-	background-image: -webkit-linear-gradient(top, #ddf, #88a);
-	background-image: -moz-linear-gradient(top, #ddf, #88a);
-	border:		1px solid #666;
-	box-shadow:	#fff 0 1px 0;
+	color:		#88a;
+	border:		1px solid #aad;
 }
 
 header nav {
@@ -93,7 +74,7 @@ header form {
 	margin:		0 0 0 0.5em;
 	padding:	0 1.5em;
 	line-height: 48px;
-	border-left: thin dotted #666;
+	border-left: thin dotted #aaa;
 }
 
 header nav a {
@@ -103,7 +84,7 @@ header nav a {
 	padding:	0 1.5em;
 	line-height: 48px;
 	font-weight: bold;
-	border-right: thin dotted #666;
+	border-right: thin dotted #aaa;
 	cursor:		pointer;
 }
 
@@ -113,35 +94,33 @@ header nav a:hover {
 
 header nav a.act, header form.act {
 	color:		#333;
-	background:	-webkit-linear-gradient(top, rgba(255,255,255, 0.75), rgba(255,255,255, 0));
-	background:	-moz-linear-gradient(top, rgba(255,255,255, 0.75), rgba(255,255,255, 0));
+	background:	#eee;
 }
 
 header span.badge {
 	display:	inline-block;
 	margin:		0 0 0 0.5em;
 	padding:	0 0.4em;
-	background:	#aaa;
-	background-image: -webkit-linear-gradient(top, #888, #aaa);
-	background-image: -moz-linear-gradient(top, #888, #aaa);
-	color:		#fff;
+	border:		thin solid #aaa;
+	background:	none;
+	color:		#888;
 	text-align:	center;
 	font-weight: bold;
 	line-height: 1.3em;
 	min-width:	1.25em;
 	border-radius: 1em;
-	text-shadow: rgba(0,0,0, 0.5) 0 1px 0;
-	box-shadow:	rgba(0,0,0, 0.5) 0 1px 2px inset, #fff 0 1px 0;
 }
 
 header span.diff {
-	margin:		0 1px 0 0.5em;
+	position:	relative;
+	margin:		0 -1px 0 0.5em;
 	padding:	0 0.2em 0 0.4em;
 	border-radius: 1em 0 0 1em;
 }
 
 header span.add {
-	background:	#8ad;
+	color:		#2ad;
+	border-color: #8ad;
 }
 
 header .add:before {
@@ -149,7 +128,8 @@ header .add:before {
 }
 
 header span.sub {
-	background:	#d9a;
+	color:		#d44;
+	border-color: #d88;
 }
 
 header .sub:before {
@@ -163,39 +143,32 @@ header span.diff + span.badge {
 }
 
 header a.act span.badge {
-	background:	#1af;
-	background-image: -webkit-linear-gradient(top, #26a, #1af);
-	background-image: -moz-linear-gradient(top, #26a, #1af);
+	color:		#fff;
+	border-color: #eee;
+	background:	#28d;
 }
 
 header a.act span.add {
 	background:	#1af;
+	border-color: #eee;
 }
 
 header a.act span.sub {
 	background:	#d44;
+	border-color: #eee;
 }
 
 aside {
 	float:		left;
 	position:	relative;
 	margin:		-1em 2em 0 0;
-	padding:	5px 8px 50px 12px;
-	width:		120px;
-	color:		#666;
+	padding:	0.25em 8px 0.25em 15px;
+	width:		117px;
+	color:		#888;
 	background:	#eee;
-	border-right: thin solid #666;
-}
-
-aside:after {
-	position:	absolute;
-	bottom:		0;
-	left:		0;
-	content:	"";
-	background:	-webkit-linear-gradient(top, rgba(255,255,255, 0), #fff);
-	background:	-moz-linear-gradient(top, rgba(255,255,255, 0), #fff);
-	height:		50px;
-	width:		141px;
+	border-right: thin solid #aaa;
+	border-bottom: thin solid #aaa;
+	border-bottom-right-radius: 0.5em;
 }
 
 aside nav a {
@@ -203,19 +176,18 @@ aside nav a {
 	font-weight: bold;
 	height:		24px;
 	line-height: 24px;
-	text-shadow: #fff 0 1px 0;
 	cursor:		pointer;
 }
 
 aside nav a:hover {
-	color:		#000;
+	color:		#8ad;
 }
 
 aside nav a.act {
-	color:		#000;
-	background:	url(c/act.png) top right no-repeat;
-	margin:		0 -15px 0 -12px;
-	padding:	0 15px 0 12px;
+	color:		#fff;
+	background:	#8ad;
+	margin:		0 -9px 0 -15px;
+	padding:	0 9px 0 15px;
 }
 
 aside span.badge {
@@ -227,18 +199,21 @@ aside span.badge {
 	height:		14px;
 	min-width:	1.5em;
 	text-align:	center;
-	color:		#fff;
-	text-shadow: rgba(0,0,0, 0.25) 0 1px 0;
-	background:	#888;
-	box-shadow: rgba(0,0,0, 0.25) 0 1px 0 inset, #fff 0 1px 0;
+	color:		#888;
+	border:		thin solid #aaa;
 	border-radius: 1em;
 }
 
+aside a.act span.badge {
+	background:	#fff;
+	color:		#8ad;
+	border-color: #8ad;
+}
+
 aside hr {
-	margin:		0.25em -4px 0.25em -8px;
+	margin:		0.25em -8px 0.25em 0;
 	height:		1px;
-	background:	#ccc;
-	box-shadow:	#fff 0 1px 0;
+	background:	#aaa;
 	border:		none;
 }
 
@@ -273,22 +248,19 @@ ul {
 	overflow:	hidden;
 	margin:		1em 2em;
 	width:		48em;
-	padding:	0.1em 0 0.25em;
-	border:		thin solid rgba(0,0,0, 0.25);
+	padding:	0.1em 0;
+	border:		thin solid #aaa;
 	border-radius: 0.25em;
-	box-shadow:	rgba(0,0,0, 0.25) 0 3px 6px;
 }
 
 ul a {
 	padding:	0 0.15em;
 	border-radius: 0.3em;
-	text-shadow: #fff 0 1px 0;
 }
 
 ul a:hover {
 	color:		#fff;
 	background-color:	#1af;
-	text-shadow: #158 0 1px 0;
 }
 
 ul li {
@@ -328,6 +300,7 @@ ul li {
 #mails li.sent,
 li.sent.drop {
 	background:	#d8d0dd;
+	border-top:	thin solid #eee;
 }
 
 #mails li.sent:nth-child(2n),
@@ -335,18 +308,26 @@ li.sent.drop {
 	background:	#e9e1ee;
 }
 
-#mails li.sent:first-child,
+#mails li:first-child,
+.double li:nth-child(1), .double li:nth-child(2),
+.triple li:nth-child(1), .triple li:nth-child(2), .triple li:nth-child(3) {
+	border-top: none;
+}
+
 #mails li.recv + li.sent,
 #mails li.recv + li.sent.mini + li.sent,
 #mails li.recv + li.sent.mini + li.sent + li.sent,
-.double li.sent.drop:nth-child(1), .double li.sent.drop:nth-child(2),
-.double li.recv + li + li.sent.drop {
-	box-shadow: rgba(0,0,0, 0.25) 0 1px 2px inset;
-}
+.double li.recv + li + li.sent.drop,
 
 #mails li.sent + li.recv,
 .double li.sent.drop + li + li.recv {
-	box-shadow: rgba(0,0,0, 0.25) 0 0 2px;
+	border-top: thin solid #aaa;
+}
+
+.double li.recv + li.sent.drop:nth-child(2n),
+.double li.sent.drop + li.recv:nth-child(2n) {
+	width:		20.95em;
+	border-left: thin solid #aaa;
 }
 
 #mails li.mini.sent {
@@ -393,7 +374,7 @@ a.pic {
 	float:		left;
 	margin:		0.2em 0 0 -2.8em;
 	padding:	0.1em;
-	background:	#888;
+	background:	none;
 }
 
 a.pic img {
@@ -406,23 +387,22 @@ a.pic img {
 #contacts a.pic {
 	margin:		0.25em 0 0 -2.5em;
 	padding:	0;
-	height:		1.25em;
-	width:		1.25em;
+	height:		1.4em;
+	width:		1.4em;
 	border-radius: 100%;
-	border:		thin solid #888;
 	background:	#fff;
 	overflow:	hidden;
 }
 
 #contacts li.online a.pic {
-	border-color: #26a;
-	box-shadow: #1af 0 0 3px;
+	border: thin solid #28d;
+	box-shadow: #28d 0 0 3px;
 }
 
 #contacts a.pic img {
-	width:		1.25em;
+	width:		1.4em;
 	height:		auto;
-	min-height: 1.25em;
+	min-height: 1.4em;
 }
 
 ul div.action {
@@ -488,7 +468,7 @@ ul h3 {
 	font-size:	1em;
 	font-weight: normal;
 	margin:		0 0.5em;
-	color:		#26a;
+	color:		#28d;
 }
 
 h2 a[data-online] {
@@ -509,7 +489,6 @@ h2 a[data-online="2"] {
 h2 a[data-online="-2"] {
 	background-image: url(i/st_del.png);
 	text-decoration: line-through;
-	text-shadow: none;
 }
 
 h2 a[data-online]:hover {
@@ -571,7 +550,7 @@ ul p {
 }
 
 li.new, li.fav {
-	color:		#26a;
+	color:		#28d;
 }
 
 li.drop {
