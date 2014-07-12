@@ -594,7 +594,7 @@ function handleMailClick(event)
 	var msg = this.getAttribute("data-msg");
 	var newmail = mailHandler["new"];
 	var uid = mailMap[msg];
-	var uindex = newmail[uid] || [];
+	var uindex = newmail[uid] || [];
 	var i;
 	for(i=0; i < uindex.length; i++) {
 		if(uindex[i][3]==msg) {
@@ -625,14 +625,14 @@ function handleProfileClick(event)
 
 function storeVisit(id, name, tapID, tap)
 {
-	list = JSON.parse(localStorage.getItem(VISITS)) || [];
+	list = JSON.parse(localStorage.getItem(VISITS)) || [];
 	list.push([id, name, tapID, tap]);
 	localStorage.setItem(VISITS, JSON.stringify(list));
 }
 
 function unstoreVisit(id)
 {
-	list = JSON.parse(localStorage.getItem(VISITS)) || [];
+	list = JSON.parse(localStorage.getItem(VISITS)) || [];
 	for(var i=0; i<list.length; i++) {
 		if(list[i][0]==id) {
 			list.splice(i,1);
@@ -945,7 +945,7 @@ function combineMails(handler, html, regex, type)
 		while(i<dl && !(n && d[i].timestamp<n.timestamp) && !(u && d[i].timestamp<u.timestamp)) {
 			if(d[i].sent) {
 				appendMailRow(d[i][1], d[i][2], null, d[i][3], d[i][4], d[i].timestamp, d[i][5]=="i", false, false, true, true);
-			} else {
+			} else {
 				appendMailRow(d[i][1], d[i][2], d[i][3], d[i][4], d[i][5], d[i].timestamp, d[i][6]=="i", false, false, false, true);
 			}
 			i++;
@@ -1005,7 +1005,7 @@ function combineContacts(handler, html, isFav)
 
 	var id;
 	var list = handler["list"];
-	var mail = mailHandler["index"] || {};
+	var mail = mailHandler["index"] || {};
 	var newmail = mailHandler["new"] || {};
 	var fav = 0;
 	i = 0;
@@ -1076,7 +1076,7 @@ function combineVisits(handler, html, isGiven)
 	setVisitorCount(r.length);
 	setBadge(visitorbutton[3], g.length);
 
-	var s = JSON.parse(localStorage.getItem(VISITS)) || [];
+	var s = JSON.parse(localStorage.getItem(VISITS)) || [];
 	for(i=0; i<s.length; i++) {
 		if(item = index[s[i][0]]) {
 			s[i][1] = item[3];
@@ -1102,7 +1102,7 @@ function combineVisits(handler, html, isGiven)
 	}
 
 	i = 0; var j = 0; var k = 0; var neu = 0; var ign = 0;
-	var mail = mailHandler["index"] || {};
+	var mail = mailHandler["index"] || {};
 	var newmail = mailHandler["new"] || {};
 	var id;
 	while(i<rl || j<gl) {
@@ -1182,7 +1182,7 @@ function combineSearch(handler, html, flag)
 
 	var id;
 	var list = handler["list"];
-	var mail = mailHandler["index"] || {};
+	var mail = mailHandler["index"] || {};
 	var newmail = mailHandler["new"] || {};
 	var rl = r.length;
 	setBadge(searchbutton[1], rl);
