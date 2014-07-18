@@ -964,7 +964,7 @@ function combineContacts(handler, html, isFav)
 	setFetchTime();
 	if(html) {
 		html = html.replace(/<wbr>/g, "");
-		html = html.replace(/<br \/>[\r\n]+/g, "\n");
+		html = html.replace(/<br\/>[\r\n]+/g, "\n");
 	}
 	var regex = /(?:\/usr\/([^\.]*)\.[^>]*><\/a><\/td>)?<td class="profileMemoColumn"[^?]*\?set=(\d+)[^>]*>([^<]*)<\/a><br\/>([^<]*)<\/td>.*?<\/td><td class="onlineStatus"><[^"]*"([^"]*)">([^<]*)<\/span>/gi;
 
