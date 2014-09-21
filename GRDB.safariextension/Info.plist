@@ -13,9 +13,9 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.7.2</string>
+	<string>2.7.3</string>
 	<key>CFBundleVersion</key>
-	<string>64</string>
+	<string>65</string>
 	<key>Chrome</key>
 	<dict>
 		<key>Global Page</key>
@@ -83,6 +83,6 @@
 		</dict>
 	</dict>
 	<key>Update Manifest URL</key>
-	<string>http://uselessness.de/safari/versions.plist</string>
+	<string>http://uselessness.de/grdb/versions.plist</string>
 </dict>
 </plist>
