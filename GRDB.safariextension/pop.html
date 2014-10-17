@@ -4,8 +4,8 @@
 <head>
 <style>
 body {
-	margin:		4px 8px;
-	font:		14px/20px 'Lucida Grande', sans-serif;
+	margin:		0.5em 1em;
+	font:		14px/20px 'Helvetica Neue', sans-serif;
 	width:		134px;
 }
 
@@ -13,18 +13,20 @@ h1 {
 	font-size:	1em;
 	padding:	0 0 0.25em 0;
 	margin:		0 0 0.25em 0;
-	text-shadow: #fff 0 1px 0;
-	border-bottom: thin dotted #aaa;
+	border-bottom: thin solid rgba(0,0,0, 0.1);
 }
 
 h1[data-stat]:after {
 	float:		right;
-	margin:		3px 0 0;
-	font:		bold 12px/14px Helvetica, sans-serif;
+	margin:		0;
 	width:		1em;
 	padding:	0 0.5em;
-	color:		#888;
+	color:		#aaa;
 	text-align:	center;
+}
+
+h1[data-stat="0"] {
+	color:		#1af;
 }
 
 h1[data-stat="0"]:after {
@@ -45,10 +47,6 @@ li[onclick], h1[onclick] {
 	cursor:		default;
 }
 
-li[onclick]:hover, h1[onclick]:hover {
-	color:		#448;
-}
-
 li span {
 	float:		right;
 }
@@ -58,19 +56,20 @@ li span[data-add]:before, li span[data-sub]:before {
 	min-width:	0.8em;
 	margin:		2px 1px 0 0;
 	padding:	0.1em 0.35em 0.1em 0.5em;
-	font:		bold 12px/14px Helvetica, sans-serif;
+	font-size:	12px;
+	line-height: 14px;
 	text-align:	center;
 	color:		#fff;
 	border-radius: 1em 0 0 1em;
 }
 
 li span[data-add]:before {
-	background:	#8ae;
+	background:	#1af;
 	content:	"+" attr(data-add);
 }
 
 li span[data-sub]:before {
-	background:	#ea8;
+	background:	#d44;
 	content:	"−" attr(data-sub);
 }
 
@@ -79,10 +78,11 @@ li span[data-count]:after {
 	min-width:	1em;
 	margin:		2px 0 0;
 	padding:	0.1em 0.5em;
-	font:		bold 12px/14px Helvetica, sans-serif;
+	font-size:	12px;
+	line-height: 14px;
 	text-align:	center;
 	color:		#fff;
-	background:	#9ab;
+	background:	rgba(0,0,0, 0.3);
 	content:	attr(data-count);
 	border-radius: 1em;
 }
@@ -93,23 +93,11 @@ li span[data-add][data-count]:after, li span[data-sub][data-count]:after {
 	border-radius: 0 1em 1em 0;
 }
 
-li:hover span[data-add]:before {
-	background:	#68d;
-}
-
-li:hover span[data-sub]:before {
-	background:	#d86;
-}
-
-li:hover span:after {
-	background:	#88a;
-}
-
 ul.off li {
-	color:		#888 !important;
+	color:		#aaa !important;
 }
 ul.off li span:before, ul.off li span:after {
-	background:	#aaa !important;
+	background:	rgba(0,0,0, 0.1) !important;
 }
 </style>
 <script>

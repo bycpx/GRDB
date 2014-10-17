@@ -372,9 +372,8 @@ li.sent.drop {
 
 a.pic {
 	float:		left;
-	margin:		0.2em 0 0 -2.8em;
-	padding:	0.1em;
-	background:	none;
+	margin:		0.3em 0 0 -2.7em;
+	padding:	0;
 }
 
 a.pic img {
@@ -384,25 +383,28 @@ a.pic img {
 	border-radius: 0.25em;
 }
 
+a.pic:hover img {
+	opacity:	0.6 !important;
+}
+
 #contacts a.pic {
 	margin:		0.2em 0 0 -2.5em;
 	padding:	0;
 	height:		1.4em;
 	width:		1.4em;
 	border-radius: 100%;
-	background:	#fff;
 	overflow:	hidden;
-}
-
-#contacts li.online a.pic {
-	border: thin solid #28d;
-	box-shadow: #28d 0 0 3px;
 }
 
 #contacts a.pic img {
 	width:		1.4em;
 	height:		auto;
 	min-height: 1.4em;
+	opacity:	0.4;
+}
+
+#contacts li.online a.pic img {
+	opacity:	1;
 }
 
 ul div.action {

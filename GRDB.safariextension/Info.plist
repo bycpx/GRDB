@@ -13,9 +13,9 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.7.3</string>
+	<string>2.7.4</string>
 	<key>CFBundleVersion</key>
-	<string>65</string>
+	<string>66</string>
 	<key>Chrome</key>
 	<dict>
 		<key>Global Page</key>
@@ -26,11 +26,11 @@
 				<key>Filename</key>
 				<string>pop.html</string>
 				<key>Height</key>
-				<real>95</real>
+				<real>105</real>
 				<key>Identifier</key>
 				<string>GRDBPopover</string>
 				<key>Width</key>
-				<real>150</real>
+				<real>165</real>
 			</dict>
 		</array>
 		<key>Toolbar Items</key>
